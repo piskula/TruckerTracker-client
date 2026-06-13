@@ -16,9 +16,16 @@ Use case package and class names must not use plural nouns — use descriptive a
 
 Each use case lives in its own package under `.service.<useCaseName>/` with two files:
 - `<UseCaseName>UseCase.kt` — interface
-- `<UseCaseName>.kt` — `@Service class` implementing the interface, with `@IsUser`/`@IsAdmin` and `@Transactional` on the override method
+- `<UseCaseName>.kt` — `@Service class` implementing the interface, with a security annotation and `@Transactional` on the override method
 
 The single method on the interface must not be named `execute`. Name it after the action: `get`, `create`, `start`, `resolve`, `delete`, etc.
+
+**Every use case override method must have exactly one of:**
+- `@IsDriver` — `hasRole('DRIVER')` — drivers only
+- `@IsMechanic` — `hasRole('MECHANIC')` — mechanics only
+- `@IsUser` — `hasAnyRole('DRIVER', 'MECHANIC')` — any authenticated user with a known role
+
+This is a hard rule — no use case method may be left without a security annotation. `@IsUser` is the default for operations accessible to all roles. Annotation goes above `@Transactional`.
 
 ## Entity & Persistence Patterns
 
@@ -41,11 +48,13 @@ The single method on the interface must not be named `execute`. Name it after th
 **Model class:**
 - `data class` in `model/` package. `id = 0L` or `UUID(0,0)` signals a new (unsaved) record.
 - Timestamps use `OffsetDateTime` — no `Utc` suffix (e.g. `createdAt: OffsetDateTime`).
-- Mapper converts: entity → model via `.atOffset(ZoneOffset.UTC)`; model → entity via `.toLocalDateTime()`.
+- Mapper converts: entity → model via `.toUtcOffsetDateTime()`; model → entity via `.toUtcLocalDateTime()`. Both are extension functions in `util/TimeExtensions.kt`. Never use raw `.atOffset(ZoneOffset.UTC)` or `.toLocalDateTime()` — the latter strips the offset without converting the instant.
 
 **Package layout per domain:**
 ```
 <domain>/
+  controller/
+    <Name>Controller.kt               ← @RestController; implements module-api interface; injects use cases only
   entity/
     <Name>Entity.kt
   model/
@@ -62,6 +71,8 @@ The single method on the interface must not be named `execute`. Name it after th
     mapper/
       <Name>EntityMapper.kt           ← extension fns: fun Entity.toModel() = Model(...)
 ```
+
+Controllers live inside their domain package (`<domain>/controller/`). There is no shared top-level `controller/` package.
 
 **Filter data classes:**
 - When a persistence `findPage` (or similar) has multiple optional filter params, wrap them in a `data class <Domain>ListFilter(...)` with nullable fields defaulting to `null`.
@@ -82,3 +93,66 @@ The single method on the interface must not be named `execute`. Name it after th
 - File-level extension functions only — no mapper class.
 - `fun EntityClass.toModel() = ModelClass(...)` for entity → model.
 - `fun ModelToCreate.asNewEntity(resolver: (id) -> RelatedEntity) = Entity(...)` for model → entity when FK resolution is needed.
+
+## Shared Utilities (`util/`)
+
+**`util/TimeExtensions.kt`** — timezone-safe conversion helpers. Always use these; never raw `.toLocalDateTime()` or `.atOffset(ZoneOffset.UTC)`:
+- `OffsetDateTime.toUtcLocalDateTime()` — converts to UTC then strips offset (entity storage)
+- `LocalDateTime.toUtcOffsetDateTime()` — attaches UTC offset (model hydration)
+
+**`util/PaginationExtensions.kt`** — shared pagination helpers used by all controllers:
+```kotlin
+inline fun <T : Any, U> Page<T>.toDto(transform: (T) -> U): PageDTO<U>
+
+fun PageableDTO.toModel(): Pageable   // converts API DTO → Spring Pageable
+
+fun String?.toSortModel(): Sort       // parses "property,direction;property2,direction2"
+                                      // multiple columns separated by ";"
+```
+Controllers import `toDto` and `toModel` from this file — do not re-implement them locally.
+
+## Controller Conventions
+
+- Controllers map between module-api DTO enums and server-side enums via `.name` / `valueOf`:
+  - DTO → server: `ServerEnum.valueOf(dto.name)`
+  - server → DTO: `EnumDTO.valueOf(serverEnum.name)`
+- Private mapping functions (`toDTO()`, `toModel()`) are file-level extension functions at the bottom of the controller file.
+- Use `pageable.toModel()` (from `util/PaginationExtensions.kt`) to convert `PageableDTO` to Spring `Pageable`.
+- Use `.toDto { it.toDTO() }` (from `util/PaginationExtensions.kt`) to map `Page<Model>` to `PageDTO<DTO>`.
+
+## Jackson 3.x / Spring Boot 4.x — Kotlin Data Class Deserialization
+
+Spring Boot 4.x uses Jackson 3.x (`tools.jackson.databind.ObjectMapper`). The `jackson-module-kotlin` artifact on the classpath is version 2.x and is **incompatible** with Jackson 3.x — it silently does nothing.
+
+Two config items are required for Kotlin data class deserialization to work:
+
+1. **`-java-parameters` compiler flag** (in root `build.gradle.kts`):
+   ```kotlin
+   compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict", "-java-parameters") }
+   ```
+   This preserves constructor parameter names in standard Java bytecode so Jackson 3.x can read them.
+
+2. **`spring.jackson.constructor-detector: use-properties-based`** (in `application.yml`):
+   Tells Jackson 3.x to match JSON fields to constructor parameters by name instead of requiring `@JsonCreator`.
+
+Without both, `@RequestBody` deserialization of Kotlin data classes fails at runtime with `InvalidDefinitionException: no Creators`.
+
+## UUID Primary Keys — Never Use `@GeneratedValue(GenerationType.UUID)` with Caller-Provided UUIDs
+
+Hibernate 7.x fails with "Row was already updated or deleted by another transaction" when:
+- An entity has `@GeneratedValue(strategy = GenerationType.UUID)`
+- But the caller pre-assigns a UUID (e.g. `UUID.randomUUID()`) before calling `repository.save()`
+
+Spring Data JPA sees a non-null UUID and calls `merge()` instead of `persist()`. Hibernate 7.x's merge path for a `@GeneratedValue` entity with a caller-provided UUID hits a conflict.
+
+**Rule:** If the UUID is assigned by the caller (e.g. `UUID.randomUUID()` in a use case), declare the entity `@Id val id: UUID` with **no** `@GeneratedValue`. This tells Hibernate the caller owns the ID, and `merge()` correctly inserts a new row when no row exists.
+
+## MinIO File Storage
+
+`MinioFileStorageService.upload()` checks for bucket existence before uploading and creates it if missing:
+```kotlin
+if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
+    minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build())
+}
+```
+Download and delete do not check — a missing bucket/object should surface as a MinIO exception.

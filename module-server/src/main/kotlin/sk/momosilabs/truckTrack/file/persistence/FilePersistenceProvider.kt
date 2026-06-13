@@ -8,6 +8,7 @@ import sk.momosilabs.truckTrack.file.model.FileModel
 import sk.momosilabs.truckTrack.file.persistence.mapper.toModel
 import sk.momosilabs.truckTrack.file.persistence.repository.FileRepository
 import sk.momosilabs.truckTrack.file.service.FilePersistence
+import sk.momosilabs.truckTrack.util.toUtcLocalDateTime
 
 @Repository
 class FilePersistenceProvider(
@@ -25,7 +26,7 @@ class FilePersistenceProvider(
             contentType = model.contentType,
             sizeBytes = model.sizeBytes,
             uploadedBy = accountRepository.getReferenceById(model.uploadedBy.id),
-            uploadedAtUtc = model.uploadedAt.toLocalDateTime(),
+            uploadedAtUtc = model.uploadedAt.toUtcLocalDateTime(),
         )
         return fileRepository.save(entityToSave).toModel()
     }

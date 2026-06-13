@@ -1,6 +1,8 @@
 package sk.momosilabs.truckTrack.file.storage
 
+import io.minio.BucketExistsArgs
 import io.minio.GetObjectArgs
+import io.minio.MakeBucketArgs
 import io.minio.MinioClient
 import io.minio.PutObjectArgs
 import io.minio.RemoveObjectArgs
@@ -14,6 +16,9 @@ class MinioFileStorageService(
 ) : FileStorageService {
 
     override fun upload(inputStream: InputStream, bucket: String, key: String, contentType: String, sizeBytes: Long) {
+        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build())
+        }
         minioClient.putObject(
             PutObjectArgs.builder()
                 .bucket(bucket)

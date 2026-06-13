@@ -13,7 +13,7 @@ spring-boot-starter-oauth2-resource-server = { module = "org.springframework.boo
 spring-boot-starter-test                 = { module = "org.springframework.boot:spring-boot-starter-test" }
 jackson-module-kotlin        = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 postgresql                   = { module = "org.postgresql:postgresql" }
-liquibase-core               = { module = "org.liquibase:liquibase-core" }
+spring-boot-starter-liquibase = { module = "org.springframework.boot:spring-boot-starter-liquibase" }
 minio                        = { module = "io.minio:minio", version.ref = "minio" }
 springdoc-openapi-webmvc-api = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api", version.ref = "springdocOpenapi" }
 springdoc-openapi-webmvc-ui  = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui",  version.ref = "springdocOpenapi" }

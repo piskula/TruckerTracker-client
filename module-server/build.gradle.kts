@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.springdoc.openapi.webmvc.ui)  // Swagger UI + API docs
     implementation(libs.jackson.module.kotlin)         // Kotlin data class serialization
 
-    implementation(libs.liquibase.core)
+    implementation(libs.spring.boot.starter.liquibase)
     implementation(libs.minio)
 
     runtimeOnly(libs.postgresql)

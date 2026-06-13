@@ -1,0 +1,35 @@
+package sk.momosilabs.truckTrack.issueManagement.service.addComment
+
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import sk.momosilabs.truckTrack.issueManagement.entity.IssueHistoryEventType
+import sk.momosilabs.truckTrack.issueManagement.model.IssueHistoryModel
+import sk.momosilabs.truckTrack.issueManagement.service.IssuePersistence
+import sk.momosilabs.truckTrack.security.CurrentUserService
+import sk.momosilabs.truckTrack.security.annotation.IsUser
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.UUID
+
+@Service
+class AddComment(
+    private val issuePersistence: IssuePersistence,
+    private val currentUserService: CurrentUserService,
+) : AddCommentUseCase {
+
+    @IsUser
+    @Transactional
+    override fun addComment(command: AddCommentCommand): IssueHistoryModel =
+        issuePersistence.saveHistory(
+            IssueHistoryModel(
+                id = UUID.randomUUID(),
+                issueId = command.issueId,
+                type = IssueHistoryEventType.COMMENT,
+                performedBy = currentUserService.currentUser(),
+                createdAt = OffsetDateTime.now(ZoneOffset.UTC),
+                statusFrom = null,
+                statusTo = null,
+                commentText = command.text,
+            )
+        )
+}

@@ -18,7 +18,14 @@ class SecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .authorizeHttpRequests { it.anyRequest().authenticated() }
+            .authorizeHttpRequests {
+                it.requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                ).permitAll()
+                it.anyRequest().authenticated()
+            }
             .oauth2ResourceServer { it.jwt {} }
         return http.build()
     }

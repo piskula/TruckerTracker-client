@@ -26,7 +26,7 @@ subprojects {
     configure<KotlinJvmProjectExtension> {
         jvmToolchain(21)
         compilerOptions {
-            freeCompilerArgs.add("-Xjsr305=strict")
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-java-parameters")
         }
     }
 
