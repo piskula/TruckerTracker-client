@@ -39,7 +39,7 @@ interface IssueManagementApi {
     fun getIssue(@PathVariable id: Long): IssueDTO
 
     @Operation(summary = "Create issue")
-    @PostMapping(ENDPOINT, consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(ENDPOINT)
     fun createIssue(@RequestBody request: IssueCreateDTO): IssueDTO
 
     @Operation(summary = "Start issue")

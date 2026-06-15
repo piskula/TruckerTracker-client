@@ -1,5 +1,6 @@
 package sk.momosilabs.truckTrack.file.persistence.mapper
 
+import org.springframework.http.MediaType
 import sk.momosilabs.truckTrack.account.persistence.mapper.toModel
 import sk.momosilabs.truckTrack.file.entity.FileEntity
 import sk.momosilabs.truckTrack.file.model.FileModel
@@ -11,7 +12,7 @@ fun FileEntity.toModel() = FileModel(
     bucket = bucket,
     storageLocation = storageLocation,
     filename = filename,
-    contentType = contentType,
+    contentType = MediaType.parseMediaType(contentType),
     sizeBytes = sizeBytes,
     uploadedBy = uploadedBy.toModel(),
     uploadedAt = uploadedAtUtc.toUtcOffsetDateTime(),

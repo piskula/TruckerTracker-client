@@ -8,5 +8,5 @@ import sk.momosilabs.truckTrack.issueAttachment.model.IssueAttachmentModel
 interface IssueAttachmentPersistence {
     fun findPage(issueId: Long, pageable: Pageable): Page<IssueAttachmentModel>
     fun findFileById(attachmentId: Long): FileModel
-    fun create(issueId: Long, file: FileModel): IssueAttachmentModel
+    fun linkFileToIssue(issueId: Long, fileId: Long): IssueAttachmentModel
 }

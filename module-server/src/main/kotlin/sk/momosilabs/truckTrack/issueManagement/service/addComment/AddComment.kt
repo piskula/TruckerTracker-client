@@ -19,17 +19,17 @@ class AddComment(
 
     @IsUser
     @Transactional
-    override fun addComment(command: AddCommentCommand): IssueHistoryModel =
+    override fun addComment(issueId: Long, comment: String): IssueHistoryModel =
         issuePersistence.saveHistory(
             IssueHistoryModel(
                 id = UUID.randomUUID(),
-                issueId = command.issueId,
+                issueId = issueId,
                 type = IssueHistoryEventType.COMMENT,
                 performedBy = currentUserService.currentUser(),
-                createdAt = OffsetDateTime.now(ZoneOffset.UTC),
+                createdAt = OffsetDateTime.now(),
                 statusFrom = null,
                 statusTo = null,
-                commentText = command.text,
+                commentText = comment,
             )
         )
 }

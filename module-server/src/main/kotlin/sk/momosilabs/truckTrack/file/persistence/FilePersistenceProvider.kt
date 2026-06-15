@@ -23,7 +23,7 @@ class FilePersistenceProvider(
             bucket = model.bucket,
             storageLocation = model.storageLocation,
             filename = model.filename,
-            contentType = model.contentType,
+            contentType = model.contentType.toString(),
             sizeBytes = model.sizeBytes,
             uploadedBy = accountRepository.getReferenceById(model.uploadedBy.id),
             uploadedAtUtc = model.uploadedAt.toUtcLocalDateTime(),

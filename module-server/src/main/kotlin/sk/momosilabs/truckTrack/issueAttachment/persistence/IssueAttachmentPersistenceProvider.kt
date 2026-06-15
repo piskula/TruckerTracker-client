@@ -33,11 +33,12 @@ class IssueAttachmentPersistenceProvider(
     }
 
     @Transactional
-    override fun create(issueId: Long, file: FileModel): IssueAttachmentModel {
-        val entityToSave = IssueAttachmentEntity(
-            issue = issueRepository.getReferenceById(issueId),
-            file = fileRepository.getReferenceById(file.id),
-        )
-        return issueAttachmentRepository.save(entityToSave).toModel()
+    override fun linkFileToIssue(issueId: Long, fileId: Long): IssueAttachmentModel {
+        return issueAttachmentRepository.save(
+            IssueAttachmentEntity(
+                issue = issueRepository.getReferenceById(issueId),
+                file = fileRepository.getReferenceById(fileId),
+            )
+        ).toModel()
     }
 }

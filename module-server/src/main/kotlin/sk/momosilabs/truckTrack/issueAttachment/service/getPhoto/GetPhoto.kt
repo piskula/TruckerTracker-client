@@ -1,6 +1,5 @@
 package sk.momosilabs.truckTrack.issueAttachment.service.getPhoto
 
-import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import sk.momosilabs.truckTrack.file.model.TruckTrackFile
@@ -22,7 +21,7 @@ class GetPhoto(
         return TruckTrackFile(
             filename = file.filename,
             content = content,
-            contentType = MediaType.parseMediaType(file.contentType),
+            contentType = file.contentType,
         )
     }
 }

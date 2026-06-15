@@ -3,15 +3,14 @@ package sk.momosilabs.truckTrack.issueAttachment.service.uploadPhoto
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import sk.momosilabs.truckTrack.file.model.FileModel
+import sk.momosilabs.truckTrack.file.model.TruckTrackFile
 import sk.momosilabs.truckTrack.file.service.FilePersistence
 import sk.momosilabs.truckTrack.file.service.FileStorageService
 import sk.momosilabs.truckTrack.issueAttachment.model.IssueAttachmentModel
 import sk.momosilabs.truckTrack.issueAttachment.service.IssueAttachmentPersistence
 import sk.momosilabs.truckTrack.security.CurrentUserService
 import sk.momosilabs.truckTrack.security.annotation.IsUser
-import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 
 @Service
@@ -22,35 +21,40 @@ class UploadPhoto(
     private val currentUserService: CurrentUserService,
 ) : UploadPhotoUseCase {
 
+    companion object {
+        private const val BUCKET = "issues"
+    }
+
     @IsUser
     @Transactional
-    override fun upload(command: UploadPhotoCommand): IssueAttachmentModel {
+    override fun upload(issueId: Long, file: TruckTrackFile): IssueAttachmentModel {
         val currentUser = currentUserService.currentUser()
         val uuid = UUID.randomUUID()
-        val bucket = "issue-photos"
+        val storageLocation = getStorageLocation(issueId, uuid, file.filename)
 
-        fileStorageService.upload(
-            inputStream = ByteArrayInputStream(command.file.content),
-            bucket = bucket,
-            key = uuid.toString(),
-            contentType = command.file.contentType.toString(),
-            sizeBytes = command.file.content.size.toLong(),
+        fileStorageService.upload(file = file, bucket = BUCKET, key = storageLocation)
+
+        val fileMeta = FileModel(
+            id = 0L,
+            uuid = uuid,
+            bucket = BUCKET,
+            storageLocation = storageLocation,
+            filename = file.filename,
+            contentType = file.contentType,
+            sizeBytes = file.content.size.toLong(),
+            uploadedBy = currentUser,
+            uploadedAt = OffsetDateTime.now(),
         )
 
-        val savedFile = filePersistence.create(
-            FileModel(
-                id = 0L,
-                uuid = uuid,
-                bucket = bucket,
-                storageLocation = uuid.toString(),
-                filename = command.file.filename,
-                contentType = command.file.contentType.toString(),
-                sizeBytes = command.file.content.size.toLong(),
-                uploadedBy = currentUser,
-                uploadedAt = OffsetDateTime.now(ZoneOffset.UTC),
-            )
-        )
+        val savedFile = filePersistence.create(fileMeta)
 
-        return issueAttachmentPersistence.create(command.issueId, savedFile)
+        return issueAttachmentPersistence.linkFileToIssue(issueId = issueId, fileId = savedFile.id)
     }
+
+    private fun getStorageLocation(issueId: Long, uuid: UUID, filename: String): String {
+        val extension = filename.substringAfterLast('.', "")
+        val storedName = if (extension.isNotEmpty()) "$uuid.$extension" else "$uuid"
+        return "issue/$issueId/$storedName"
+    }
+
 }
