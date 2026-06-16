@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 import sk.momosilabs.truckTrack.issueManagement.model.IssueModel
 import sk.momosilabs.truckTrack.issueManagement.service.IssuePersistence
 import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter
+import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter.Companion.emptyFilter
 import sk.momosilabs.truckTrack.security.annotation.IsUser
 
 @Service
@@ -16,6 +17,6 @@ class GetIssueList(
 
     @IsUser
     @Transactional(readOnly = true)
-    override fun get(filter: IssueListFilter, pageable: Pageable): Page<IssueModel> =
-        issuePersistence.findPage(filter, pageable)
+    override fun get(filter: IssueListFilter?, pageable: Pageable): Page<IssueModel> =
+        issuePersistence.findPage(filter ?: emptyFilter, pageable)
 }

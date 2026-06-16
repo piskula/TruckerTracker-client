@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import sk.momosilabs.truckTrack.account.entity.AccountEntity
 import sk.momosilabs.truckTrack.account.persistence.repository.AccountRepository
 import sk.momosilabs.truckTrack.config.GlobalNotFoundException
 import sk.momosilabs.truckTrack.issueManagement.entity.IssueEntity
@@ -19,7 +20,9 @@ import sk.momosilabs.truckTrack.issueManagement.persistence.repository.IssueRepo
 import sk.momosilabs.truckTrack.issueManagement.service.IssuePersistence
 import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter
 import sk.momosilabs.truckTrack.util.toUtcLocalDateTime
+import sk.momosilabs.truckTrack.vehicle.entity.VehicleEntity
 import sk.momosilabs.truckTrack.vehicle.persistence.repository.VehicleRepository
+import java.util.UUID
 
 @Repository
 class IssuePersistenceProvider(
@@ -32,21 +35,24 @@ class IssuePersistenceProvider(
     @Transactional(readOnly = true)
     override fun findPage(filter: IssueListFilter, pageable: Pageable): Page<IssueModel> {
         var spec = Specification<IssueEntity> { _, _, cb -> cb.conjunction() }
-        if (filter.status != null)
-            spec = spec.and { root, _, cb -> cb.equal(root.get<Any>("status"), filter.status) }
-        if (filter.priority != null)
-            spec = spec.and { root, _, cb -> cb.equal(root.get<Any>("priority"), filter.priority) }
-        if (filter.vehicleId != null)
-            spec = spec.and { root, _, cb -> cb.equal(root.get<Any>("vehicle").get<Long>("id"), filter.vehicleId) }
-        if (filter.search != null) {
-            val pattern = "%${filter.search.lowercase()}%"
+        if (filter.statuses.isNotEmpty())
+            spec = spec.and { root, _, _ ->
+                root.get<IssueStatus>("status").`in`(filter.statuses)
+            }
+        if (filter.vehicleIds.isNotEmpty())
+            spec = spec.and { root, _, _ ->
+                root.get<VehicleEntity>("vehicle").get<Long>("id").`in`(filter.vehicleIds)
+            }
+        if (filter.accountIds.isNotEmpty())
             spec = spec.and { root, _, cb ->
-                cb.or(
-                    cb.like(cb.lower(root.get("title")), pattern),
-                    cb.like(cb.lower(root.get("description")), pattern),
+                val reportedBy = root.get<AccountEntity>("reportedBy").get<UUID>("id")
+                val assignedTo = root.get<AccountEntity>("assignedTo").get<UUID>("id")
+
+                return@and cb.or(
+                    reportedBy.`in`(filter.accountIds),
+                    assignedTo.`in`(filter.accountIds)
                 )
             }
-        }
         return issueRepository.findAll(spec, pageable).map { it.toModel() }
     }
 

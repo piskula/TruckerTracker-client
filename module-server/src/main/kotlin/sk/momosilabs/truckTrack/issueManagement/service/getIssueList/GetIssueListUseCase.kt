@@ -7,5 +7,5 @@ import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter
 
 interface GetIssueListUseCase {
 
-    fun get(filter: IssueListFilter, pageable: Pageable): Page<IssueModel>
+    fun get(filter: IssueListFilter?, pageable: Pageable): Page<IssueModel>
 }

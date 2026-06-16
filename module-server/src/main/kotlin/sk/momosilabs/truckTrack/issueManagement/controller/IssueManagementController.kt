@@ -6,10 +6,8 @@ import sk.momosilabs.truckTrack.api.common.PageableDTO
 import sk.momosilabs.truckTrack.api.issue.IssueManagementApi
 import sk.momosilabs.truckTrack.api.issue.dto.IssueCreateDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueDTO
+import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssuePriorityDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueStatusDTO
-import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter
 import sk.momosilabs.truckTrack.issueManagement.service.addComment.AddCommentUseCase
 import sk.momosilabs.truckTrack.issueManagement.service.createIssue.CreateIssueCommand
 import sk.momosilabs.truckTrack.issueManagement.service.createIssue.CreateIssueUseCase
@@ -33,21 +31,11 @@ class IssueManagementController(
 ) : IssueManagementApi {
 
     override fun getIssueList(
-        status: IssueStatusDTO?,
-        priority: IssuePriorityDTO?,
-        vehicleId: Long?,
-        search: String?,
-        pageable: PageableDTO,
+        filter: IssueFilterDTO?,
+        pageable: PageableDTO
     ): PageDTO<IssueDTO> =
-        getIssueList.get(
-            filter = IssueListFilter(
-                status = status?.toModel(),
-                priority = priority?.toModel(),
-                vehicleId = vehicleId,
-                search = search,
-            ),
-            pageable = pageable.toModel(),
-        ).toDto { it.toDTO() }
+        getIssueList.get(filter?.toModel(), pageable.toModel())
+            .toDto { it.toDTO() }
 
     override fun getIssue(id: Long): IssueDTO =
         getIssue.get(id).toDTO()

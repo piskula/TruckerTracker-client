@@ -1,11 +1,18 @@
 package sk.momosilabs.truckTrack.issueManagement.service
 
-import sk.momosilabs.truckTrack.issueManagement.entity.IssuePriority
 import sk.momosilabs.truckTrack.issueManagement.entity.IssueStatus
+import java.util.UUID
 
 data class IssueListFilter(
-    val status: IssueStatus? = null,
-    val priority: IssuePriority? = null,
-    val search: String? = null,
-    val vehicleId: Long? = null,
-)
+    val statuses: List<IssueStatus>,
+    val vehicleIds: List<Long>,
+    val accountIds: List<UUID>,
+) {
+    companion object {
+        val emptyFilter = IssueListFilter(
+            statuses = emptyList(),
+            vehicleIds = emptyList(),
+            accountIds = emptyList(),
+        )
+    }
+}

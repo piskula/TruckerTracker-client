@@ -3,19 +3,16 @@ package sk.momosilabs.truckTrack.api.issue
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
-import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
 import sk.momosilabs.truckTrack.api.common.PageDTO
 import sk.momosilabs.truckTrack.api.common.PageableDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueCreateDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueDTO
+import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssuePriorityDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueStatusDTO
 
 @Tag(name = "Issues")
 interface IssueManagementApi {
@@ -25,21 +22,18 @@ interface IssueManagementApi {
     }
 
     @Operation(summary = "Get issue list")
-    @GetMapping(ENDPOINT)
+    @PostMapping(ENDPOINT)
     fun getIssueList(
-        @RequestParam(required = false) status: IssueStatusDTO?,
-        @RequestParam(required = false) priority: IssuePriorityDTO?,
-        @RequestParam(required = false) vehicleId: Long?,
-        @RequestParam(required = false) search: String?,
+        @RequestBody(required = false) filter: IssueFilterDTO?,
         @ParameterObject pageable: PageableDTO,
     ): PageDTO<IssueDTO>
 
     @Operation(summary = "Get issue by ID")
-    @GetMapping("$ENDPOINT/{id}")
+    @GetMapping("$ENDPOINT/byId/{id}")
     fun getIssue(@PathVariable id: Long): IssueDTO
 
     @Operation(summary = "Create issue")
-    @PostMapping(ENDPOINT)
+    @PostMapping("$ENDPOINT/create")
     fun createIssue(@RequestBody request: IssueCreateDTO): IssueDTO
 
     @Operation(summary = "Start issue")

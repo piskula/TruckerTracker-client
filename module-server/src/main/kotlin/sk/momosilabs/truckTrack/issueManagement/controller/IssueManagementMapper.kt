@@ -3,6 +3,7 @@ package sk.momosilabs.truckTrack.issueManagement.controller
 import sk.momosilabs.truckTrack.account.model.AccountModel
 import sk.momosilabs.truckTrack.api.issue.dto.AccountDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueDTO
+import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryEventTypeDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssuePriorityDTO
@@ -13,6 +14,7 @@ import sk.momosilabs.truckTrack.issueManagement.entity.IssuePriority
 import sk.momosilabs.truckTrack.issueManagement.entity.IssueStatus
 import sk.momosilabs.truckTrack.issueManagement.model.IssueHistoryModel
 import sk.momosilabs.truckTrack.issueManagement.model.IssueModel
+import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter
 import sk.momosilabs.truckTrack.vehicle.model.VehicleModel
 
 fun IssueStatusDTO.toModel() = IssueStatus.valueOf(name)
@@ -54,4 +56,10 @@ fun AccountModel.toDTO() = AccountDTO(
     username = username,
     firstName = firstName,
     lastName = lastName,
+)
+
+fun IssueFilterDTO.toModel() = IssueListFilter(
+    statuses = statuses.map { it.toModel() },
+    vehicleIds = vehicleIds,
+    accountIds = accountIds,
 )
