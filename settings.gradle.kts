@@ -32,4 +32,6 @@ include(
     ":feature:sign-in:impl",
     ":feature:my-issues:api",
     ":feature:my-issues:impl",
+    ":feature:profile:api",
+    ":feature:profile:impl",
 )

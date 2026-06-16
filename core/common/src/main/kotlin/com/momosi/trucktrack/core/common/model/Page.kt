@@ -1,4 +1,4 @@
-package com.momosi.trucktrack.core.network.model
+package com.momosi.trucktrack.core.common.model
 
 data class Page<T>(
     val totalElements: Long,

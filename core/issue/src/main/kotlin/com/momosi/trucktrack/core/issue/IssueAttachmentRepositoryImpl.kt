@@ -4,7 +4,7 @@ import com.momosi.trucktrack.core.issue.api.IssueAttachmentApi
 import com.momosi.trucktrack.core.issue.dto.toIssueAttachment
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
 import com.momosi.trucktrack.core.network.dto.toPage
-import com.momosi.trucktrack.core.network.model.Page
+import com.momosi.trucktrack.core.common.model.Page
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody

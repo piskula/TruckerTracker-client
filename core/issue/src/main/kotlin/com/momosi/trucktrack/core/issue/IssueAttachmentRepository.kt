@@ -1,7 +1,7 @@
 package com.momosi.trucktrack.core.issue
 
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
-import com.momosi.trucktrack.core.network.model.Page
+import com.momosi.trucktrack.core.common.model.Page
 import okhttp3.ResponseBody
 import java.io.File
 

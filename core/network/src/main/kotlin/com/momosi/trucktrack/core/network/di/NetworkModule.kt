@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.core.network.di
 
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.common.network.ConnectivityManager
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.internal.networking.UserAuthenticator
@@ -39,7 +40,7 @@ class NetworkModule {
         .addInterceptor(UserAuthorizationInterceptor(authManager, connectivityManager))
         .authenticator(userAuthenticator)
         .addInterceptor(
-            HttpLoggingInterceptor().apply {
+            HttpLoggingInterceptor { message -> Logger.d("HTTPCall", message) }.apply {
                 level = HttpLoggingInterceptor.Level.BODY
             },
         )

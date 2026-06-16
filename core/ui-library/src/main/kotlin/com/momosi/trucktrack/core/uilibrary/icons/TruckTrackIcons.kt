@@ -2,11 +2,22 @@
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ListAlt
+import androidx.compose.material.icons.outlined.PersonOutline
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.LocalShipping
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PhotoCamera
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material.icons.rounded.Search
 
 data object TruckTrackIcons {
@@ -14,7 +25,21 @@ data object TruckTrackIcons {
     val Android = Icons.Rounded.Android
     val ArrowDropDown = Icons.Rounded.ArrowDropDown
     val SortAscending = Icons.Rounded.ArrowUpward
+    val SortDescending = Icons.Rounded.ArrowDownward
     val Clear = Icons.Rounded.Clear
     val Truck = Icons.Rounded.LocalShipping
     val Search = Icons.Rounded.Search
-  }
+    val Add = Icons.Rounded.Add
+    val AccountCircle = Icons.Rounded.AccountCircle
+    val Person = Icons.Rounded.Person
+    val PersonOutline = Icons.Outlined.PersonOutline
+    val PhotoCamera = Icons.Rounded.PhotoCamera
+    val Build = Icons.Rounded.Build
+    val CheckCircle = Icons.Rounded.CheckCircle
+    val RadioButtonUnchecked = Icons.Rounded.RadioButtonUnchecked
+    val Remove = Icons.Rounded.Remove
+    val ArrowUpward = Icons.Rounded.ArrowUpward
+    val ArrowDownward = Icons.Rounded.ArrowDownward
+    val ListAlt = Icons.AutoMirrored.Rounded.ListAlt
+}
+

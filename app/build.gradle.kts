@@ -40,6 +40,7 @@ dependencies {
 
     implementation(projects.feature.signIn.impl)
     implementation(projects.feature.myIssues.impl)
+    implementation(projects.feature.profile.impl)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

@@ -5,7 +5,7 @@ import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
-import com.momosi.trucktrack.core.network.model.Page
+import com.momosi.trucktrack.core.common.model.Page
 
 interface IssueRepository {
 
