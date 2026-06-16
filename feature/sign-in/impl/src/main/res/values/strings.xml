@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_app_name">Transroute Tracker</string>
+    <string name="sign_in_app_subtitle">Fleet service management</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="sign_in_error_no_internet">No internet connection</string>
+    <string name="sign_in_error_unable_to_start">Unable to start sign in</string>
+    <string name="sign_in_error_failed">Sign in failed</string>
+</resources>

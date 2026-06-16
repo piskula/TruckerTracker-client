@@ -1,0 +1,15 @@
+﻿plugins {
+    alias(libs.plugins.trucktrack.feature.impl)
+}
+
+android {
+    namespace = "com.momosi.trucktrack.feature.signin.impl"
+}
+
+dependencies {
+    api(projects.feature.signIn.api)
+    implementation(projects.feature.myIssues.api)
+    implementation(projects.core.user)
+    implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.coil.compose)
+}
