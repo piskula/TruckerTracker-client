@@ -2,6 +2,7 @@ package com.momosi.trucktrack.core.issue.api
 
 import com.momosi.trucktrack.core.issue.dto.IssueCreateDto
 import com.momosi.trucktrack.core.issue.dto.IssueDto
+import com.momosi.trucktrack.core.issue.dto.IssueFilterDto
 import com.momosi.trucktrack.core.issue.dto.IssueHistoryDto
 import com.momosi.trucktrack.core.network.dto.PageDto
 import retrofit2.http.Body
@@ -12,21 +13,18 @@ import retrofit2.http.Query
 
 interface IssueApi {
 
-    @GET("api/v1/issue")
+    @POST("api/v1/issue")
     suspend fun getIssueList(
-        @Query("status") status: String? = null,
-        @Query("priority") priority: String? = null,
-        @Query("vehicleId") vehicleId: Long? = null,
-        @Query("search") search: String? = null,
+        @Body filter: IssueFilterDto,
         @Query("page") page: Int? = null,
         @Query("size") size: Int? = null,
-        @Query("sort") sort: String? = null,
+        @Query("sort") sort: List<String>? = null,
     ): PageDto<IssueDto>
 
-    @POST("api/v1/issue")
+    @POST("api/v1/issue/create")
     suspend fun createIssue(@Body body: IssueCreateDto): IssueDto
 
-    @GET("api/v1/issue/{id}")
+    @GET("api/v1/issue/byId/{id}")
     suspend fun getIssue(@Path("id") id: Long): IssueDto
 
     @POST("api/v1/issue/{id}/start")

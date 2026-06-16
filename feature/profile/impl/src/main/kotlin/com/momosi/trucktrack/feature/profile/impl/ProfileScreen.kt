@@ -154,7 +154,7 @@ private fun ProfileDriverPreview() {
     TruckTrackTheme {
         ProfileContent(
             state = ProfileState(
-                user = User(name = "Michael Schumacher", email = "michael@example.com", role = UserRole.Driver),
+                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", role = UserRole.Driver),
             ),
             onAction = {},
             onBack = {},
@@ -168,7 +168,7 @@ private fun ProfileMechanicPreview() {
     TruckTrackTheme {
         ProfileContent(
             state = ProfileState(
-                user = User(name = "Mattia Binotto", email = "mattia@example.com", role = UserRole.Mechanic),
+                user = User(id = "", name = "Mattia Binotto", email = "mattia@example.com", role = UserRole.Mechanic),
             ),
             onAction = {},
             onBack = {},
@@ -194,7 +194,7 @@ private fun ProfileSigningOutPreview() {
     TruckTrackTheme {
         ProfileContent(
             state = ProfileState(
-                user = User(name = "Michael Schumacher", email = "michael@example.com", role = UserRole.Driver),
+                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", role = UserRole.Driver),
                 isSigningOut = true,
             ),
             onAction = {},

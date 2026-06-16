@@ -39,7 +39,7 @@ dependencies {
     implementation(projects.core.issue)
 
     implementation(projects.feature.signIn.impl)
-    implementation(projects.feature.myIssues.impl)
+    implementation(projects.feature.issues.impl)
     implementation(projects.feature.profile.impl)
 
     implementation(libs.androidx.activity.compose)

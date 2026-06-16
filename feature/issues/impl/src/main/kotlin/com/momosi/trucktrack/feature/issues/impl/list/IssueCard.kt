@@ -1,0 +1,356 @@
+package com.momosi.trucktrack.feature.issues.impl.list
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.momosi.trucktrack.core.issue.model.Account
+import com.momosi.trucktrack.core.issue.model.Issue
+import com.momosi.trucktrack.core.issue.model.IssuePriority
+import com.momosi.trucktrack.core.issue.model.IssueStatus
+import com.momosi.trucktrack.core.uilibrary.components.Icon
+import com.momosi.trucktrack.core.uilibrary.components.Text
+import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
+import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
+import com.momosi.trucktrack.core.uilibrary.theme.Shapes
+import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
+import com.momosi.trucktrack.core.vehicle.model.Vehicle
+import com.momosi.trucktrack.core.vehicle.model.VehicleType
+import com.momosi.trucktrack.feature.issues.impl.R
+import com.momosi.trucktrack.user.model.UserRole
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+
+@Composable
+internal fun IssueCard(
+    issue: Issue,
+    userRole: UserRole,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val borderColor = issue.priority.borderColor()
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(Shapes.CardShape)
+            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .drawBehind {
+                drawRect(
+                    color = borderColor,
+                    topLeft = Offset.Zero,
+                    size = size.copy(width = 4.dp.toPx()),
+                )
+            }
+            .clickable(onClick = onClick)
+            .padding(start = 8.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Text(
+                    text = issue.title,
+                    style = AppTheme.typography.titleSmall,
+                    color = AppTheme.colors.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                StatusChip(
+                    label = issue.status.displayName(),
+                    containerColor = issue.status.containerColor(),
+                    contentColor = issue.status.contentColor(),
+                    icon = issue.status.icon(),
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PriorityIndicator(
+                    label = issue.priority.displayName(),
+                    color = issue.priority.indicatorColor(),
+                    icon = issue.priority.indicatorIcon(),
+                )
+                issue.vehicle?.let { vehicle ->
+                    MetaItem(
+                        icon = TruckTrackIcons.Truck,
+                        text = vehicle.licensePlate,
+                    )
+                }
+                if (userRole == UserRole.Mechanic) {
+                    issue.reportedBy?.let { reporter ->
+                        MetaItem(
+                            icon = TruckTrackIcons.Person,
+                            text = reporter.fullName,
+                        )
+                    }
+                }
+                Box(modifier = Modifier.weight(1f))
+                Text(
+                    text = issue.createdAt.timeAgo(),
+                    style = AppTheme.typography.labelSmall,
+                    color = AppTheme.colors.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusChip(
+    label: String,
+    containerColor: Color,
+    contentColor: Color,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
+            .background(color = containerColor, shape = Shapes.CardShape)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            tint = contentColor,
+            modifier = Modifier.size(13.dp),
+        )
+        Text(
+            text = label.uppercase(),
+            style = AppTheme.typography.labelSmall,
+            color = contentColor,
+        )
+    }
+}
+
+@Composable
+private fun PriorityIndicator(
+    label: String,
+    color: Color,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = modifier,
+    ) {
+        Icon(
+            imageVector = icon,
+            tint = color,
+            modifier = Modifier.size(15.dp),
+        )
+        Text(
+            text = label.uppercase(),
+            style = AppTheme.typography.labelSmall,
+            color = color,
+        )
+    }
+}
+
+@Composable
+private fun MetaItem(
+    icon: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        modifier = modifier,
+    ) {
+        Icon(
+            imageVector = icon,
+            tint = AppTheme.colors.onSurfaceVariant,
+            modifier = Modifier.size(15.dp),
+        )
+        Text(
+            text = text,
+            style = AppTheme.typography.bodySmall,
+            color = AppTheme.colors.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun IssuePriority.borderColor() = when (this) {
+    IssuePriority.High -> AppTheme.colors.negative
+    IssuePriority.Medium -> AppTheme.colors.warning
+    IssuePriority.Low -> AppTheme.colors.primary
+}
+
+@Composable
+private fun IssueStatus.containerColor() = when (this) {
+    IssueStatus.Open -> AppTheme.colors.primaryContainer
+    IssueStatus.InProgress -> AppTheme.colors.warningContainer
+    IssueStatus.Done -> AppTheme.colors.positiveContainer
+}
+
+@Composable
+private fun IssueStatus.contentColor() = when (this) {
+    IssueStatus.Open -> AppTheme.colors.primary
+    IssueStatus.InProgress -> AppTheme.colors.warning
+    IssueStatus.Done -> AppTheme.colors.positive
+}
+
+private fun IssueStatus.icon() = when (this) {
+    IssueStatus.Open -> TruckTrackIcons.RadioButtonUnchecked
+    IssueStatus.InProgress -> TruckTrackIcons.Build
+    IssueStatus.Done -> TruckTrackIcons.CheckCircle
+}
+
+@Composable
+private fun IssueStatus.displayName(): String = stringResource(
+    when (this) {
+        IssueStatus.Open -> R.string.issue_status_open
+        IssueStatus.InProgress -> R.string.issue_status_in_progress
+        IssueStatus.Done -> R.string.issue_status_done
+    },
+)
+
+@Composable
+private fun IssuePriority.indicatorColor() = when (this) {
+    IssuePriority.High -> AppTheme.colors.negative
+    IssuePriority.Medium -> AppTheme.colors.warning
+    IssuePriority.Low -> AppTheme.colors.primary
+}
+
+private fun IssuePriority.indicatorIcon() = when (this) {
+    IssuePriority.High -> TruckTrackIcons.ArrowUpward
+    IssuePriority.Medium -> TruckTrackIcons.Remove
+    IssuePriority.Low -> TruckTrackIcons.ArrowDownward
+}
+
+@Composable
+private fun IssuePriority.displayName(): String = stringResource(
+    when (this) {
+        IssuePriority.High -> R.string.issue_priority_high
+        IssuePriority.Medium -> R.string.issue_priority_medium
+        IssuePriority.Low -> R.string.issue_priority_low
+    },
+)
+
+@Composable
+private fun Instant.timeAgo(): String {
+    val now = Instant.now()
+    val duration = Duration.between(this, now)
+    return when {
+        duration.toMinutes() < 1 -> stringResource(R.string.time_ago_just_now)
+        duration.toHours() < 1 -> stringResource(R.string.time_ago_minutes, duration.toMinutes())
+        duration.toDays() < 1 -> stringResource(R.string.time_ago_hours, duration.toHours())
+        duration.toDays() < 2 -> stringResource(R.string.time_ago_yesterday)
+        duration.toDays() < 7 -> stringResource(R.string.time_ago_days, duration.toDays())
+        else -> {
+            val date = ZonedDateTime.ofInstant(this, ZoneId.systemDefault())
+            "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.dayOfMonth}"
+        }
+    }
+}
+
+private val sampleIssue = Issue(
+    id = 1,
+    title = "Engine warning light — truck won't start",
+    description = "The engine warning light is on and the truck won't start.",
+    status = IssueStatus.InProgress,
+    priority = IssuePriority.High,
+    vehicle = Vehicle(
+        id = 1,
+        licensePlate = "MA-204-TT",
+        make = "DAF",
+        model = "XF",
+        type = VehicleType.Truck,
+    ),
+    reportedBy = Account(
+        id = "1",
+        username = "mschumacher",
+        firstName = "Michael",
+        lastName = "Schumacher",
+    ),
+    assignedTo = null,
+    createdAt = Instant.now().minus(Duration.ofHours(2)),
+    updatedAt = Instant.now().minus(Duration.ofHours(1)),
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun IssueCardDriverHighPreview() {
+    TruckTrackTheme {
+        IssueCard(
+            issue = sampleIssue,
+            userRole = UserRole.Driver,
+            onClick = {},
+            modifier = Modifier.padding(12.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun IssueCardMechanicHighPreview() {
+    TruckTrackTheme {
+        IssueCard(
+            issue = sampleIssue,
+            userRole = UserRole.Mechanic,
+            onClick = {},
+            modifier = Modifier.padding(12.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun IssueCardOpenMediumPreview() {
+    TruckTrackTheme {
+        IssueCard(
+            issue = sampleIssue.copy(
+                title = "Air suspension — right side not inflating",
+                status = IssueStatus.Open,
+                priority = IssuePriority.Medium,
+                vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-089-MR"),
+                createdAt = Instant.now().minus(Duration.ofDays(1)),
+            ),
+            userRole = UserRole.Driver,
+            onClick = {},
+            modifier = Modifier.padding(12.dp),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun IssueCardDoneLowPreview() {
+    TruckTrackTheme {
+        IssueCard(
+            issue = sampleIssue.copy(
+                title = "Routine oil change service",
+                status = IssueStatus.Done,
+                priority = IssuePriority.Low,
+                vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-118-AB"),
+                createdAt = Instant.now().minus(Duration.ofDays(25)),
+            ),
+            userRole = UserRole.Driver,
+            onClick = {},
+            modifier = Modifier.padding(12.dp),
+        )
+    }
+}
+

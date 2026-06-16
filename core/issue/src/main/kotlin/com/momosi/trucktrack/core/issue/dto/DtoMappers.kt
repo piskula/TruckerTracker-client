@@ -38,6 +38,15 @@ internal fun IssueCreate.toDto(): IssueCreateDto = IssueCreateDto(
     priority = priority.toApiValue(),
 )
 
+internal fun List<IssueStatus>.toFilterDto(
+    vehicleIds: List<Long>,
+    accountIds: List<String>,
+): IssueFilterDto = IssueFilterDto(
+    statuses = map { it.toApiValue() },
+    vehicleIds = vehicleIds,
+    accountIds = accountIds,
+)
+
 internal fun IssueAttachmentDto.toIssueAttachment(): IssueAttachment = IssueAttachment(
     id = id,
     filename = filename,

@@ -3,12 +3,12 @@ package com.momosi.trucktrack.core.issue
 import com.momosi.trucktrack.core.issue.api.IssueApi
 import com.momosi.trucktrack.core.issue.api.IssueHistoryApi
 import com.momosi.trucktrack.core.issue.dto.toDto
+import com.momosi.trucktrack.core.issue.dto.toFilterDto
 import com.momosi.trucktrack.core.issue.dto.toIssue
 import com.momosi.trucktrack.core.issue.dto.toIssueHistory
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.issue.model.IssueHistory
-import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.network.dto.toPage
 import com.momosi.trucktrack.core.common.model.Page
@@ -22,22 +22,17 @@ class IssueRepositoryImpl @Inject constructor(
 ) : IssueRepository {
 
     override suspend fun getIssues(
-        status: IssueStatus?,
-        priority: IssuePriority?,
-        vehicleId: Long?,
-        search: String?,
+        statuses: List<IssueStatus>,
+        vehicleIds: List<Long>,
+        accountIds: List<String>,
         page: Int?,
         size: Int?,
-        sort: String?,
     ): Result<Page<Issue>> = runCatching {
         issueApi.getIssueList(
-            status = status?.toApiValue(),
-            priority = priority?.toApiValue(),
-            vehicleId = vehicleId,
-            search = search,
+            filter = statuses.toFilterDto(vehicleIds, accountIds),
             page = page,
             size = size,
-            sort = sort,
+            sort = listOf("priority,asc", "createdAt,asc"),
         ).toPage { it.toIssue() }
     }
 

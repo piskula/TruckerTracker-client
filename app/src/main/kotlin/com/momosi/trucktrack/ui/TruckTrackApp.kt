@@ -15,8 +15,8 @@ import com.momosi.trucktrack.core.navigation.Navigator
 import com.momosi.trucktrack.core.navigation.rememberNavigationState
 import com.momosi.trucktrack.core.navigation.toEntries
 import com.momosi.trucktrack.core.uilibrary.modifier.LocalSharedTransitionScope
-import com.momosi.trucktrack.feature.myissues.api.MyIssuesNavKey
-import com.momosi.trucktrack.feature.myissues.impl.navigation.myIssuesEntries
+import com.momosi.trucktrack.feature.issues.api.IssuesNavKey
+import com.momosi.trucktrack.feature.issues.impl.navigation.issuesEntries
 import com.momosi.trucktrack.feature.profile.impl.navigation.profileEntries
 import com.momosi.trucktrack.feature.signin.api.SignInNavKey
 import com.momosi.trucktrack.feature.signin.impl.navigation.signInEntries
@@ -26,7 +26,7 @@ import com.momosi.trucktrack.user.model.AuthenticationState
 internal fun TruckTrackApp(viewModel: TruckTrackViewModel) {
     val startKey: NavKey = remember {
         when (viewModel.authenticationState.value) {
-            AuthenticationState.Authorized -> MyIssuesNavKey
+            AuthenticationState.Authorized -> IssuesNavKey
             AuthenticationState.Guest -> SignInNavKey
         }
     }
@@ -44,7 +44,7 @@ internal fun TruckTrackApp(viewModel: TruckTrackViewModel) {
                         .padding(bottom = innerPadding.calculateBottomPadding()),
                     entries = navigationState.toEntries(entryProvider {
                         signInEntries(navigator)
-                        myIssuesEntries(navigator)
+                        issuesEntries(navigator)
                         profileEntries(navigator)
                     }),
                     onBack = navigator::goBack,

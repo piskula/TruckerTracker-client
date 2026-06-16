@@ -8,17 +8,17 @@ enum class IssuePriority {
 
     companion object {
         fun fromApiValue(value: String): IssuePriority = when (value) {
-            "HIGH" -> High
-            "MEDIUM" -> Medium
-            "LOW" -> Low
+            "P1_HIGH" -> High
+            "P3_MEDIUM" -> Medium
+            "P5_LOW" -> Low
             else -> Medium
         }
     }
 
     fun toApiValue(): String = when (this) {
-        High -> "HIGH"
-        Medium -> "MEDIUM"
-        Low -> "LOW"
+        High -> "P1_HIGH"
+        Medium -> "P3_MEDIUM"
+        Low -> "P5_LOW"
     }
 }
 

@@ -3,9 +3,12 @@
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ListAlt
+import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -13,7 +16,9 @@ import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.LocalShipping
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -27,6 +32,7 @@ data object TruckTrackIcons {
     val SortAscending = Icons.Rounded.ArrowUpward
     val SortDescending = Icons.Rounded.ArrowDownward
     val Clear = Icons.Rounded.Clear
+    val Close = Icons.Rounded.Close
     val Truck = Icons.Rounded.LocalShipping
     val Search = Icons.Rounded.Search
     val Add = Icons.Rounded.Add
@@ -34,6 +40,7 @@ data object TruckTrackIcons {
     val Person = Icons.Rounded.Person
     val PersonOutline = Icons.Outlined.PersonOutline
     val PhotoCamera = Icons.Rounded.PhotoCamera
+    val AddPhoto = Icons.Rounded.AddPhotoAlternate
     val Build = Icons.Rounded.Build
     val CheckCircle = Icons.Rounded.CheckCircle
     val RadioButtonUnchecked = Icons.Rounded.RadioButtonUnchecked
@@ -41,5 +48,8 @@ data object TruckTrackIcons {
     val ArrowUpward = Icons.Rounded.ArrowUpward
     val ArrowDownward = Icons.Rounded.ArrowDownward
     val ListAlt = Icons.AutoMirrored.Rounded.ListAlt
+    val Send = Icons.AutoMirrored.Rounded.Send
+    val MoreVert = Icons.Rounded.MoreVert
+    val ChatBubbleOutline = Icons.Outlined.ChatBubbleOutline
 }
 

@@ -1,22 +1,19 @@
 package com.momosi.trucktrack.core.issue
 
+import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.issue.model.IssueHistory
-import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
-import com.momosi.trucktrack.core.common.model.Page
 
 interface IssueRepository {
 
     suspend fun getIssues(
-        status: IssueStatus? = null,
-        priority: IssuePriority? = null,
-        vehicleId: Long? = null,
-        search: String? = null,
+        statuses: List<IssueStatus> = emptyList(),
+        vehicleIds: List<Long> = emptyList(),
+        accountIds: List<String> = emptyList(),
         page: Int? = null,
         size: Int? = null,
-        sort: String? = null,
     ): Result<Page<Issue>>
 
     suspend fun getIssue(id: Long): Result<Issue>

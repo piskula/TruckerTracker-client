@@ -52,6 +52,7 @@ private fun Claims.toUser(): User {
         .orEmpty()
 
     return User(
+        id = subject ?: "",
         name = get("name", String::class.java) ?: "",
         email = get("email", String::class.java) ?: "",
         role = roles.firstNotNullOfOrNull { it.toUserRole() } ?: UserRole.Driver,

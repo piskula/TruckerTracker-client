@@ -30,8 +30,8 @@ include(
     ":core:issue",
     ":feature:sign-in:api",
     ":feature:sign-in:impl",
-    ":feature:my-issues:api",
-    ":feature:my-issues:impl",
+    ":feature:issues:api",
+    ":feature:issues:impl",
     ":feature:profile:api",
     ":feature:profile:impl",
 )

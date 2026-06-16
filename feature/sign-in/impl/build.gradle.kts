@@ -8,7 +8,7 @@ android {
 
 dependencies {
     api(projects.feature.signIn.api)
-    implementation(projects.feature.myIssues.api)
+    implementation(projects.feature.issues.api)
     implementation(projects.core.user)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.coil.compose)
