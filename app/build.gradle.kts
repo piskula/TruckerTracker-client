@@ -32,8 +32,11 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.core.navigation)
+    implementation(projects.core.network)
     implementation(projects.core.uiLibrary)
     implementation(projects.core.user)
+    implementation(projects.core.vehicle)
+    implementation(projects.core.issue)
 
     implementation(projects.feature.signIn.impl)
     implementation(projects.feature.myIssues.impl)
