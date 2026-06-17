@@ -6,6 +6,7 @@ import sk.momosilabs.truckTrack.issueManagement.entity.IssueStatus
 import sk.momosilabs.truckTrack.issueManagement.model.IssueHistoryModel
 import sk.momosilabs.truckTrack.issueManagement.model.IssueModel
 import java.time.OffsetDateTime
+import java.util.UUID
 
 interface IssuePersistence {
 
@@ -15,7 +16,7 @@ interface IssuePersistence {
 
     fun create(model: IssueModel): IssueModel
 
-    fun updateStatus(id: Long, status: IssueStatus, updatedAt: OffsetDateTime): IssueModel
+    fun updateStatusAndAssignee(id: Long, status: IssueStatus, newAssignee: UUID?, updatedAt: OffsetDateTime): IssueModel
 
     fun findHistory(issueId: Long, pageable: Pageable): Page<IssueHistoryModel>
 

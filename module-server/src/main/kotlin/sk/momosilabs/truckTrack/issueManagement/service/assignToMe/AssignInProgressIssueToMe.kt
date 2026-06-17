@@ -1,4 +1,4 @@
-package sk.momosilabs.truckTrack.issueManagement.service.resolveIssue
+package sk.momosilabs.truckTrack.issueManagement.service.assignToMe
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,35 +16,35 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 @Service
-class ResolveIssue(
+class AssignInProgressIssueToMe(
     private val issuePersistence: IssuePersistence,
     private val currentUserService: CurrentUserService,
-) : ResolveIssueUseCase {
+) : AssignInProgressIssueToMeUseCase {
 
     @IsMechanic
     @Transactional
-    override fun resolve(issueId: Long): IssueModel {
+    override fun reassign(issueId: Long): IssueModel {
         val issue = issuePersistence.findById(issueId)
         if (issue.status != IssueStatus.IN_PROGRESS) {
-            throw GlobalUnprocessableException("Issue must be IN_PROGRESS to resolve, current status: ${issue.status}")
+            throw GlobalUnprocessableException("Issue must be IN_PROGRESS to change currently assigned mechanic.")
         }
 
-        val resolvedBy: AccountModel = currentUserService.currentUser()
-        if (issue.assignedTo?.id != resolvedBy.id) {
-            throw GlobalUnprocessableException("Only assigned user can resolve issue.")
+        val mechanic: AccountModel = currentUserService.currentUser()
+        if (issue.assignedTo?.id == mechanic.id) {
+            throw GlobalUnprocessableException("Issue is already assigned to you.")
         }
 
         val now = OffsetDateTime.now(ZoneOffset.UTC)
-        val saved = issuePersistence.updateStatusAndAssignee(issueId, IssueStatus.DONE, issue.assignedTo.id, now)
+        val saved = issuePersistence.updateStatusAndAssignee(issueId, issue.status, mechanic.id, now)
         issuePersistence.saveHistory(
             IssueHistoryModel(
                 id = UUID.randomUUID(),
                 issueId = saved.id,
-                type = IssueHistoryEventType.STATUS_CHANGE,
-                performedBy = resolvedBy,
+                type = IssueHistoryEventType.ASSIGNEE_CHANGE,
+                performedBy = mechanic,
                 createdAt = now,
-                statusFrom = IssueStatus.IN_PROGRESS,
-                statusTo = IssueStatus.DONE,
+                statusFrom = issue.status,
+                statusTo = issue.status,
                 commentText = null,
             )
         )

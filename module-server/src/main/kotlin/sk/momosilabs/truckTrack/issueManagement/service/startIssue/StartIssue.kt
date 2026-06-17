@@ -32,7 +32,7 @@ class StartIssue(
         val mechanic: AccountModel = currentUserService.currentUser()
 
         val now = OffsetDateTime.now(ZoneOffset.UTC)
-        val saved = issuePersistence.updateStatus(issueId, IssueStatus.IN_PROGRESS, now)
+        val saved = issuePersistence.updateStatusAndAssignee(issueId, IssueStatus.IN_PROGRESS, mechanic.id, now)
         issuePersistence.saveHistory(
             IssueHistoryModel(
                 id = UUID.randomUUID(),

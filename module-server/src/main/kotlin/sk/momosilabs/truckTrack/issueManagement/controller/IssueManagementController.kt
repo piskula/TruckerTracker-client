@@ -9,6 +9,7 @@ import sk.momosilabs.truckTrack.api.issue.dto.IssueDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDTO
 import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDTO
 import sk.momosilabs.truckTrack.issueManagement.service.addComment.AddCommentUseCase
+import sk.momosilabs.truckTrack.issueManagement.service.assignToMe.AssignInProgressIssueToMeUseCase
 import sk.momosilabs.truckTrack.issueManagement.service.createIssue.CreateIssueCommand
 import sk.momosilabs.truckTrack.issueManagement.service.createIssue.CreateIssueUseCase
 import sk.momosilabs.truckTrack.issueManagement.service.getIssue.GetIssueUseCase
@@ -25,6 +26,7 @@ class IssueManagementController(
     private val getIssue: GetIssueUseCase,
     private val createIssue: CreateIssueUseCase,
     private val startIssue: StartIssueUseCase,
+    private val assignInProgressIssueToMe: AssignInProgressIssueToMeUseCase,
     private val resolveIssue: ResolveIssueUseCase,
     private val getIssueHistory: GetIssueHistoryUseCase,
     private val addComment: AddCommentUseCase,
@@ -52,6 +54,9 @@ class IssueManagementController(
 
     override fun startIssue(id: Long): IssueDTO =
         startIssue.start(id).toDTO()
+
+    override fun assignToMe(id: Long): IssueDTO =
+        assignInProgressIssueToMe.reassign(issueId = id).toDTO()
 
     override fun resolveIssue(id: Long): IssueDTO =
         resolveIssue.resolve(id).toDTO()

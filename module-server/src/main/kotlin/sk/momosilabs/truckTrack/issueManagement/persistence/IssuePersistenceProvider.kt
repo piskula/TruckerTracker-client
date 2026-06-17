@@ -77,10 +77,11 @@ class IssuePersistenceProvider(
     }
 
     @Transactional
-    override fun updateStatus(id: Long, status: IssueStatus, updatedAt: OffsetDateTime): IssueModel {
+    override fun updateStatusAndAssignee(id: Long, status: IssueStatus, newAssignee: UUID?, updatedAt: OffsetDateTime): IssueModel {
         val entity = issueRepository.findById(id)
             .orElseThrow { GlobalNotFoundException("issue id=$id not found") }
         entity.status = status
+        entity.assignedTo = newAssignee?.let { accountRepository.getReferenceById(it) }
         entity.updatedAtUtc = updatedAt.toUtcLocalDateTime()
         return entity.toModel()
     }

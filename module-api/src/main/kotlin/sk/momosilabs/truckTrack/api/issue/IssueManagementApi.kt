@@ -40,6 +40,10 @@ interface IssueManagementApi {
     @PostMapping("$ENDPOINT/{id}/start")
     fun startIssue(@PathVariable id: Long): IssueDTO
 
+    @Operation(summary = "Assign in-progress issue to me")
+    @PostMapping("$ENDPOINT/{id}/assignTome")
+    fun assignToMe(@PathVariable id: Long): IssueDTO
+
     @Operation(summary = "Resolve issue")
     @PostMapping("$ENDPOINT/{id}/resolve")
     fun resolveIssue(@PathVariable id: Long): IssueDTO
