@@ -90,8 +90,8 @@ private fun CreateIssueContent(
     modifier: Modifier = Modifier,
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let { onAction(CreateIssueAction.AddPhoto(it)) } },
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris -> if (uris.isNotEmpty()) onAction(CreateIssueAction.AddPhotos(uris)) },
     )
 
     Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background).imePadding()) {

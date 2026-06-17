@@ -1,16 +1,17 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
 import androidx.compose.runtime.Immutable
-import com.momosi.trucktrack.core.issue.model.Issue
-import com.momosi.trucktrack.core.issue.model.IssueAttachment
-import com.momosi.trucktrack.core.issue.model.IssueHistory
+import com.momosi.trucktrack.core.issue.model.IssueHistoryType
+import com.momosi.trucktrack.core.issue.model.IssuePriority
+import com.momosi.trucktrack.core.issue.model.IssueStatus
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 @Immutable
 data class IssueDetailState(
     val content: IssueDetailContent = IssueDetailContent.Loading,
-    val photos: ImmutableList<IssueAttachment> = persistentListOf(),
+    val historyContent: IssueHistoryContent = IssueHistoryContent.Loading,
+    val photosContent: IssuePhotosContent = IssuePhotosContent.Loading,
     val commentText: String = "",
     val isSendingComment: Boolean = false,
 )
@@ -21,9 +22,52 @@ sealed interface IssueDetailContent {
     data object Error : IssueDetailContent
 
     @Immutable
-    data class Loaded(
-        val issue: Issue,
-        val history: ImmutableList<IssueHistory> = persistentListOf(),
-    ) : IssueDetailContent
+    data class Loaded(val issue: IssueUi) : IssueDetailContent
 }
 
+@Immutable
+sealed interface IssueHistoryContent {
+    data object Loading : IssueHistoryContent
+    data object Empty : IssueHistoryContent
+
+    @Immutable
+    data class Loaded(val items: ImmutableList<IssueHistoryUi>) : IssueHistoryContent
+}
+
+@Immutable
+sealed interface IssuePhotosContent {
+    data object Loading : IssuePhotosContent
+
+    @Immutable
+    data class Loaded(val items: ImmutableList<PhotoItem> = persistentListOf()) : IssuePhotosContent
+}
+
+@Immutable
+data class IssueUi(
+    val id: Long,
+    val title: String,
+    val description: String,
+    val status: IssueStatus,
+    val priority: IssuePriority,
+    val vehicleLabel: String,
+    val reportedByName: String,
+    val assignedToName: String,
+    val createdAtFormatted: String,
+)
+
+@Immutable
+data class IssueHistoryUi(
+    val id: String,
+    val type: IssueHistoryType,
+    val statusTo: IssueStatus?,
+    val performedByName: String?,
+    val createdAtFormatted: String,
+    val commentText: String?,
+)
+
+@Immutable
+data class PhotoItem(
+    val id: Long,
+    val filename: String,
+    val url: String,
+)

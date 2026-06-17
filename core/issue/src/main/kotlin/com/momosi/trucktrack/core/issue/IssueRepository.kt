@@ -30,7 +30,6 @@ interface IssueRepository {
         issueId: Long,
         page: Int? = null,
         size: Int? = null,
-        sort: String? = null,
     ): Result<Page<IssueHistory>>
 }
 

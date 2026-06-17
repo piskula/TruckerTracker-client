@@ -1,18 +1,21 @@
 package com.momosi.trucktrack.feature.issues.impl.create
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.momosi.trucktrack.core.common.coroutines.DispatcherProvider
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.IssueCreate
-import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.vehicle.VehicleRepository
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.persistentListOf
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,13 +23,17 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.io.path.createTempFile
 
 @HiltViewModel
 class CreateIssueViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val vehicleRepository: VehicleRepository,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CreateIssueState())
@@ -49,7 +56,7 @@ class CreateIssueViewModel @Inject constructor(
             is CreateIssueAction.UpdateTitle -> _state.update { it.copy(title = action.title) }
             is CreateIssueAction.UpdateDescription -> _state.update { it.copy(description = action.description) }
             is CreateIssueAction.SelectPriority -> _state.update { it.copy(selectedPriority = action.priority) }
-            is CreateIssueAction.AddPhoto -> addPhoto(action.uri)
+            is CreateIssueAction.AddPhotos -> addPhotos(action.uris)
             is CreateIssueAction.RemovePhoto -> removePhoto(action.uri)
             is CreateIssueAction.Submit -> submit()
             is CreateIssueAction.ToggleVehicleDropdown -> _state.update { it.copy(vehicleDropdownExpanded = !it.vehicleDropdownExpanded) }
@@ -72,10 +79,10 @@ class CreateIssueViewModel @Inject constructor(
         _state.update { it.copy(selectedVehicle = vehicle, vehicleDropdownExpanded = false) }
     }
 
-    private fun addPhoto(uri: Uri) {
+    private fun addPhotos(uris: List<Uri>) {
         _state.update { current ->
-            if (current.photoUris.contains(uri)) return
-            current.copy(photoUris = (current.photoUris + uri).toImmutableList())
+            val combined = (current.photoUris + uris).distinct().toImmutableList()
+            current.copy(photoUris = combined)
         }
     }
 
@@ -113,14 +120,23 @@ class CreateIssueViewModel @Inject constructor(
     }
 
     private suspend fun uploadPhotos(issueId: Long, uris: List<Uri>) {
-        uris.forEach { uri ->
-            val tempFile = kotlin.io.path.createTempFile("upload", ".jpg").toFile()
-            try {
-                // Note: actual file copy from Uri requires ContentResolver, handled at screen level
-                // For now we upload whatever file the URI points to
-                issueAttachmentRepository.uploadPhoto(issueId, tempFile, "image/jpeg")
-            } finally {
-                tempFile.delete()
+        coroutineScope {
+            uris.forEach { uri ->
+                launch {
+                    val tempFile = withContext(dispatcherProvider.io()) {
+                        val file = createTempFile("upload", ".jpg").toFile()
+                        context.contentResolver.openInputStream(uri)?.use { input ->
+                            file.outputStream().use { output -> input.copyTo(output) }
+                        }
+                        file
+                    }
+                    try {
+                        val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                        issueAttachmentRepository.uploadPhoto(issueId, tempFile, mimeType)
+                    } finally {
+                        tempFile.delete()
+                    }
+                }
             }
         }
     }

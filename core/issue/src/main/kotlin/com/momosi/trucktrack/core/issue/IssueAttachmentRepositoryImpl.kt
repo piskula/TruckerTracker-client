@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
+import retrofit2.Retrofit
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,7 +17,11 @@ import javax.inject.Singleton
 @Singleton
 class IssueAttachmentRepositoryImpl @Inject constructor(
     private val issueAttachmentApi: IssueAttachmentApi,
+    private val retrofit: Retrofit,
 ) : IssueAttachmentRepository {
+
+    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String =
+        "${retrofit.baseUrl()}api/v1/issue/$issueId/photo/$attachmentId"
 
     override suspend fun getPhotos(
         issueId: Long,

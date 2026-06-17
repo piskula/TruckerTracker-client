@@ -7,6 +7,8 @@ import java.io.File
 
 interface IssueAttachmentRepository {
 
+    fun getPhotoUrl(issueId: Long, attachmentId: Long): String
+
     suspend fun getPhotos(
         issueId: Long,
         page: Int? = null,

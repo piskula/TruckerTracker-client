@@ -65,5 +65,7 @@
     <string name="issue_detail_add_comment">Add Comment</string>
     <string name="issue_detail_comment_placeholder">Write a comment…</string>
     <string name="issue_detail_photos">Photos (%1$d)</string>
+    <string name="issue_detail_photos_loading">Photos</string>
+    <string name="issue_detail_history_empty">No history yet</string>
     <string name="issue_detail_error">Failed to load issue</string>
 </resources>

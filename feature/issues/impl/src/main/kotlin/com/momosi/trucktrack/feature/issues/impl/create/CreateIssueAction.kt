@@ -9,7 +9,7 @@ sealed interface CreateIssueAction {
     data class UpdateTitle(val title: String) : CreateIssueAction
     data class UpdateDescription(val description: String) : CreateIssueAction
     data class SelectPriority(val priority: IssuePriority) : CreateIssueAction
-    data class AddPhoto(val uri: Uri) : CreateIssueAction
+    data class AddPhotos(val uris: List<Uri>) : CreateIssueAction
     data class RemovePhoto(val uri: Uri) : CreateIssueAction
     data object Submit : CreateIssueAction
     data object ToggleVehicleDropdown : CreateIssueAction

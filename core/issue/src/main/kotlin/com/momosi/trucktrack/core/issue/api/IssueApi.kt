@@ -18,7 +18,7 @@ interface IssueApi {
         @Body filter: IssueFilterDto,
         @Query("page") page: Int? = null,
         @Query("size") size: Int? = null,
-        @Query("sort") sort: List<String>? = null,
+        @Query("sort") sort: String? = null,
     ): PageDto<IssueDto>
 
     @POST("api/v1/issue/create")

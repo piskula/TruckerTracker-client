@@ -32,7 +32,7 @@ class IssueRepositoryImpl @Inject constructor(
             filter = statuses.toFilterDto(vehicleIds, accountIds),
             page = page,
             size = size,
-            sort = listOf("priority,asc", "createdAt,asc"),
+            sort = "priority,asc;createdAtUtc,asc",
         ).toPage { it.toIssue() }
     }
 
@@ -60,13 +60,12 @@ class IssueRepositoryImpl @Inject constructor(
         issueId: Long,
         page: Int?,
         size: Int?,
-        sort: String?,
     ): Result<Page<IssueHistory>> = runCatching {
         issueHistoryApi.getIssueHistory(
             id = issueId,
             page = page,
             size = size,
-            sort = sort,
+            sort = "createdAtUtc,asc",
         ).toPage { it.toIssueHistory() }
     }
 }
