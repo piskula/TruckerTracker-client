@@ -6,6 +6,9 @@ import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueHistory
+import com.momosi.trucktrack.core.issue.model.IssueStatus
+import com.momosi.trucktrack.user.UserRepository
+import com.momosi.trucktrack.user.model.UserRole
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -29,6 +32,7 @@ class IssueDetailViewModel @AssistedInject constructor(
     @Assisted private val issueId: Long,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -52,6 +56,8 @@ class IssueDetailViewModel @AssistedInject constructor(
             is IssueDetailAction.UpdateComment -> _state.update { it.copy(commentText = action.text) }
             is IssueDetailAction.SendComment -> sendComment()
             is IssueDetailAction.Retry -> loadIssueDetail()
+            is IssueDetailAction.StartWorking -> startWorking()
+            is IssueDetailAction.ResolveIssue -> resolveIssue()
         }
     }
 
@@ -70,24 +76,31 @@ class IssueDetailViewModel @AssistedInject constructor(
                 _state.update { it.copy(content = IssueDetailContent.Error) }
                 return@launch
             }
-            _state.update { it.copy(content = IssueDetailContent.Loaded(issue.toUi())) }
+            _state.update {
+                it.copy(
+                    content = IssueDetailContent.Loaded(issue.toUi()),
+                    mechanicAction = computeMechanicAction(issue),
+                )
+            }
         }
 
         loadHistory()
         loadPhotos()
     }
 
-    private fun loadHistory() {
-        _state.update { it.copy(historyContent = IssueHistoryContent.Loading) }
+    private fun loadHistory(updateOnly: Boolean = false) {
+        if (!updateOnly) {
+            _state.update { it.copy(historyContent = IssueHistoryContent.Loading) }
+        }
         viewModelScope.launch {
-            val items = issueRepository.getIssueHistory(issueId, sort = "createdAt,asc")
+            val items = issueRepository.getIssueHistory(issueId)
                 .getOrNull()?.content
                 ?.map { it.toUi() }
                 ?.toImmutableList()
             _state.update {
                 it.copy(
                     historyContent = if (items.isNullOrEmpty()) IssueHistoryContent.Empty
-                                     else IssueHistoryContent.Loaded(items),
+                    else IssueHistoryContent.Loaded(items),
                 )
             }
         }
@@ -110,6 +123,58 @@ class IssueDetailViewModel @AssistedInject constructor(
         }
     }
 
+    private fun computeMechanicAction(issue: Issue): MechanicActionType? {
+        val user = userRepository.user.value ?: return null
+        if (user.role != UserRole.Mechanic) return null
+        return when {
+            issue.status == IssueStatus.Open && issue.assignedTo?.id != user.id -> MechanicActionType.StartWorking
+            issue.status == IssueStatus.InProgress -> MechanicActionType.ResolveIssue
+            else -> null
+        }
+    }
+
+    private fun startWorking() {
+        if (_state.value.isMechanicActionLoading) return
+        _state.update { it.copy(isMechanicActionLoading = true) }
+        viewModelScope.launch {
+            issueRepository.startIssue(issueId)
+                .onSuccess { issue ->
+                    _state.update {
+                        it.copy(
+                            content = IssueDetailContent.Loaded(issue.toUi()),
+                            mechanicAction = computeMechanicAction(issue),
+                            isMechanicActionLoading = false,
+                        )
+                    }
+                    loadHistory(updateOnly = true)
+                }
+                .onFailure {
+                    _state.update { it.copy(isMechanicActionLoading = false) }
+                }
+        }
+    }
+
+    private fun resolveIssue() {
+        if (_state.value.isMechanicActionLoading) return
+        _state.update { it.copy(isMechanicActionLoading = true) }
+        viewModelScope.launch {
+            issueRepository.resolveIssue(issueId)
+                .onSuccess { issue ->
+                    _state.update {
+                        it.copy(
+                            content = IssueDetailContent.Loaded(issue.toUi()),
+                            mechanicAction = computeMechanicAction(issue),
+                            isMechanicActionLoading = false,
+                        )
+                    }
+                    loadHistory(updateOnly = true)
+                }
+                .onFailure {
+                    _state.update { it.copy(isMechanicActionLoading = false) }
+                }
+        }
+    }
+
     private fun sendComment() {
         val text = _state.value.commentText.trim()
         if (text.isEmpty() || _state.value.isSendingComment) return
@@ -120,7 +185,7 @@ class IssueDetailViewModel @AssistedInject constructor(
             issueRepository.addComment(issueId, text)
                 .onSuccess {
                     _state.update { it.copy(commentText = "", isSendingComment = false) }
-                    loadHistory()
+                    loadHistory(updateOnly = true)
                 }
                 .onFailure {
                     _state.update { it.copy(isSendingComment = false) }

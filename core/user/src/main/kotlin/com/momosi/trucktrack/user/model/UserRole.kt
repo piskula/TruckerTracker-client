@@ -4,4 +4,3 @@ enum class UserRole {
     Driver,
     Mechanic,
 }
-

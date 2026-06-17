@@ -8,9 +8,10 @@
 
     <!-- Filter chips -->
     <string name="my_issues_filter_all">All</string>
+    <string name="my_issues_filter_my_open">My Open</string>
+    <string name="my_issues_filter_my_closed">My Closed</string>
+    <string name="my_issues_filter_my_issues">My Issues</string>
     <string name="my_issues_filter_open">Open</string>
-    <string name="my_issues_filter_in_progress">In Progress</string>
-    <string name="my_issues_filter_done">Done</string>
 
     <!-- Section labels -->
     <string name="my_issues_section_in_progress">In Progress (%1$d)</string>
@@ -68,4 +69,6 @@
     <string name="issue_detail_photos_loading">Photos</string>
     <string name="issue_detail_history_empty">No history yet</string>
     <string name="issue_detail_error">Failed to load issue</string>
+    <string name="issue_detail_start_working">Start Working</string>
+    <string name="issue_detail_resolve_issue">Resolve Issue</string>
 </resources>

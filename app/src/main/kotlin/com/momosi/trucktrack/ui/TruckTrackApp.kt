@@ -2,6 +2,7 @@
 
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -37,7 +38,7 @@ internal fun TruckTrackApp(viewModel: TruckTrackViewModel) {
 
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            Scaffold(modifier = Modifier.fillMaxSize().imePadding()) { innerPadding ->
                 NavDisplay(
                     modifier = Modifier
                         .fillMaxSize()

@@ -33,7 +33,6 @@ import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
 import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
-import com.momosi.trucktrack.user.model.UserRole
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -42,7 +41,6 @@ import java.time.ZonedDateTime
 @Composable
 internal fun IssueCard(
     issue: Issue,
-    userRole: UserRole,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -60,7 +58,7 @@ internal fun IssueCard(
                 )
             }
             .clickable(onClick = onClick)
-            .padding(start = 8.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+            .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
@@ -95,20 +93,23 @@ internal fun IssueCard(
                         text = vehicle.licensePlate,
                     )
                 }
-                if (userRole == UserRole.Mechanic) {
-                    issue.reportedBy?.let { reporter ->
-                        MetaItem(
-                            icon = TruckTrackIcons.Person,
-                            text = reporter.fullName,
-                        )
-                    }
+            }
+            issue.reportedBy?.let { reporter ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    MetaItem(
+                        icon = TruckTrackIcons.Person,
+                        text = reporter.fullName,
+                    )
+                    Text(
+                        text = issue.createdAt.timeAgo(),
+                        style = AppTheme.typography.labelSmall,
+                        color = AppTheme.colors.onSurfaceVariant,
+                    )
                 }
-                Box(modifier = Modifier.weight(1f))
-                Text(
-                    text = issue.createdAt.timeAgo(),
-                    style = AppTheme.typography.labelSmall,
-                    color = AppTheme.colors.onSurfaceVariant,
-                )
             }
         }
     }
@@ -296,7 +297,6 @@ private fun IssueCardDriverHighPreview() {
     TruckTrackTheme {
         IssueCard(
             issue = sampleIssue,
-            userRole = UserRole.Driver,
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -309,7 +309,6 @@ private fun IssueCardMechanicHighPreview() {
     TruckTrackTheme {
         IssueCard(
             issue = sampleIssue,
-            userRole = UserRole.Mechanic,
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -328,7 +327,6 @@ private fun IssueCardOpenMediumPreview() {
                 vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-089-MR"),
                 createdAt = Instant.now().minus(Duration.ofDays(1)),
             ),
-            userRole = UserRole.Driver,
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -347,10 +345,8 @@ private fun IssueCardDoneLowPreview() {
                 vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-118-AB"),
                 createdAt = Instant.now().minus(Duration.ofDays(25)),
             ),
-            userRole = UserRole.Driver,
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
     }
 }
-

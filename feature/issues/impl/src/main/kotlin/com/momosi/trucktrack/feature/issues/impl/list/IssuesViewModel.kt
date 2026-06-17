@@ -3,7 +3,9 @@ package com.momosi.trucktrack.feature.issues.impl.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.core.issue.IssueRepository
+import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
+import com.momosi.trucktrack.user.model.UserRole
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,31 +24,38 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class IssuesViewModel @Inject constructor(
-    userRepository: UserRepository,
+    private val userRepository: UserRepository,
     private val issueRepository: IssueRepository,
 ) : ViewModel() {
 
-    private val selectedFilter = MutableStateFlow(StatusFilter.All)
+    private val initialFilter: IssueFilter = when (userRepository.user.value?.role) {
+        UserRole.Mechanic -> IssueFilter.Mechanic.MyIssues
+        UserRole.Driver, null -> IssueFilter.Driver.MyOpen
+    }
+    private val selectedFilter = MutableStateFlow<IssueFilter>(initialFilter)
     private val retryTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     private val content: Flow<IssuesContent> =
-        combine(selectedFilter, retryTrigger.onStart { emit(Unit) }, userRepository.user) { filter, _, user -> Pair(filter, user) }
-            .flatMapLatest { (filter, user) ->
-                flow {
-                    emit(IssuesContent.Loading)
-                    issueRepository.getIssues(
-                        statuses = listOfNotNull(filter.status),
-                        accountIds = listOfNotNull(user?.id),
-                    )
-                        .onSuccess { page ->
-                            val issues = page.content.toImmutableList()
-                            emit(if (issues.isEmpty()) IssuesContent.Empty else IssuesContent.Issues(issues))
-                        }
-                        .onFailure {
-                            emit(IssuesContent.Error)
-                        }
-                }
+        combine(selectedFilter, retryTrigger.onStart { emit(Unit) }, userRepository.user) { filter, _, user ->
+            Triple(filter, user?.id, user?.role)
+        }.flatMapLatest { (filter, userId, role) ->
+            flow {
+                emit(IssuesContent.Loading)
+                val statuses = filter.statuses()
+                val accountIds = filter.accountIds(userId)
+                issueRepository.getIssues(
+                    statuses = statuses,
+                    accountIds = accountIds,
+                )
+                    .onSuccess { page ->
+                        val issues = page.content.toImmutableList()
+                        emit(if (issues.isEmpty()) IssuesContent.Empty else IssuesContent.Issues(issues))
+                    }
+                    .onFailure {
+                        emit(IssuesContent.Error)
+                    }
             }
+        }
 
     val state: StateFlow<IssuesState> = combine(
         userRepository.user,
@@ -72,4 +81,22 @@ class IssuesViewModel @Inject constructor(
             is IssuesAction.CreateIssue -> Unit
         }
     }
+}
+
+private fun IssueFilter.statuses(): List<IssueStatus> = when (this) {
+    IssueFilter.Driver.MyOpen -> listOf(IssueStatus.Open, IssueStatus.InProgress)
+    IssueFilter.Driver.MyClosed -> listOf(IssueStatus.Done)
+    IssueFilter.Driver.All -> emptyList()
+    IssueFilter.Mechanic.MyIssues -> listOf(IssueStatus.InProgress, IssueStatus.Done)
+    IssueFilter.Mechanic.Open -> listOf(IssueStatus.Open)
+    IssueFilter.Mechanic.All -> emptyList()
+}
+
+private fun IssueFilter.accountIds(userId: String?): List<String> = when (this) {
+    IssueFilter.Driver.MyOpen -> listOfNotNull(userId)
+    IssueFilter.Driver.MyClosed -> listOfNotNull(userId)
+    IssueFilter.Driver.All -> emptyList()
+    IssueFilter.Mechanic.MyIssues -> listOfNotNull(userId)
+    IssueFilter.Mechanic.Open -> emptyList()
+    IssueFilter.Mechanic.All -> emptyList()
 }

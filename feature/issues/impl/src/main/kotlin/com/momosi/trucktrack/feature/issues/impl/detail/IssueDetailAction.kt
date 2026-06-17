@@ -4,5 +4,7 @@ sealed interface IssueDetailAction {
     data class UpdateComment(val text: String) : IssueDetailAction
     data object SendComment : IssueDetailAction
     data object Retry : IssueDetailAction
+    data object StartWorking : IssueDetailAction
+    data object ResolveIssue : IssueDetailAction
 }
 

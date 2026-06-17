@@ -3,9 +3,8 @@ package com.momosi.trucktrack.feature.issues.impl.navigation
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.momosi.trucktrack.core.navigation.Navigator
-import com.momosi.trucktrack.feature.issues.api.CreateIssueNavKey
-import com.momosi.trucktrack.feature.issues.api.IssueDetailNavKey
 import com.momosi.trucktrack.feature.issues.api.IssuesNavKey
+import com.momosi.trucktrack.feature.issues.impl.FullScreenPhotoScreen
 import com.momosi.trucktrack.feature.issues.impl.list.IssuesScreen
 import com.momosi.trucktrack.feature.issues.impl.create.CreateIssueScreen
 import com.momosi.trucktrack.feature.issues.impl.detail.IssueDetailScreen
@@ -26,11 +25,19 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator) {
                 navigator.goBack()
                 navigator.navigate(IssueDetailNavKey(issueId))
             },
+            onNavigateToFullScreenPhoto = { uri -> navigator.navigate(FullScreenPhotoNavKey(uri)) },
         )
     }
     entry<IssueDetailNavKey> { key ->
         IssueDetailScreen(
             issueId = key.issueId,
+            onBack = navigator::goBack,
+            onNavigateToFullScreenPhoto = { url -> navigator.navigate(FullScreenPhotoNavKey(url)) },
+        )
+    }
+    entry<FullScreenPhotoNavKey> { key ->
+        FullScreenPhotoScreen(
+            photoUri = key.photoUri,
             onBack = navigator::goBack,
         )
     }

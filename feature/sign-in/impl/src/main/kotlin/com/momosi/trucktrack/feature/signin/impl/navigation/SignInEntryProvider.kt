@@ -11,7 +11,7 @@ import com.momosi.trucktrack.core.navigation.Navigator
 fun EntryProviderScope<NavKey>.signInEntries(navigator: Navigator) {
     entry<SignInNavKey> {
         SignInScreen(
-            onNavigateToMyIssues = { navigator.navigate(IssuesNavKey) },
+            onNavigateToMyIssues = { navigator.navigateToRoot(IssuesNavKey) },
         )
     }
 

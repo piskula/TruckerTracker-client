@@ -14,6 +14,8 @@ data class IssueDetailState(
     val photosContent: IssuePhotosContent = IssuePhotosContent.Loading,
     val commentText: String = "",
     val isSendingComment: Boolean = false,
+    val mechanicAction: MechanicActionType? = null,
+    val isMechanicActionLoading: Boolean = false,
 )
 
 @Immutable
@@ -71,3 +73,9 @@ data class PhotoItem(
     val filename: String,
     val url: String,
 )
+
+enum class MechanicActionType {
+    StartWorking,
+    ResolveIssue,
+}
+

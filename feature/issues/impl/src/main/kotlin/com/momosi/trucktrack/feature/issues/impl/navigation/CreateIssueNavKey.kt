@@ -1,4 +1,4 @@
-package com.momosi.trucktrack.feature.issues.api
+package com.momosi.trucktrack.feature.issues.impl.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable

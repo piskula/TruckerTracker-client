@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,9 +59,10 @@ import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun CreateIssueScreen(
-    viewModel: CreateIssueViewModel = hiltViewModel(),
     onBack: () -> Unit,
     onIssueCreated: (Long) -> Unit,
+    onNavigateToFullScreenPhoto: (String) -> Unit,
+    viewModel: CreateIssueViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -79,6 +79,7 @@ internal fun CreateIssueScreen(
         state = state,
         onAction = viewModel::onAction,
         onBack = onBack,
+        onNavigateToFullScreenPhoto = onNavigateToFullScreenPhoto,
     )
 }
 
@@ -87,6 +88,7 @@ private fun CreateIssueContent(
     state: CreateIssueState,
     onAction: (CreateIssueAction) -> Unit,
     onBack: () -> Unit,
+    onNavigateToFullScreenPhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -94,7 +96,7 @@ private fun CreateIssueContent(
         onResult = { uris -> if (uris.isNotEmpty()) onAction(CreateIssueAction.AddPhotos(uris)) },
     )
 
-    Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background).imePadding()) {
+    Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background)) {
         Toolbar(title = stringResource(R.string.create_issue_title), onBack = onBack)
 
         Column(
@@ -149,6 +151,7 @@ private fun CreateIssueContent(
                     PhotoPreviews(
                         uris = state.photoUris,
                         onRemove = { onAction(CreateIssueAction.RemovePhoto(it)) },
+                        onPhotoClick = { uri -> onNavigateToFullScreenPhoto(uri.toString()) },
                     )
                 }
             }
@@ -433,6 +436,7 @@ private fun PhotoUploadArea(
 private fun PhotoPreviews(
     uris: ImmutableList<Uri>,
     onRemove: (Uri) -> Unit,
+    onPhotoClick: (Uri) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
@@ -448,7 +452,8 @@ private fun PhotoPreviews(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(72.dp)
-                        .clip(RoundedCornerShape(8.dp)),
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onPhotoClick(uri) },
                 )
                 Box(
                     modifier = Modifier
@@ -491,6 +496,7 @@ private fun CreateIssuePreview() {
             ),
             onAction = {},
             onBack = {},
+            onNavigateToFullScreenPhoto = {},
         )
     }
 }
@@ -503,6 +509,7 @@ private fun CreateIssueEmptyPreview() {
             state = CreateIssueState(),
             onAction = {},
             onBack = {},
+            onNavigateToFullScreenPhoto = {},
         )
     }
 }

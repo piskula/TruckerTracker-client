@@ -28,7 +28,6 @@ import com.momosi.trucktrack.core.uilibrary.components.DashboardTopBar
 import com.momosi.trucktrack.core.uilibrary.components.FilterChipRow
 import com.momosi.trucktrack.core.uilibrary.components.FloatingActionButton
 import com.momosi.trucktrack.core.uilibrary.components.LoadingSpinner
-import com.momosi.trucktrack.core.uilibrary.components.SectionLabel
 import com.momosi.trucktrack.core.uilibrary.components.Text
 import com.momosi.trucktrack.core.uilibrary.components.TopBarIconButton
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
@@ -83,17 +82,24 @@ private fun IssuesScreenContent(
                 ),
                 subtitle = buildSubtitle(user),
                 actions = {
-                    TopBarIconButton(icon = TruckTrackIcons.Search, onClick = {})
+//                    TopBarIconButton(icon = TruckTrackIcons.Search, onClick = {})
                     TopBarIconButton(icon = TruckTrackIcons.AccountCircle, onClick = onNavigateToProfile)
                 },
             )
             FilterChipRow(
-                items = persistentListOf(
-                    StatusFilter.All,
-                    StatusFilter.Open,
-                    StatusFilter.InProgress,
-                    StatusFilter.Done,
-                ),
+                items = if (isDriver) {
+                    persistentListOf(
+                        IssueFilter.Driver.MyOpen,
+                        IssueFilter.Driver.MyClosed,
+                        IssueFilter.Driver.All,
+                    )
+                } else {
+                    persistentListOf(
+                        IssueFilter.Mechanic.MyIssues,
+                        IssueFilter.Mechanic.Open,
+                        IssueFilter.Mechanic.All,
+                    )
+                },
                 selectedItem = state.selectedFilter,
                 labelSelector = { it.label() },
                 onSelect = { onAction(IssuesAction.SelectFilter(it)) },
@@ -105,8 +111,6 @@ private fun IssuesScreenContent(
                 is IssuesContent.Empty -> EmptyContent()
                 is IssuesContent.Issues -> IssueList(
                     issues = content.issues,
-                    userRole = userRole ?: UserRole.Driver,
-                    selectedFilter = state.selectedFilter,
                     onOpenIssue = onNavigateToIssueDetail,
                 )
             }
@@ -126,62 +130,27 @@ private fun IssuesScreenContent(
 @Composable
 private fun IssueList(
     issues: ImmutableList<Issue>,
-    userRole: UserRole,
-    selectedFilter: StatusFilter,
     onOpenIssue: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val groupedIssues = groupIssues(issues, userRole, selectedFilter)
-
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        groupedIssues.forEach { (label, sectionIssues) ->
-            item(key = label) {
-                SectionLabel(text = label)
-            }
-            items(
-                items = sectionIssues,
-                key = { it.id },
-            ) { issue ->
-                IssueCard(
-                    issue = issue,
-                    userRole = userRole,
-                    onClick = { onOpenIssue(issue.id) },
-                )
-            }
+        items(
+            items = issues,
+            key = { it.id },
+        ) { issue ->
+            IssueCard(
+                issue = issue,
+                onClick = { onOpenIssue(issue.id) },
+            )
         }
         item { Spacer(modifier = Modifier.height(72.dp)) }
     }
 }
 
-@Composable
-private fun groupIssues(
-    issues: List<Issue>,
-    userRole: UserRole,
-    selectedFilter: StatusFilter,
-): List<Pair<String, List<Issue>>> {
-    if (selectedFilter != StatusFilter.All) {
-        return listOf(selectedFilter.label() to issues)
-    }
-    val groups = mutableListOf<Pair<String, List<Issue>>>()
-    if (userRole == UserRole.Mechanic) {
-        val inProgress = issues.filter { it.status == IssueStatus.InProgress }
-        val open = issues.filter { it.status == IssueStatus.Open }
-        val done = issues.filter { it.status == IssueStatus.Done }
-        if (inProgress.isNotEmpty()) groups.add(stringResource(R.string.my_issues_section_in_progress, inProgress.size) to inProgress)
-        if (open.isNotEmpty()) groups.add(stringResource(R.string.my_issues_section_open_available, open.size) to open)
-        if (done.isNotEmpty()) groups.add(stringResource(R.string.my_issues_section_completed, done.size) to done)
-    } else {
-        val active = issues.filter { it.status != IssueStatus.Done }
-        val done = issues.filter { it.status == IssueStatus.Done }
-        if (active.isNotEmpty()) groups.add(stringResource(R.string.my_issues_section_reported_by_me, active.size) to active)
-        if (done.isNotEmpty()) groups.add(stringResource(R.string.my_issues_section_completed, done.size) to done)
-    }
-    return groups
-}
 
 @Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
@@ -241,12 +210,14 @@ private fun buildSubtitle(user: User?): String {
 }
 
 @Composable
-private fun StatusFilter.label(): String = stringResource(
+private fun IssueFilter.label(): String = stringResource(
     when (this) {
-        StatusFilter.All -> R.string.my_issues_filter_all
-        StatusFilter.Open -> R.string.my_issues_filter_open
-        StatusFilter.InProgress -> R.string.my_issues_filter_in_progress
-        StatusFilter.Done -> R.string.my_issues_filter_done
+        IssueFilter.Driver.MyOpen -> R.string.my_issues_filter_my_open
+        IssueFilter.Driver.MyClosed -> R.string.my_issues_filter_my_closed
+        IssueFilter.Driver.All -> R.string.my_issues_filter_all
+        IssueFilter.Mechanic.MyIssues -> R.string.my_issues_filter_my_issues
+        IssueFilter.Mechanic.Open -> R.string.my_issues_filter_open
+        IssueFilter.Mechanic.All -> R.string.my_issues_filter_all
     },
 )
 
@@ -318,6 +289,7 @@ private fun IssuesDriverPreview() {
         IssuesScreenContent(
             state = IssuesState(
                 user = User(id = "", name = "Michael Schumacher", email = "", role = UserRole.Driver),
+                selectedFilter = IssueFilter.Driver.MyOpen,
                 content = IssuesContent.Issues(previewIssues),
             ),
             onAction = {},
@@ -335,6 +307,7 @@ private fun IssuesMechanicPreview() {
         IssuesScreenContent(
             state = IssuesState(
                 user = User(id = "", name = "Mattia Binotto", email = "", role = UserRole.Mechanic),
+                selectedFilter = IssueFilter.Mechanic.MyIssues,
                 content = IssuesContent.Issues(previewIssues),
             ),
             onAction = {},

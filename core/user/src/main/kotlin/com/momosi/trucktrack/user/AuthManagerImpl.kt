@@ -11,6 +11,9 @@ import com.momosi.trucktrack.user.internal.UserStorage
 import com.momosi.trucktrack.user.model.AuthActionResult
 import com.momosi.trucktrack.user.model.AuthenticationState
 import com.momosi.trucktrack.user.model.TokenResponse
+import com.momosi.trucktrack.user.model.User
+import com.momosi.trucktrack.user.model.UserRole
+import io.jsonwebtoken.Claims
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -227,12 +230,16 @@ class AuthManagerImpl @Inject constructor(
 
     private fun clearAuthState() {
         authStorage.authState = AuthState()
+        authStorage.user = null
     }
 
     private suspend fun Result<AuthState>.verified(): Result<AuthState> = this.flatMap { authState ->
         authState.accessToken?.let { token ->
             tokenVerifier.verifyToken(token)
                 .onSuccess { Logger.d(TAG, "Token verified") }
+                .onSuccess { jws ->
+                    authStorage.user = jws.payload.toUser()
+                }
                 .map { authState }
         } ?: Result.failure(IllegalStateException("Access token is empty"))
     }
@@ -253,3 +260,23 @@ inline fun <R, T> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> = fo
     onSuccess = { transform(it) },
     onFailure = { Result.failure(it) },
 )
+
+private fun Claims.toUser(): User {
+    val roles = (get("realm_access", Map::class.java)?.get("roles") as? List<*>)
+        ?.filterIsInstance<String>()
+        ?.filterNot { it.startsWith("default-roles") || it in setOf("offline_access", "uma_authorization") }
+        .orEmpty()
+
+    return User(
+        id = subject ?: "",
+        name = get("name", String::class.java) ?: "",
+        email = get("email", String::class.java) ?: "",
+        role = roles.firstNotNullOfOrNull { it.toUserRole() } ?: UserRole.Driver,
+    )
+}
+
+private fun String.toUserRole(): UserRole? = when (this) {
+    "ROLE_DRIVER" -> UserRole.Driver
+    "ROLE_MECHANIC" -> UserRole.Mechanic
+    else -> null
+}

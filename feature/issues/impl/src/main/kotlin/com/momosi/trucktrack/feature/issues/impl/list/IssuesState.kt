@@ -8,7 +8,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Immutable
 data class IssuesState(
     val user: User? = null,
-    val selectedFilter: StatusFilter = StatusFilter.All,
+    val selectedFilter: IssueFilter = IssueFilter.Driver.MyOpen,
     val content: IssuesContent = IssuesContent.Loading,
 )
 

@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,13 +47,13 @@ import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.Shapes
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.feature.issues.impl.R
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun IssueDetailScreen(
     issueId: Long,
     onBack: () -> Unit,
+    onNavigateToFullScreenPhoto: (String) -> Unit,
     viewModel: IssueDetailViewModel = hiltViewModel<IssueDetailViewModel, IssueDetailViewModel.Factory>(
         creationCallback = { factory -> factory.create(issueId) },
     ),
@@ -62,6 +63,7 @@ internal fun IssueDetailScreen(
         state = state,
         onAction = viewModel::onAction,
         onBack = onBack,
+        onNavigateToFullScreenPhoto = onNavigateToFullScreenPhoto,
     )
 }
 
@@ -70,6 +72,7 @@ private fun IssueDetailContent(
     state: IssueDetailState,
     onAction: (IssueDetailAction) -> Unit,
     onBack: () -> Unit,
+    onNavigateToFullScreenPhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background)) {
@@ -101,8 +104,11 @@ private fun IssueDetailContent(
                     photosContent = state.photosContent,
                     commentText = state.commentText,
                     isSendingComment = state.isSendingComment,
+                    mechanicAction = state.mechanicAction,
+                    isMechanicActionLoading = state.isMechanicActionLoading,
                     onAction = onAction,
                     onBack = onBack,
+                    onPhotoClick = onNavigateToFullScreenPhoto,
                 )
             }
         }
@@ -116,8 +122,11 @@ private fun LoadedContent(
     photosContent: IssuePhotosContent,
     commentText: String,
     isSendingComment: Boolean,
+    mechanicAction: MechanicActionType?,
+    isMechanicActionLoading: Boolean,
     onAction: (IssueDetailAction) -> Unit,
     onBack: () -> Unit,
+    onPhotoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -142,11 +151,25 @@ private fun LoadedContent(
                 onSend = { onAction(IssueDetailAction.SendComment) },
             )
             when (photosContent) {
-                is IssuePhotosContent.Loading -> PhotosCard(photosContent = photosContent)
+                is IssuePhotosContent.Loading -> PhotosCard(
+                    photosContent = photosContent,
+                    onPhotoClick = onPhotoClick,
+                )
                 is IssuePhotosContent.Loaded -> {
-                    if (photosContent.items.isNotEmpty()) PhotosCard(photosContent = photosContent)
+                    if (photosContent.items.isNotEmpty()) PhotosCard(
+                        photosContent = photosContent,
+                        onPhotoClick = onPhotoClick,
+                    )
                 }
             }
+        }
+
+        if (mechanicAction != null) {
+            MechanicActionBar(
+                actionType = mechanicAction,
+                isLoading = isMechanicActionLoading,
+                onAction = onAction,
+            )
         }
     }
 }
@@ -478,7 +501,11 @@ private fun CommentCard(
 }
 
 @Composable
-private fun PhotosCard(photosContent: IssuePhotosContent, modifier: Modifier = Modifier) {
+private fun PhotosCard(
+    photosContent: IssuePhotosContent,
+    onPhotoClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val title = when (photosContent) {
         is IssuePhotosContent.Loading -> stringResource(R.string.issue_detail_photos_loading)
         is IssuePhotosContent.Loaded -> stringResource(R.string.issue_detail_photos, photosContent.items.size)
@@ -497,7 +524,8 @@ private fun PhotosCard(photosContent: IssuePhotosContent, modifier: Modifier = M
                             modifier = Modifier
                                 .size(80.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(AppTheme.colors.surfaceVariant),
+                                .background(AppTheme.colors.surfaceVariant)
+                                .clickable { onPhotoClick(photo.url) },
                             contentAlignment = Alignment.BottomCenter,
                         ) {
                             AsyncImage(
@@ -506,22 +534,40 @@ private fun PhotosCard(photosContent: IssuePhotosContent, modifier: Modifier = M
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.matchParentSize(),
                             )
-                            Text(
-                                text = photo.filename,
-                                style = AppTheme.typography.labelSmall,
-                                color = AppTheme.colors.onPrimary,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        AppTheme.colors.onSurface.copy(alpha = 0.42f),
-                                        RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp),
-                                    )
-                                    .padding(vertical = 2.dp, horizontal = 4.dp),
-                            )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MechanicActionBar(
+    actionType: MechanicActionType,
+    isLoading: Boolean,
+    onAction: (IssueDetailAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(AppTheme.colors.surface)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        when (actionType) {
+            MechanicActionType.StartWorking -> Button(
+                text = stringResource(R.string.issue_detail_start_working),
+                onClick = { onAction(IssueDetailAction.StartWorking) },
+                loading = isLoading,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            MechanicActionType.ResolveIssue -> Button(
+                text = stringResource(R.string.issue_detail_resolve_issue),
+                onClick = { onAction(IssueDetailAction.ResolveIssue) },
+                loading = isLoading,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
@@ -536,6 +582,7 @@ private fun CardContainer(
         modifier = modifier
             .fillMaxWidth()
             .background(AppTheme.colors.surface, Shapes.CardShape)
+            .animateContentSize()
             .padding(16.dp),
     ) {
         Text(
@@ -548,7 +595,6 @@ private fun CardContainer(
     }
 }
 
-// region Helpers
 
 @Composable
 private fun IssuePriority.borderColor(): Color = when (this) {
@@ -609,10 +655,6 @@ private fun IssueStatus?.dotColor(): Color = when (this) {
     null -> AppTheme.colors.surfaceVariant
 }
 
-// endregion
-
-// region Previews
-
 private val previewIssue = IssueUi(
     id = 1042,
     title = "Engine warning light — truck won't start",
@@ -644,6 +686,7 @@ private fun IssueDetailLoadedPreview() {
             ),
             onAction = {},
             onBack = {},
+            onNavigateToFullScreenPhoto = {},
         )
     }
 }
@@ -660,6 +703,7 @@ private fun IssueDetailHistoryLoadingPreview() {
             ),
             onAction = {},
             onBack = {},
+            onNavigateToFullScreenPhoto = {},
         )
     }
 }
@@ -676,6 +720,7 @@ private fun IssueDetailHistoryEmptyPreview() {
             ),
             onAction = {},
             onBack = {},
+            onNavigateToFullScreenPhoto = {},
         )
     }
 }
@@ -688,8 +733,7 @@ private fun IssueDetailFullLoadingPreview() {
             state = IssueDetailState(),
             onAction = {},
             onBack = {},
+            onNavigateToFullScreenPhoto = {},
         )
     }
 }
-
-// endregion
