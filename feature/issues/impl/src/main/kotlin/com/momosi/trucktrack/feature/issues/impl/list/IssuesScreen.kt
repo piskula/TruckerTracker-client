@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import com.momosi.trucktrack.core.issue.model.Account
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
+import com.momosi.trucktrack.core.uilibrary.components.PullToRefresh
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.DashboardTopBar
 import com.momosi.trucktrack.core.uilibrary.components.FilterChipRow
@@ -38,7 +40,6 @@ import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
 import com.momosi.trucktrack.user.model.User
 import com.momosi.trucktrack.user.model.UserRole
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.time.Duration
@@ -47,14 +48,24 @@ import java.time.Instant
 @Composable
 internal fun IssuesScreen(
     viewModel: IssuesViewModel = hiltViewModel(),
+    issueStatusChanged: Boolean = false,
     onNavigateToProfile: () -> Unit,
     onNavigateToCreateIssue: () -> Unit,
     onNavigateToIssueDetail: (Long) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(issueStatusChanged) {
+        if (issueStatusChanged) {
+            viewModel.onAction(IssuesAction.Refresh)
+        }
+    }
+
     IssuesScreenContent(
         state = state,
-        onAction = viewModel::onAction,
+        onSelectFilter = { viewModel.onAction(IssuesAction.SelectFilter(it)) },
+        onRetry = { viewModel.onAction(IssuesAction.Retry) },
+        onRefresh = { viewModel.onAction(IssuesAction.Refresh) },
         onNavigateToProfile = onNavigateToProfile,
         onNavigateToCreateIssue = onNavigateToCreateIssue,
         onNavigateToIssueDetail = onNavigateToIssueDetail,
@@ -64,7 +75,9 @@ internal fun IssuesScreen(
 @Composable
 private fun IssuesScreenContent(
     state: IssuesState,
-    onAction: (IssuesAction) -> Unit,
+    onSelectFilter: (IssueFilter) -> Unit,
+    onRetry: () -> Unit,
+    onRefresh: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToCreateIssue: () -> Unit,
     onNavigateToIssueDetail: (Long) -> Unit,
@@ -82,7 +95,6 @@ private fun IssuesScreenContent(
                 ),
                 subtitle = buildSubtitle(user),
                 actions = {
-//                    TopBarIconButton(icon = TruckTrackIcons.Search, onClick = {})
                     TopBarIconButton(icon = TruckTrackIcons.AccountCircle, onClick = onNavigateToProfile)
                 },
             )
@@ -102,16 +114,16 @@ private fun IssuesScreenContent(
                 },
                 selectedItem = state.selectedFilter,
                 labelSelector = { it.label() },
-                onSelect = { onAction(IssuesAction.SelectFilter(it)) },
-                modifier = Modifier.padding(bottom = 12.dp),
+                onSelect = onSelectFilter,
             )
             when (val content = state.content) {
                 is IssuesContent.Loading -> LoadingContent()
-                is IssuesContent.Error -> ErrorContent(onRetry = { onAction(IssuesAction.Retry) })
+                is IssuesContent.Error -> ErrorContent(onRetry = onRetry)
                 is IssuesContent.Empty -> EmptyContent()
                 is IssuesContent.Issues -> IssueList(
-                    issues = content.issues,
+                    content = content,
                     onOpenIssue = onNavigateToIssueDetail,
+                    onRefresh = onRefresh,
                 )
             }
         }
@@ -129,25 +141,31 @@ private fun IssuesScreenContent(
 
 @Composable
 private fun IssueList(
-    issues: ImmutableList<Issue>,
+    content: IssuesContent.Issues,
     onOpenIssue: (Long) -> Unit,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+    PullToRefresh(
+        isRefreshing = content.isRefreshing,
+        onRefresh = onRefresh,
     ) {
-        items(
-            items = issues,
-            key = { it.id },
-        ) { issue ->
-            IssueCard(
-                issue = issue,
-                onClick = { onOpenIssue(issue.id) },
-            )
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 4.dp, top = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            items(
+                items = content.issues,
+                key = { it.id },
+            ) { issue ->
+                IssueCard(
+                    issue = issue,
+                    onClick = { onOpenIssue(issue.id) },
+                )
+            }
+            item { Spacer(modifier = Modifier.height(72.dp)) }
         }
-        item { Spacer(modifier = Modifier.height(72.dp)) }
     }
 }
 
@@ -292,7 +310,9 @@ private fun IssuesDriverPreview() {
                 selectedFilter = IssueFilter.Driver.MyOpen,
                 content = IssuesContent.Issues(previewIssues),
             ),
-            onAction = {},
+            onSelectFilter = {},
+            onRetry = {},
+            onRefresh = {},
             onNavigateToProfile = {},
             onNavigateToCreateIssue = {},
             onNavigateToIssueDetail = {},
@@ -310,7 +330,9 @@ private fun IssuesMechanicPreview() {
                 selectedFilter = IssueFilter.Mechanic.MyIssues,
                 content = IssuesContent.Issues(previewIssues),
             ),
-            onAction = {},
+            onSelectFilter = {},
+            onRetry = {},
+            onRefresh = {},
             onNavigateToProfile = {},
             onNavigateToCreateIssue = {},
             onNavigateToIssueDetail = {},
@@ -324,7 +346,9 @@ private fun IssuesLoadingPreview() {
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(content = IssuesContent.Loading),
-            onAction = {},
+            onSelectFilter = {},
+            onRetry = {},
+            onRefresh = {},
             onNavigateToProfile = {},
             onNavigateToCreateIssue = {},
             onNavigateToIssueDetail = {},
@@ -341,7 +365,9 @@ private fun IssuesEmptyPreview() {
                 user = User(id = "", name = "Test User", email = "", role = UserRole.Driver),
                 content = IssuesContent.Empty,
             ),
-            onAction = {},
+            onSelectFilter = {},
+            onRetry = {},
+            onRefresh = {},
             onNavigateToProfile = {},
             onNavigateToCreateIssue = {},
             onNavigateToIssueDetail = {},

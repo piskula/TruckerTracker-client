@@ -16,6 +16,7 @@ data class IssueDetailState(
     val isSendingComment: Boolean = false,
     val mechanicAction: MechanicActionType? = null,
     val isMechanicActionLoading: Boolean = false,
+    val statusChanged: Boolean = false,
 )
 
 @Immutable

@@ -34,13 +34,14 @@ class IssuesViewModel @Inject constructor(
     }
     private val selectedFilter = MutableStateFlow<IssueFilter>(initialFilter)
     private val retryTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val _isRefreshing = MutableStateFlow(false)
 
     private val content: Flow<IssuesContent> =
         combine(selectedFilter, retryTrigger.onStart { emit(Unit) }, userRepository.user) { filter, _, user ->
             Triple(filter, user?.id, user?.role)
-        }.flatMapLatest { (filter, userId, role) ->
+        }.flatMapLatest { (filter, userId, _) ->
             flow {
-                emit(IssuesContent.Loading)
+                if (!_isRefreshing.value) emit(IssuesContent.Loading)
                 val statuses = filter.statuses()
                 val accountIds = filter.accountIds(userId)
                 issueRepository.getIssues(
@@ -54,6 +55,7 @@ class IssuesViewModel @Inject constructor(
                     .onFailure {
                         emit(IssuesContent.Error)
                     }
+                _isRefreshing.value = false
             }
         }
 
@@ -61,11 +63,12 @@ class IssuesViewModel @Inject constructor(
         userRepository.user,
         selectedFilter,
         content,
-    ) { user, filter, content ->
+        _isRefreshing,
+    ) { user, filter, content, isRefreshing ->
         IssuesState(
             user = user,
             selectedFilter = filter,
-            content = content,
+            content = if (isRefreshing && content is IssuesContent.Issues) content.copy(isRefreshing = true) else content,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -77,6 +80,10 @@ class IssuesViewModel @Inject constructor(
         when (action) {
             is IssuesAction.SelectFilter -> selectedFilter.value = action.filter
             is IssuesAction.Retry -> retryTrigger.tryEmit(Unit)
+            is IssuesAction.Refresh -> {
+                _isRefreshing.value = true
+                retryTrigger.tryEmit(Unit)
+            }
             is IssuesAction.OpenIssue -> Unit
             is IssuesAction.CreateIssue -> Unit
         }

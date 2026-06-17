@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.momosi.trucktrack.core.navigation.Navigator
 import com.momosi.trucktrack.core.navigation.rememberNavigationState
+import com.momosi.trucktrack.core.navigation.rememberResultStore
 import com.momosi.trucktrack.core.navigation.toEntries
 import com.momosi.trucktrack.core.uilibrary.modifier.LocalSharedTransitionScope
 import com.momosi.trucktrack.feature.issues.api.IssuesNavKey
@@ -34,7 +35,7 @@ internal fun TruckTrackApp(viewModel: TruckTrackViewModel) {
 
     val navigationState = rememberNavigationState(startKey = startKey)
     val navigator = remember { Navigator(navigationState) }
-
+    val resultStore = rememberResultStore()
 
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
@@ -45,7 +46,7 @@ internal fun TruckTrackApp(viewModel: TruckTrackViewModel) {
                         .padding(bottom = innerPadding.calculateBottomPadding()),
                     entries = navigationState.toEntries(entryProvider {
                         signInEntries(navigator)
-                        issuesEntries(navigator)
+                        issuesEntries(navigator, resultStore)
                         profileEntries(navigator)
                     }),
                     onBack = navigator::goBack,

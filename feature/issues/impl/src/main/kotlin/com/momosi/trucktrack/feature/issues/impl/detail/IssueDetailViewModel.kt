@@ -144,6 +144,7 @@ class IssueDetailViewModel @AssistedInject constructor(
                             content = IssueDetailContent.Loaded(issue.toUi()),
                             mechanicAction = computeMechanicAction(issue),
                             isMechanicActionLoading = false,
+                            statusChanged = true,
                         )
                     }
                     loadHistory(updateOnly = true)
@@ -165,6 +166,7 @@ class IssueDetailViewModel @AssistedInject constructor(
                             content = IssueDetailContent.Loaded(issue.toUi()),
                             mechanicAction = computeMechanicAction(issue),
                             isMechanicActionLoading = false,
+                            statusChanged = true,
                         )
                     }
                     loadHistory(updateOnly = true)

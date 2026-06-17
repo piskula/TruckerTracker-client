@@ -1,21 +1,33 @@
 ﻿package com.momosi.trucktrack.core.uilibrary.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
 import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import androidx.compose.material3.Button as MaterialButton
 import androidx.compose.material3.TextButton as MaterialTextButton
+
+enum class ButtonStyle {
+    Primary,
+    Warning,
+    Positive,
+}
 
 @Composable
 fun Button(
@@ -24,17 +36,25 @@ fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
+    icon: ImageVector? = null,
+    style: ButtonStyle = ButtonStyle.Primary,
 ) {
+    val (containerColor, contentColor)= when (style) {
+        ButtonStyle.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
+        ButtonStyle.Warning -> AppTheme.colors.warning to AppTheme.colors.onPrimary
+        ButtonStyle.Positive -> AppTheme.colors.positive to AppTheme.colors.onPrimary
+    }
+
     MaterialButton(
         onClick = onClick,
         modifier = modifier.defaultMinSize(minWidth = 200.dp),
         enabled = enabled && !loading,
         shape = RoundedCornerShape(28.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AppTheme.colors.primary,
-            contentColor = AppTheme.colors.onPrimary,
-            disabledContainerColor = AppTheme.colors.primary,
-            disabledContentColor = AppTheme.colors.onPrimary,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = containerColor,
+            disabledContentColor = contentColor,
         ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         elevation = ButtonDefaults.buttonElevation(
@@ -47,11 +67,24 @@ fun Button(
             if (loading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = AppTheme.colors.onPrimary,
+                    color = contentColor,
                     strokeWidth = 2.dp,
                 )
             } else {
-                Text(text = text, style = AppTheme.typography.labelLarge)
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon,
+                            tint = contentColor,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Text(text = text, style = AppTheme.typography.labelLarge)
+                }
             }
         }
     }
@@ -84,6 +117,32 @@ private fun ButtonPreview() {
 private fun ButtonLoadingPreview() {
     TruckTrackTheme {
         Button(text = "Sign In", onClick = {}, loading = true)
+    }
+}
+
+@Preview
+@Composable
+private fun ButtonWarningPreview() {
+    TruckTrackTheme {
+        Button(
+            text = "Start Working",
+            onClick = {},
+            style = ButtonStyle.Warning,
+            icon = TruckTrackIcons.Build,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ButtonPositivePreview() {
+    TruckTrackTheme {
+        Button(
+            text = "Resolve Issue",
+            onClick = {},
+            style = ButtonStyle.Positive,
+            icon = TruckTrackIcons.CheckCircle,
+        )
     }
 }
 

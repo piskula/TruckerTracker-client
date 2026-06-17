@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,6 +40,7 @@ import com.momosi.trucktrack.core.issue.model.IssueHistoryType
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.uilibrary.components.Button
+import com.momosi.trucktrack.core.uilibrary.components.ButtonStyle
 import com.momosi.trucktrack.core.uilibrary.components.Icon
 import com.momosi.trucktrack.core.uilibrary.components.LoadingSpinner
 import com.momosi.trucktrack.core.uilibrary.components.Text
@@ -52,17 +55,24 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 internal fun IssueDetailScreen(
     issueId: Long,
-    onBack: () -> Unit,
+    onBack: (shouldReload: Boolean) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     viewModel: IssueDetailViewModel = hiltViewModel<IssueDetailViewModel, IssueDetailViewModel.Factory>(
         creationCallback = { factory -> factory.create(issueId) },
     ),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    BackHandler(enabled = state.statusChanged) {
+        onBack(true)
+    }
     IssueDetailContent(
         state = state,
-        onAction = viewModel::onAction,
-        onBack = onBack,
+        onBack = { onBack(state.statusChanged) },
+        onRetry = { viewModel.onAction(IssueDetailAction.Retry) },
+        onUpdateComment = { viewModel.onAction(IssueDetailAction.UpdateComment(it)) },
+        onSendComment = { viewModel.onAction(IssueDetailAction.SendComment) },
+        onStartWorking = { viewModel.onAction(IssueDetailAction.StartWorking) },
+        onResolveIssue = { viewModel.onAction(IssueDetailAction.ResolveIssue) },
         onNavigateToFullScreenPhoto = onNavigateToFullScreenPhoto,
     )
 }
@@ -70,8 +80,12 @@ internal fun IssueDetailScreen(
 @Composable
 private fun IssueDetailContent(
     state: IssueDetailState,
-    onAction: (IssueDetailAction) -> Unit,
     onBack: () -> Unit,
+    onRetry: () -> Unit,
+    onUpdateComment: (String) -> Unit,
+    onSendComment: () -> Unit,
+    onStartWorking: () -> Unit,
+    onResolveIssue: () -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -93,7 +107,7 @@ private fun IssueDetailContent(
                             color = AppTheme.colors.onBackground,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(text = stringResource(R.string.my_issues_retry), onClick = { onAction(IssueDetailAction.Retry) })
+                        Button(text = stringResource(R.string.my_issues_retry), onClick = onRetry)
                     }
                 }
             }
@@ -106,8 +120,11 @@ private fun IssueDetailContent(
                     isSendingComment = state.isSendingComment,
                     mechanicAction = state.mechanicAction,
                     isMechanicActionLoading = state.isMechanicActionLoading,
-                    onAction = onAction,
                     onBack = onBack,
+                    onUpdateComment = onUpdateComment,
+                    onSendComment = onSendComment,
+                    onStartWorking = onStartWorking,
+                    onResolveIssue = onResolveIssue,
                     onPhotoClick = onNavigateToFullScreenPhoto,
                 )
             }
@@ -124,8 +141,11 @@ private fun LoadedContent(
     isSendingComment: Boolean,
     mechanicAction: MechanicActionType?,
     isMechanicActionLoading: Boolean,
-    onAction: (IssueDetailAction) -> Unit,
     onBack: () -> Unit,
+    onUpdateComment: (String) -> Unit,
+    onSendComment: () -> Unit,
+    onStartWorking: () -> Unit,
+    onResolveIssue: () -> Unit,
     onPhotoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -147,8 +167,8 @@ private fun LoadedContent(
             CommentCard(
                 commentText = commentText,
                 isSending = isSendingComment,
-                onUpdateComment = { onAction(IssueDetailAction.UpdateComment(it)) },
-                onSend = { onAction(IssueDetailAction.SendComment) },
+                onUpdateComment = onUpdateComment,
+                onSend = onSendComment,
             )
             when (photosContent) {
                 is IssuePhotosContent.Loading -> PhotosCard(
@@ -168,7 +188,8 @@ private fun LoadedContent(
             MechanicActionBar(
                 actionType = mechanicAction,
                 isLoading = isMechanicActionLoading,
-                onAction = onAction,
+                onStartWorking = onStartWorking,
+                onResolveIssue = onResolveIssue,
             )
         }
     }
@@ -464,7 +485,7 @@ private fun CommentCard(
                     .background(AppTheme.colors.background, RoundedCornerShape(10.dp))
                     .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
-                androidx.compose.foundation.text.BasicTextField(
+                BasicTextField(
                     value = commentText,
                     onValueChange = onUpdateComment,
                     textStyle = AppTheme.typography.bodyMedium.copy(color = AppTheme.colors.onSurface),
@@ -546,7 +567,8 @@ private fun PhotosCard(
 private fun MechanicActionBar(
     actionType: MechanicActionType,
     isLoading: Boolean,
-    onAction: (IssueDetailAction) -> Unit,
+    onStartWorking: () -> Unit,
+    onResolveIssue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -558,14 +580,18 @@ private fun MechanicActionBar(
         when (actionType) {
             MechanicActionType.StartWorking -> Button(
                 text = stringResource(R.string.issue_detail_start_working),
-                onClick = { onAction(IssueDetailAction.StartWorking) },
+                onClick = onStartWorking,
                 loading = isLoading,
+                icon = TruckTrackIcons.Build,
+                style = ButtonStyle.Warning,
                 modifier = Modifier.fillMaxWidth(),
             )
             MechanicActionType.ResolveIssue -> Button(
                 text = stringResource(R.string.issue_detail_resolve_issue),
-                onClick = { onAction(IssueDetailAction.ResolveIssue) },
+                onClick = onResolveIssue,
                 loading = isLoading,
+                icon = TruckTrackIcons.CheckCircle,
+                style = ButtonStyle.Positive,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -684,8 +710,12 @@ private fun IssueDetailLoadedPreview() {
                 historyContent = IssueHistoryContent.Loaded(previewHistory),
                 photosContent = IssuePhotosContent.Loaded(),
             ),
-            onAction = {},
             onBack = {},
+            onRetry = {},
+            onUpdateComment = {},
+            onSendComment = {},
+            onStartWorking = {},
+            onResolveIssue = {},
             onNavigateToFullScreenPhoto = {},
         )
     }
@@ -701,8 +731,12 @@ private fun IssueDetailHistoryLoadingPreview() {
                 historyContent = IssueHistoryContent.Loading,
                 photosContent = IssuePhotosContent.Loading,
             ),
-            onAction = {},
             onBack = {},
+            onRetry = {},
+            onUpdateComment = {},
+            onSendComment = {},
+            onStartWorking = {},
+            onResolveIssue = {},
             onNavigateToFullScreenPhoto = {},
         )
     }
@@ -718,8 +752,12 @@ private fun IssueDetailHistoryEmptyPreview() {
                 historyContent = IssueHistoryContent.Empty,
                 photosContent = IssuePhotosContent.Loaded(),
             ),
-            onAction = {},
             onBack = {},
+            onRetry = {},
+            onUpdateComment = {},
+            onSendComment = {},
+            onStartWorking = {},
+            onResolveIssue = {},
             onNavigateToFullScreenPhoto = {},
         )
     }
@@ -731,8 +769,12 @@ private fun IssueDetailFullLoadingPreview() {
     TruckTrackTheme {
         IssueDetailContent(
             state = IssueDetailState(),
-            onAction = {},
             onBack = {},
+            onRetry = {},
+            onUpdateComment = {},
+            onSendComment = {},
+            onStartWorking = {},
+            onResolveIssue = {},
             onNavigateToFullScreenPhoto = {},
         )
     }

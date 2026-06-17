@@ -5,6 +5,7 @@ sealed interface IssuesAction {
     data class OpenIssue(val issueId: Long) : IssuesAction
     data object CreateIssue : IssuesAction
     data object Retry : IssuesAction
+    data object Refresh : IssuesAction
 }
 
 sealed interface IssueFilter {

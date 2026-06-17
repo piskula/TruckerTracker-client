@@ -19,5 +19,5 @@ sealed interface IssuesContent {
     data object Empty : IssuesContent
 
     @Immutable
-    data class Issues(val issues: ImmutableList<Issue>) : IssuesContent
+    data class Issues(val issues: ImmutableList<Issue>, val isRefreshing: Boolean = false) : IssuesContent
 }
