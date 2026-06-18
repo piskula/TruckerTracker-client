@@ -32,7 +32,7 @@ class IssueRepositoryImpl @Inject constructor(
             filter = statuses.toFilterDto(vehicleIds, accountIds),
             page = page,
             size = size,
-            sort = "priority,asc;createdAtUtc,asc",
+            sort = "status,desc;priority,asc;createdAtUtc,asc",
         ).toPage { it.toIssue() }
     }
 
