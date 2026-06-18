@@ -118,7 +118,7 @@ private fun ProfileContent(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = stringResource(user.role.labelRes()),
+                        text = user.roles.map { stringResource(it.labelRes()) }.joinToString(" · "),
                         style = AppTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.6f),
                     )
@@ -154,7 +154,7 @@ private fun ProfileDriverPreview() {
     TruckTrackTheme {
         ProfileContent(
             state = ProfileState(
-                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", role = UserRole.Driver),
+                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", roles = setOf(UserRole.Driver)),
             ),
             onAction = {},
             onBack = {},
@@ -168,7 +168,21 @@ private fun ProfileMechanicPreview() {
     TruckTrackTheme {
         ProfileContent(
             state = ProfileState(
-                user = User(id = "", name = "Mattia Binotto", email = "mattia@example.com", role = UserRole.Mechanic),
+                user = User(id = "", name = "Mattia Binotto", email = "mattia@example.com", roles = setOf(UserRole.Mechanic)),
+            ),
+            onAction = {},
+            onBack = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProfileDualRolePreview() {
+    TruckTrackTheme {
+        ProfileContent(
+            state = ProfileState(
+                user = User(id = "", name = "Lewis Hamilton", email = "lewis@hamilton.com", roles = setOf(UserRole.Driver, UserRole.Mechanic)),
             ),
             onAction = {},
             onBack = {},
@@ -194,7 +208,7 @@ private fun ProfileSigningOutPreview() {
     TruckTrackTheme {
         ProfileContent(
             state = ProfileState(
-                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", role = UserRole.Driver),
+                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", roles = setOf(UserRole.Driver)),
                 isSigningOut = true,
             ),
             onAction = {},

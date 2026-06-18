@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
-import com.momosi.trucktrack.user.model.UserRole
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,9 +27,10 @@ class IssuesViewModel @Inject constructor(
     private val issueRepository: IssueRepository,
 ) : ViewModel() {
 
-    private val initialFilter: IssueFilter = when (userRepository.user.value?.role) {
-        UserRole.Mechanic -> IssueFilter.Mechanic.MyIssues
-        UserRole.Driver, null -> IssueFilter.Driver.MyOpen
+    private val initialFilter: IssueFilter = when {
+        userRepository.user.value?.isDualRole == true -> IssueFilter.DualRole.All
+        userRepository.user.value?.isMechanic == true -> IssueFilter.Mechanic.MyIssues
+        else -> IssueFilter.Driver.MyOpen
     }
     private val selectedFilter = MutableStateFlow<IssueFilter>(initialFilter)
     private val retryTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -38,7 +38,7 @@ class IssuesViewModel @Inject constructor(
 
     private val content: Flow<IssuesContent> =
         combine(selectedFilter, retryTrigger.onStart { emit(Unit) }, userRepository.user) { filter, _, user ->
-            Triple(filter, user?.id, user?.role)
+            Triple(filter, user?.id, user?.roles)
         }.flatMapLatest { (filter, userId, _) ->
             flow {
                 if (!_isRefreshing.value) emit(IssuesContent.Loading)
@@ -66,7 +66,7 @@ class IssuesViewModel @Inject constructor(
         _isRefreshing,
     ) { user, filter, content, isRefreshing ->
         IssuesState(
-            user = user,
+            userInfo = user?.let { IssuesUserInfo(name = it.name, roles = it.roles.toImmutableList()) },
             selectedFilter = filter,
             content = if (isRefreshing && content is IssuesContent.Issues) content.copy(isRefreshing = true) else content,
         )
@@ -97,6 +97,9 @@ private fun IssueFilter.statuses(): List<IssueStatus> = when (this) {
     IssueFilter.Mechanic.MyIssues -> listOf(IssueStatus.InProgress, IssueStatus.Done)
     IssueFilter.Mechanic.Open -> listOf(IssueStatus.Open)
     IssueFilter.Mechanic.All -> emptyList()
+    IssueFilter.DualRole.Open -> listOf(IssueStatus.Open)
+    IssueFilter.DualRole.InProgress -> listOf(IssueStatus.InProgress)
+    IssueFilter.DualRole.All -> emptyList()
 }
 
 private fun IssueFilter.accountIds(userId: String?): List<String> = when (this) {
@@ -106,4 +109,7 @@ private fun IssueFilter.accountIds(userId: String?): List<String> = when (this) 
     IssueFilter.Mechanic.MyIssues -> listOfNotNull(userId)
     IssueFilter.Mechanic.Open -> emptyList()
     IssueFilter.Mechanic.All -> emptyList()
+    IssueFilter.DualRole.Open -> emptyList()
+    IssueFilter.DualRole.InProgress -> emptyList()
+    IssueFilter.DualRole.All -> emptyList()
 }

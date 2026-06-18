@@ -11,7 +11,6 @@ import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
-import com.momosi.trucktrack.user.model.UserRole
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -135,7 +134,7 @@ class IssueDetailViewModel @AssistedInject constructor(
 
     private fun computeMechanicAction(issue: Issue): MechanicActionType? {
         val user = userRepository.user.value ?: return null
-        if (user.role != UserRole.Mechanic) return null
+        if (!user.isMechanic) return null
         return when {
             issue.status == IssueStatus.Open && issue.assignedTo?.id != user.id -> MechanicActionType.StartWorking
             issue.status == IssueStatus.InProgress && issue.assignedTo?.id == user.id -> MechanicActionType.ResolveIssue

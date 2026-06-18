@@ -40,10 +40,11 @@ import java.time.ZonedDateTime
 
 @Composable
 internal fun IssueCard(
-    issue: Issue,
+    state: IssueCardState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val issue = state.issue
     val borderColor = issue.priority.borderColor()
     Box(
         modifier = modifier
@@ -94,22 +95,28 @@ internal fun IssueCard(
                     )
                 }
             }
-            issue.reportedBy?.let { reporter ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    MetaItem(
-                        icon = TruckTrackIcons.Person,
-                        text = reporter.fullName,
-                    )
-                    Text(
-                        text = issue.createdAt.timeAgo(),
-                        style = AppTheme.typography.labelSmall,
-                        color = AppTheme.colors.onSurfaceVariant,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                when (state.role) {
+                    IssueCardRole.Mechanic -> issue.reportedBy?.let { reporter ->
+                        MetaItem(
+                            icon = TruckTrackIcons.Person,
+                            text = reporter.fullName,
+                        )
+                    }
+                    IssueCardRole.Driver -> MetaItem(
+                        icon = TruckTrackIcons.Build,
+                        text = issue.assignedTo?.fullName ?: stringResource(R.string.issue_unassigned),
                     )
                 }
+                Text(
+                    text = issue.createdAt.timeAgo(),
+                    style = AppTheme.typography.labelSmall,
+                    color = AppTheme.colors.onSurfaceVariant,
+                )
             }
         }
     }
@@ -301,7 +308,7 @@ private val sampleIssue = Issue(
 private fun IssueCardDriverHighPreview() {
     TruckTrackTheme {
         IssueCard(
-            issue = sampleIssue,
+            state = IssueCardState(issue = sampleIssue, role = IssueCardRole.Driver),
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -313,7 +320,7 @@ private fun IssueCardDriverHighPreview() {
 private fun IssueCardMechanicHighPreview() {
     TruckTrackTheme {
         IssueCard(
-            issue = sampleIssue,
+            state = IssueCardState(issue = sampleIssue, role = IssueCardRole.Mechanic),
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -325,12 +332,15 @@ private fun IssueCardMechanicHighPreview() {
 private fun IssueCardOpenMediumPreview() {
     TruckTrackTheme {
         IssueCard(
-            issue = sampleIssue.copy(
-                title = "Air suspension — right side not inflating",
-                status = IssueStatus.Open,
-                priority = IssuePriority.Medium,
-                vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-089-MR"),
-                createdAt = Instant.now().minus(Duration.ofDays(1)),
+            state = IssueCardState(
+                issue = sampleIssue.copy(
+                    title = "Air suspension — right side not inflating",
+                    status = IssueStatus.Open,
+                    priority = IssuePriority.Medium,
+                    vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-089-MR"),
+                    createdAt = Instant.now().minus(Duration.ofDays(1)),
+                ),
+                role = IssueCardRole.Driver,
             ),
             onClick = {},
             modifier = Modifier.padding(12.dp),
@@ -343,12 +353,15 @@ private fun IssueCardOpenMediumPreview() {
 private fun IssueCardDoneLowPreview() {
     TruckTrackTheme {
         IssueCard(
-            issue = sampleIssue.copy(
-                title = "Routine oil change service",
-                status = IssueStatus.Done,
-                priority = IssuePriority.Low,
-                vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-118-AB"),
-                createdAt = Instant.now().minus(Duration.ofDays(25)),
+            state = IssueCardState(
+                issue = sampleIssue.copy(
+                    title = "Routine oil change service",
+                    status = IssueStatus.Done,
+                    priority = IssuePriority.Low,
+                    vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-118-AB"),
+                    createdAt = Instant.now().minus(Duration.ofDays(25)),
+                ),
+                role = IssueCardRole.Mechanic,
             ),
             onClick = {},
             modifier = Modifier.padding(12.dp),

@@ -547,7 +547,7 @@ private fun TimelineStep(entry: IssueHistoryUi, isLast: Boolean, modifier: Modif
             Text(
                 text = entry.createdAtFormatted,
                 style = AppTheme.typography.labelSmall,
-                color = AppTheme.colors.surfaceVariant,
+                color = AppTheme.colors.onSurfaceVariant,
             )
         }
     }

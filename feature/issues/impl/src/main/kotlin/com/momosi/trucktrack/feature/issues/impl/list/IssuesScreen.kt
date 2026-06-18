@@ -25,6 +25,7 @@ import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.uilibrary.components.PullToRefresh
+import com.momosi.trucktrack.user.model.UserRole
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.DashboardTopBar
 import com.momosi.trucktrack.core.uilibrary.components.FilterChipRow
@@ -38,8 +39,6 @@ import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
 import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
-import com.momosi.trucktrack.user.model.User
-import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.time.Duration
@@ -83,9 +82,10 @@ private fun IssuesScreenContent(
     onNavigateToIssueDetail: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val user = state.user
-    val userRole = user?.role
-    val isDriver = userRole == UserRole.Driver
+    val userInfo = state.userInfo
+    val isDualRole = userInfo?.isDualRole == true
+    val isMechanic = !isDualRole && userInfo?.isMechanic == true
+    val isDriver = !isDualRole && !isMechanic
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -93,23 +93,30 @@ private fun IssuesScreenContent(
                 title = stringResource(
                     if (isDriver) R.string.my_issues_title_driver else R.string.my_issues_title_mechanic,
                 ),
-                subtitle = buildSubtitle(user),
+                subtitle = userInfo?.let { info ->
+                    val roleLabel = info.roles.map { stringResource(it.labelRes()) }.joinToString(" · ")
+                    "${info.name} · $roleLabel"
+                }.orEmpty(),
                 actions = {
                     TopBarIconButton(icon = TruckTrackIcons.AccountCircle, onClick = onNavigateToProfile)
                 },
             )
             FilterChipRow(
-                items = if (isDriver) {
-                    persistentListOf(
-                        IssueFilter.Driver.MyOpen,
-                        IssueFilter.Driver.MyClosed,
-                        IssueFilter.Driver.All,
+                items = when {
+                    isDualRole -> persistentListOf(
+                        IssueFilter.DualRole.Open,
+                        IssueFilter.DualRole.InProgress,
+                        IssueFilter.DualRole.All,
                     )
-                } else {
-                    persistentListOf(
+                    isMechanic -> persistentListOf(
                         IssueFilter.Mechanic.MyIssues,
                         IssueFilter.Mechanic.Open,
                         IssueFilter.Mechanic.All,
+                    )
+                    else -> persistentListOf(
+                        IssueFilter.Driver.MyOpen,
+                        IssueFilter.Driver.MyClosed,
+                        IssueFilter.Driver.All,
                     )
                 },
                 selectedItem = state.selectedFilter,
@@ -122,12 +129,13 @@ private fun IssuesScreenContent(
                 is IssuesContent.Empty -> EmptyContent()
                 is IssuesContent.Issues -> IssueList(
                     content = content,
+                    role = if (isMechanic) IssueCardRole.Mechanic else IssueCardRole.Driver,
                     onOpenIssue = onNavigateToIssueDetail,
                     onRefresh = onRefresh,
                 )
             }
         }
-        if (isDriver) {
+        if (isDriver || isDualRole) {
             FloatingActionButton(
                 icon = TruckTrackIcons.Add,
                 onClick = onNavigateToCreateIssue,
@@ -142,6 +150,7 @@ private fun IssuesScreenContent(
 @Composable
 private fun IssueList(
     content: IssuesContent.Issues,
+    role: IssueCardRole,
     onOpenIssue: (Long) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
@@ -160,7 +169,10 @@ private fun IssueList(
                 key = { it.id },
             ) { issue ->
                 IssueCard(
-                    issue = issue,
+                    state = IssueCardState(
+                        issue = issue,
+                        role = role,
+                    ),
                     onClick = { onOpenIssue(issue.id) },
                 )
             }
@@ -215,17 +227,6 @@ private fun EmptyContent(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun buildSubtitle(user: User?): String {
-    if (user == null) return ""
-    val role = stringResource(
-        when (user.role) {
-            UserRole.Driver -> R.string.my_issues_subtitle_driver
-            UserRole.Mechanic -> R.string.my_issues_subtitle_mechanic
-        },
-    )
-    return "${user.name} · $role"
-}
 
 @Composable
 private fun IssueFilter.label(): String = stringResource(
@@ -236,8 +237,16 @@ private fun IssueFilter.label(): String = stringResource(
         IssueFilter.Mechanic.MyIssues -> R.string.my_issues_filter_my_issues
         IssueFilter.Mechanic.Open -> R.string.my_issues_filter_open
         IssueFilter.Mechanic.All -> R.string.my_issues_filter_all
+        IssueFilter.DualRole.Open -> R.string.my_issues_filter_open
+        IssueFilter.DualRole.InProgress -> R.string.my_issues_filter_in_progress
+        IssueFilter.DualRole.All -> R.string.my_issues_filter_all
     },
 )
+
+private fun UserRole.labelRes(): Int = when (this) {
+    UserRole.Driver -> R.string.my_issues_subtitle_driver
+    UserRole.Mechanic -> R.string.my_issues_subtitle_mechanic
+}
 
 // region Previews
 
@@ -306,7 +315,7 @@ private fun IssuesDriverPreview() {
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(
-                user = User(id = "", name = "Michael Schumacher", email = "", role = UserRole.Driver),
+                userInfo = IssuesUserInfo(name = "Michael Schumacher", roles = persistentListOf(UserRole.Driver)),
                 selectedFilter = IssueFilter.Driver.MyOpen,
                 content = IssuesContent.Issues(previewIssues),
             ),
@@ -326,8 +335,28 @@ private fun IssuesMechanicPreview() {
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(
-                user = User(id = "", name = "Mattia Binotto", email = "", role = UserRole.Mechanic),
+                userInfo = IssuesUserInfo(name = "Mattia Binotto", roles = persistentListOf(UserRole.Mechanic)),
                 selectedFilter = IssueFilter.Mechanic.MyIssues,
+                content = IssuesContent.Issues(previewIssues),
+            ),
+            onSelectFilter = {},
+            onRetry = {},
+            onRefresh = {},
+            onNavigateToProfile = {},
+            onNavigateToCreateIssue = {},
+            onNavigateToIssueDetail = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun IssuesDualRolePreview() {
+    TruckTrackTheme {
+        IssuesScreenContent(
+            state = IssuesState(
+                userInfo = IssuesUserInfo(name = "Lewis Hamilton", roles = persistentListOf(UserRole.Driver, UserRole.Mechanic)),
+                selectedFilter = IssueFilter.DualRole.All,
                 content = IssuesContent.Issues(previewIssues),
             ),
             onSelectFilter = {},
@@ -362,7 +391,7 @@ private fun IssuesEmptyPreview() {
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(
-                user = User(id = "", name = "Test User", email = "", role = UserRole.Driver),
+                userInfo = IssuesUserInfo(name = "Test User", roles = persistentListOf(UserRole.Driver)),
                 content = IssuesContent.Empty,
             ),
             onSelectFilter = {},

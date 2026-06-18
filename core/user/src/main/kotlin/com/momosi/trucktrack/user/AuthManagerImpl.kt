@@ -271,7 +271,7 @@ private fun Claims.toUser(): User {
         id = subject ?: "",
         name = get("name", String::class.java) ?: "",
         email = get("email", String::class.java) ?: "",
-        role = roles.firstNotNullOfOrNull { it.toUserRole() } ?: UserRole.Driver,
+        roles = roles.mapNotNullTo(mutableSetOf()) { it.toUserRole() }.ifEmpty { setOf(UserRole.Driver) },
     )
 }
 

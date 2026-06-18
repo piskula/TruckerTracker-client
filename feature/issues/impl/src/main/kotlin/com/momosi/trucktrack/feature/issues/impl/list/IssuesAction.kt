@@ -21,4 +21,10 @@ sealed interface IssueFilter {
         Open,
         All,
     }
+
+    enum class DualRole : IssueFilter {
+        Open,
+        InProgress,
+        All,
+    }
 }

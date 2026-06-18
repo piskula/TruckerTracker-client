@@ -12,6 +12,7 @@
     <string name="my_issues_filter_my_closed">My Closed</string>
     <string name="my_issues_filter_my_issues">My Issues</string>
     <string name="my_issues_filter_open">Open</string>
+    <string name="my_issues_filter_in_progress">In Progress</string>
 
     <!-- Section labels -->
     <string name="my_issues_section_in_progress">In Progress (%1$d)</string>
@@ -28,6 +29,9 @@
     <string name="issue_status_open">Open</string>
     <string name="issue_status_in_progress">In Progress</string>
     <string name="issue_status_done">Done</string>
+
+    <!-- Issue card -->
+    <string name="issue_unassigned">Unassigned</string>
 
     <!-- Issue priority -->
     <string name="issue_priority_high">High</string>
