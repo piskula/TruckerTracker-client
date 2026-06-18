@@ -30,8 +30,8 @@ class IssueRepositoryImpl @Inject constructor(
     ): Result<Page<Issue>> = runCatching {
         issueApi.getIssueList(
             filter = statuses.toFilterDto(vehicleIds, accountIds),
-            page = page,
-            size = size,
+            page = 0,
+            size = 500,
             sort = "status,desc;priority,asc;createdAtUtc,asc",
         ).toPage { it.toIssue() }
     }
@@ -52,6 +52,10 @@ class IssueRepositoryImpl @Inject constructor(
         issueApi.resolveIssue(id).toIssue()
     }
 
+    override suspend fun assignIssue(id: Long): Result<Issue> = runCatching {
+        issueApi.assignIssue(id).toIssue()
+    }
+
     override suspend fun addComment(issueId: Long, comment: String): Result<IssueHistory> = runCatching {
         issueApi.addComment(issueId, comment).toIssueHistory()
     }
@@ -63,8 +67,8 @@ class IssueRepositoryImpl @Inject constructor(
     ): Result<Page<IssueHistory>> = runCatching {
         issueHistoryApi.getIssueHistory(
             id = issueId,
-            page = page,
-            size = size,
+            page = 0,
+            size = 500,
             sort = "createdAtUtc,asc",
         ).toPage { it.toIssueHistory() }
     }

@@ -71,4 +71,11 @@
     <string name="issue_detail_error">Failed to load issue</string>
     <string name="issue_detail_start_working">Start Working</string>
     <string name="issue_detail_resolve_issue">Resolve Issue</string>
+    <string name="issue_detail_reassign_to_me">Reassign to Me</string>
+    <string name="issue_detail_reassign_description">This issue is assigned to another mechanic. You can take it over.</string>
+    <string name="issue_detail_history_reassigned">Reassigned</string>
+    <string name="issue_detail_resolve_confirm_title">Resolve Issue</string>
+    <string name="issue_detail_resolve_confirm_message">Are you sure you want to mark this issue as resolved? This action cannot be undone.</string>
+    <string name="issue_detail_resolve_confirm_confirm">Resolve</string>
+    <string name="issue_detail_resolve_confirm_cancel">Cancel</string>
 </resources>

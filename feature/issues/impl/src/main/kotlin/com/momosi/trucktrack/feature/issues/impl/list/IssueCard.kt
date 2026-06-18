@@ -89,7 +89,7 @@ internal fun IssueCard(
                 )
                 issue.vehicle?.let { vehicle ->
                     MetaItem(
-                        icon = TruckTrackIcons.Truck,
+                        icon = vehicle.type.vehicleIcon(),
                         text = vehicle.licensePlate,
                     )
                 }
@@ -265,6 +265,11 @@ private fun Instant.timeAgo(): String {
             "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.dayOfMonth}"
         }
     }
+}
+
+private fun VehicleType.vehicleIcon() = when (this) {
+    VehicleType.Trailer -> TruckTrackIcons.Trailer
+    VehicleType.Truck -> TruckTrackIcons.Truck
 }
 
 private val sampleIssue = Issue(

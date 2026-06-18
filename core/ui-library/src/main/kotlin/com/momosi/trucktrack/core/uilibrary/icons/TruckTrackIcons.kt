@@ -17,13 +17,15 @@ import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.LocalShipping
+import androidx.compose.material.icons.rounded.GroupAdd
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material.icons.rounded.Search
+import com.momosi.trucktrack.core.uilibrary.icons.vectors.TrailerVectorIcon
+import com.momosi.trucktrack.core.uilibrary.icons.vectors.TruckVectorIcon
 
 data object TruckTrackIcons {
     val Back = Icons.AutoMirrored.Rounded.ArrowBack
@@ -33,7 +35,9 @@ data object TruckTrackIcons {
     val SortDescending = Icons.Rounded.ArrowDownward
     val Clear = Icons.Rounded.Clear
     val Close = Icons.Rounded.Close
-    val Truck = Icons.Rounded.LocalShipping
+    val GroupAdd = Icons.Rounded.GroupAdd
+    val Truck = TruckVectorIcon
+    val Trailer = TrailerVectorIcon
     val Search = Icons.Rounded.Search
     val Add = Icons.Rounded.Add
     val AccountCircle = Icons.Rounded.AccountCircle
@@ -52,4 +56,3 @@ data object TruckTrackIcons {
     val MoreVert = Icons.Rounded.MoreVert
     val ChatBubbleOutline = Icons.Outlined.ChatBubbleOutline
 }
-

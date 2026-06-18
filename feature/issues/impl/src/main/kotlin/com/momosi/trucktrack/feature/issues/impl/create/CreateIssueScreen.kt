@@ -55,7 +55,6 @@ import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 internal fun CreateIssueScreen(
@@ -214,7 +213,7 @@ private fun VehicleSelector(
                 .padding(vertical = 8.dp),
         ) {
             Icon(
-                imageVector = TruckTrackIcons.Truck,
+                imageVector = selectedVehicle?.type.vehicleIcon(),
                 tint = AppTheme.colors.primary,
                 modifier = Modifier.size(20.dp),
             )
@@ -257,7 +256,7 @@ private fun VehicleSelector(
                             .padding(vertical = 10.dp, horizontal = 4.dp),
                     ) {
                         Icon(
-                            imageVector = TruckTrackIcons.Truck,
+                            imageVector = vehicle.type.vehicleIcon(),
                             tint = AppTheme.colors.onSurfaceVariant,
                             modifier = Modifier.size(18.dp),
                         )
@@ -476,6 +475,11 @@ private fun PhotoPreviews(
 }
 
 // region Previews
+
+private fun VehicleType?.vehicleIcon() = when (this) {
+    VehicleType.Trailer -> TruckTrackIcons.Trailer
+    VehicleType.Truck, null -> TruckTrackIcons.Truck
+}
 
 @Preview
 @Composable

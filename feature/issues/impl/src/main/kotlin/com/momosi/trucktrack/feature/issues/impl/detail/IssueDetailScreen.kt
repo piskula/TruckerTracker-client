@@ -1,6 +1,11 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,8 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,23 +27,29 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.momosi.trucktrack.core.issue.model.IssueHistoryType
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.ButtonStyle
+import com.momosi.trucktrack.core.uilibrary.components.ConfirmationDialog
 import com.momosi.trucktrack.core.uilibrary.components.Icon
 import com.momosi.trucktrack.core.uilibrary.components.LoadingSpinner
 import com.momosi.trucktrack.core.uilibrary.components.Text
@@ -49,6 +58,7 @@ import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
 import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.Shapes
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
+import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
 import kotlinx.collections.immutable.toImmutableList
 
@@ -65,7 +75,7 @@ internal fun IssueDetailScreen(
     BackHandler(enabled = state.statusChanged) {
         onBack(true)
     }
-    IssueDetailContent(
+    IssueDetailScreenContent(
         state = state,
         onBack = { onBack(state.statusChanged) },
         onRetry = { viewModel.onAction(IssueDetailAction.Retry) },
@@ -73,12 +83,14 @@ internal fun IssueDetailScreen(
         onSendComment = { viewModel.onAction(IssueDetailAction.SendComment) },
         onStartWorking = { viewModel.onAction(IssueDetailAction.StartWorking) },
         onResolveIssue = { viewModel.onAction(IssueDetailAction.ResolveIssue) },
+        onReassignToMe = { viewModel.onAction(IssueDetailAction.ReassignToMe) },
+        onUploadPhoto = { viewModel.onAction(IssueDetailAction.UploadPhoto(it)) },
         onNavigateToFullScreenPhoto = onNavigateToFullScreenPhoto,
     )
 }
 
 @Composable
-private fun IssueDetailContent(
+private fun IssueDetailScreenContent(
     state: IssueDetailState,
     onBack: () -> Unit,
     onRetry: () -> Unit,
@@ -86,10 +98,33 @@ private fun IssueDetailContent(
     onSendComment: () -> Unit,
     onStartWorking: () -> Unit,
     onResolveIssue: () -> Unit,
+    onReassignToMe: () -> Unit,
+    onUploadPhoto: (Uri) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background)) {
+    var showResolveConfirmation by remember { mutableStateOf(false) }
+
+    if (showResolveConfirmation) {
+        ConfirmationDialog(
+            title = stringResource(R.string.issue_detail_resolve_confirm_title),
+            message = stringResource(R.string.issue_detail_resolve_confirm_message),
+            confirmText = stringResource(R.string.issue_detail_resolve_confirm_confirm),
+            dismissText = stringResource(R.string.issue_detail_resolve_confirm_cancel),
+            onConfirm = {
+                showResolveConfirmation = false
+                onResolveIssue()
+            },
+            onDismiss = { showResolveConfirmation = false },
+            confirmButtonStyle = ButtonStyle.Positive,
+        )
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(AppTheme.colors.background)
+    ) {
         when (val content = state.content) {
             is IssueDetailContent.Loading -> {
                 Toolbar(title = "", onBack = onBack)
@@ -97,6 +132,7 @@ private fun IssueDetailContent(
                     LoadingSpinner()
                 }
             }
+
             is IssueDetailContent.Error -> {
                 Toolbar(title = "", onBack = onBack)
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -111,6 +147,7 @@ private fun IssueDetailContent(
                     }
                 }
             }
+
             is IssueDetailContent.Loaded -> {
                 LoadedContent(
                     issue = content.issue,
@@ -120,11 +157,14 @@ private fun IssueDetailContent(
                     isSendingComment = state.isSendingComment,
                     mechanicAction = state.mechanicAction,
                     isMechanicActionLoading = state.isMechanicActionLoading,
+                    isUploadingPhoto = state.isUploadingPhoto,
                     onBack = onBack,
                     onUpdateComment = onUpdateComment,
                     onSendComment = onSendComment,
                     onStartWorking = onStartWorking,
-                    onResolveIssue = onResolveIssue,
+                    onResolveIssue = { showResolveConfirmation = true },
+                    onReassignToMe = onReassignToMe,
+                    onUploadPhoto = onUploadPhoto,
                     onPhotoClick = onNavigateToFullScreenPhoto,
                 )
             }
@@ -141,14 +181,22 @@ private fun LoadedContent(
     isSendingComment: Boolean,
     mechanicAction: MechanicActionType?,
     isMechanicActionLoading: Boolean,
+    isUploadingPhoto: Boolean,
     onBack: () -> Unit,
     onUpdateComment: (String) -> Unit,
     onSendComment: () -> Unit,
     onStartWorking: () -> Unit,
     onResolveIssue: () -> Unit,
+    onReassignToMe: () -> Unit,
+    onUploadPhoto: (Uri) -> Unit,
     onPhotoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri -> uri?.let { onUploadPhoto(it) } },
+    )
+
     Column(modifier = modifier.fillMaxSize()) {
         Toolbar(title = stringResource(R.string.issue_detail_title, issue.id), onBack = onBack)
 
@@ -163,6 +211,14 @@ private fun LoadedContent(
         ) {
             HeaderCard(issue = issue)
             DescriptionCard(description = issue.description)
+            AnimatedVisibility(
+                visible = mechanicAction == MechanicActionType.Reassign
+            ) {
+                ReassignCard(
+                    isLoading = isMechanicActionLoading,
+                    onReassignToMe = onReassignToMe,
+                )
+            }
             HistoryCard(historyContent = historyContent)
             CommentCard(
                 commentText = commentText,
@@ -170,18 +226,14 @@ private fun LoadedContent(
                 onUpdateComment = onUpdateComment,
                 onSend = onSendComment,
             )
-            when (photosContent) {
-                is IssuePhotosContent.Loading -> PhotosCard(
-                    photosContent = photosContent,
-                    onPhotoClick = onPhotoClick,
-                )
-                is IssuePhotosContent.Loaded -> {
-                    if (photosContent.items.isNotEmpty()) PhotosCard(
-                        photosContent = photosContent,
-                        onPhotoClick = onPhotoClick,
-                    )
-                }
-            }
+            PhotosCard(
+                photosContent = photosContent,
+                isUploading = isUploadingPhoto,
+                onPhotoClick = onPhotoClick,
+                onAddPhoto = {
+                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                },
+            )
         }
 
         if (mechanicAction != null) {
@@ -301,7 +353,7 @@ private fun HeaderCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                     ) {
-                        Icon(imageVector = TruckTrackIcons.Truck, tint = AppTheme.colors.onSurfaceVariant, modifier = Modifier.size(15.dp))
+                        Icon(imageVector = issue.vehicleType.vehicleIcon(), tint = AppTheme.colors.onSurfaceVariant, modifier = Modifier.size(15.dp))
                         Text(text = issue.vehicleLabel, style = AppTheme.typography.bodySmall, color = AppTheme.colors.onSurfaceVariant)
                     }
                 }
@@ -360,10 +412,15 @@ private fun HistoryCard(historyContent: IssueHistoryContent, modifier: Modifier 
     CardContainer(title = stringResource(R.string.issue_detail_history), modifier = modifier) {
         when (historyContent) {
             is IssueHistoryContent.Loading -> {
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp), contentAlignment = Alignment.Center
+                ) {
                     LoadingSpinner(size = 24.dp, strokeWidth = 2.dp)
                 }
             }
+
             is IssueHistoryContent.Empty -> {
                 Text(
                     text = stringResource(R.string.issue_detail_history_empty),
@@ -371,6 +428,7 @@ private fun HistoryCard(historyContent: IssueHistoryContent, modifier: Modifier 
                     color = AppTheme.colors.onSurfaceVariant,
                 )
             }
+
             is IssueHistoryContent.Loaded -> {
                 Column {
                     historyContent.items.forEachIndexed { index, entry ->
@@ -393,7 +451,9 @@ private fun TimelineStep(entry: IssueHistoryUi, isLast: Boolean, modifier: Modif
                 IssueHistoryType.StatusChange -> {
                     val dotColor = entry.statusTo.dotColor()
                     Box(
-                        modifier = Modifier.size(32.dp).background(dotColor, CircleShape),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(dotColor, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -403,15 +463,33 @@ private fun TimelineStep(entry: IssueHistoryUi, isLast: Boolean, modifier: Modif
                         )
                     }
                 }
+
                 IssueHistoryType.Comment -> {
                     Box(
-                        modifier = Modifier.size(20.dp).background(AppTheme.colors.onSurfaceVariant, CircleShape),
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(AppTheme.colors.onSurfaceVariant, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             imageVector = TruckTrackIcons.ChatBubbleOutline,
                             tint = AppTheme.colors.onPrimary,
                             modifier = Modifier.size(11.dp),
+                        )
+                    }
+                }
+
+                IssueHistoryType.AssigneeChange -> {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(entry.statusTo.dotColor(), CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = TruckTrackIcons.GroupAdd,
+                            tint = AppTheme.colors.onPrimary,
+                            modifier = Modifier.size(17.dp),
                         )
                     }
                 }
@@ -440,12 +518,21 @@ private fun TimelineStep(entry: IssueHistoryUi, isLast: Boolean, modifier: Modif
                             color = AppTheme.colors.onSurface,
                         )
                     }
+
                     IssueHistoryType.Comment -> {
                         Text(
                             text = entry.commentText ?: "",
                             style = AppTheme.typography.bodySmall,
                             color = AppTheme.colors.onSurface,
                             modifier = Modifier.weight(1f),
+                        )
+                    }
+
+                    IssueHistoryType.AssigneeChange -> {
+                        Text(
+                            text = stringResource(R.string.issue_detail_history_reassigned),
+                            style = AppTheme.typography.titleSmall,
+                            color = AppTheme.colors.onSurface,
                         )
                     }
                 }
@@ -524,7 +611,9 @@ private fun CommentCard(
 @Composable
 private fun PhotosCard(
     photosContent: IssuePhotosContent,
+    isUploading: Boolean,
     onPhotoClick: (String) -> Unit,
+    onAddPhoto: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val title = when (photosContent) {
@@ -532,34 +621,77 @@ private fun PhotosCard(
         is IssuePhotosContent.Loaded -> stringResource(R.string.issue_detail_photos, photosContent.items.size)
     }
     CardContainer(title = title, modifier = modifier) {
-        when (photosContent) {
-            is IssuePhotosContent.Loading -> {
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-                    LoadingSpinner(size = 24.dp, strokeWidth = 2.dp)
-                }
-            }
-            is IssuePhotosContent.Loaded -> {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    photosContent.items.forEach { photo ->
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(AppTheme.colors.surfaceVariant)
-                                .clickable { onPhotoClick(photo.url) },
-                            contentAlignment = Alignment.BottomCenter,
-                        ) {
-                            AsyncImage(
-                                model = photo.url,
-                                contentDescription = photo.filename,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.matchParentSize(),
-                            )
-                        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (photosContent is IssuePhotosContent.Loaded) {
+                photosContent.items.forEach { photo ->
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(AppTheme.colors.surfaceVariant)
+                            .clickable { onPhotoClick(photo.url) },
+                        contentAlignment = Alignment.BottomCenter,
+                    ) {
+                        AsyncImage(
+                            model = photo.url,
+                            contentDescription = photo.filename,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.matchParentSize(),
+                        )
                     }
                 }
             }
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(AppTheme.colors.surfaceVariant)
+                    .clickable(enabled = !isUploading, onClick = onAddPhoto),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isUploading) {
+                    LoadingSpinner(size = 24.dp, strokeWidth = 2.dp)
+                } else {
+                    Icon(
+                        imageVector = TruckTrackIcons.Add,
+                        tint = AppTheme.colors.onSurfaceVariant,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun ReassignCard(
+    isLoading: Boolean,
+    onReassignToMe: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.issue_detail_reassign_description),
+            style = AppTheme.typography.bodySmall,
+            color = AppTheme.colors.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            text = stringResource(R.string.issue_detail_reassign_to_me),
+            onClick = onReassignToMe,
+            loading = isLoading,
+            icon = TruckTrackIcons.GroupAdd,
+            style = ButtonStyle.Primary,
+        )
     }
 }
 
@@ -586,6 +718,7 @@ private fun MechanicActionBar(
                 style = ButtonStyle.Warning,
                 modifier = Modifier.fillMaxWidth(),
             )
+
             MechanicActionType.ResolveIssue -> Button(
                 text = stringResource(R.string.issue_detail_resolve_issue),
                 onClick = onResolveIssue,
@@ -594,6 +727,8 @@ private fun MechanicActionBar(
                 style = ButtonStyle.Positive,
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            MechanicActionType.Reassign -> Unit
         }
     }
 }
@@ -681,6 +816,11 @@ private fun IssueStatus?.dotColor(): Color = when (this) {
     null -> AppTheme.colors.surfaceVariant
 }
 
+private fun VehicleType?.vehicleIcon() = when (this) {
+    VehicleType.Trailer -> TruckTrackIcons.Trailer
+    VehicleType.Truck, null -> TruckTrackIcons.Truck
+}
+
 private val previewIssue = IssueUi(
     id = 1042,
     title = "Engine warning light — truck won't start",
@@ -688,6 +828,7 @@ private val previewIssue = IssueUi(
     status = IssueStatus.InProgress,
     priority = IssuePriority.High,
     vehicleLabel = "MA-204-TT · Volvo FH16",
+    vehicleType = VehicleType.Truck,
     reportedByName = "Michael Schumacher",
     assignedToName = "Mattia Binotto",
     createdAtFormatted = "Jun 17, 08:00",
@@ -696,19 +837,21 @@ private val previewIssue = IssueUi(
 private val previewHistory = listOf(
     IssueHistoryUi("1", IssueHistoryType.StatusChange, IssueStatus.Open, "Michael Schumacher", "Jun 17, 08:00", null),
     IssueHistoryUi("2", IssueHistoryType.StatusChange, IssueStatus.InProgress, "Mattia Binotto", "Jun 17, 09:00", null),
-    IssueHistoryUi("3", IssueHistoryType.Comment, null, "Mattia Binotto", "Jun 17, 10:00", "Issue diagnosed, spare parts ordered"),
-    IssueHistoryUi("4", IssueHistoryType.Comment, null, "Mattia Binotto", "Jun 17, 13:00", "Parts order delayed, ETA tomorrow morning"),
+    IssueHistoryUi("3", IssueHistoryType.AssigneeChange, null, "Lewis Hamilton", "Jun 17, 09:30", null),
+    IssueHistoryUi("4", IssueHistoryType.Comment, null, "Mattia Binotto", "Jun 17, 10:00", "Issue diagnosed, spare parts ordered"),
+    IssueHistoryUi("5", IssueHistoryType.Comment, null, "Mattia Binotto", "Jun 17, 13:00", "Parts order delayed, ETA tomorrow morning"),
 ).toImmutableList()
 
 @Preview
 @Composable
 private fun IssueDetailLoadedPreview() {
     TruckTrackTheme {
-        IssueDetailContent(
+        IssueDetailScreenContent(
             state = IssueDetailState(
                 content = IssueDetailContent.Loaded(issue = previewIssue),
                 historyContent = IssueHistoryContent.Loaded(previewHistory),
                 photosContent = IssuePhotosContent.Loaded(),
+                mechanicAction = MechanicActionType.Reassign,
             ),
             onBack = {},
             onRetry = {},
@@ -716,6 +859,8 @@ private fun IssueDetailLoadedPreview() {
             onSendComment = {},
             onStartWorking = {},
             onResolveIssue = {},
+            onReassignToMe = {},
+            onUploadPhoto = {},
             onNavigateToFullScreenPhoto = {},
         )
     }
@@ -725,7 +870,7 @@ private fun IssueDetailLoadedPreview() {
 @Composable
 private fun IssueDetailHistoryLoadingPreview() {
     TruckTrackTheme {
-        IssueDetailContent(
+        IssueDetailScreenContent(
             state = IssueDetailState(
                 content = IssueDetailContent.Loaded(issue = previewIssue),
                 historyContent = IssueHistoryContent.Loading,
@@ -737,6 +882,8 @@ private fun IssueDetailHistoryLoadingPreview() {
             onSendComment = {},
             onStartWorking = {},
             onResolveIssue = {},
+            onReassignToMe = {},
+            onUploadPhoto = {},
             onNavigateToFullScreenPhoto = {},
         )
     }
@@ -746,7 +893,7 @@ private fun IssueDetailHistoryLoadingPreview() {
 @Composable
 private fun IssueDetailHistoryEmptyPreview() {
     TruckTrackTheme {
-        IssueDetailContent(
+        IssueDetailScreenContent(
             state = IssueDetailState(
                 content = IssueDetailContent.Loaded(issue = previewIssue),
                 historyContent = IssueHistoryContent.Empty,
@@ -758,6 +905,8 @@ private fun IssueDetailHistoryEmptyPreview() {
             onSendComment = {},
             onStartWorking = {},
             onResolveIssue = {},
+            onReassignToMe = {},
+            onUploadPhoto = {},
             onNavigateToFullScreenPhoto = {},
         )
     }
@@ -767,7 +916,7 @@ private fun IssueDetailHistoryEmptyPreview() {
 @Composable
 private fun IssueDetailFullLoadingPreview() {
     TruckTrackTheme {
-        IssueDetailContent(
+        IssueDetailScreenContent(
             state = IssueDetailState(),
             onBack = {},
             onRetry = {},
@@ -775,6 +924,8 @@ private fun IssueDetailFullLoadingPreview() {
             onSendComment = {},
             onStartWorking = {},
             onResolveIssue = {},
+            onReassignToMe = {},
+            onUploadPhoto = {},
             onNavigateToFullScreenPhoto = {},
         )
     }

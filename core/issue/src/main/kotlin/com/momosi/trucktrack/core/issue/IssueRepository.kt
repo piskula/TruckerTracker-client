@@ -24,6 +24,8 @@ interface IssueRepository {
 
     suspend fun resolveIssue(id: Long): Result<Issue>
 
+    suspend fun assignIssue(id: Long): Result<Issue>
+
     suspend fun addComment(issueId: Long, comment: String): Result<IssueHistory>
 
     suspend fun getIssueHistory(

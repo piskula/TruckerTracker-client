@@ -7,8 +7,8 @@
 ## Features & Improvements
 
 ### Issue Attachments
-- [ ] Photos/attachments should be uploadable at any point, not only when creating a ticket.
-  Upload button should be available in the issue detail screen for open/in-progress issues too.
+- [x] Photos/attachments should be uploadable at any point, not only when creating a ticket.
+  Upload button available in the issue detail screen — shows existing photos plus an "Add Photo" tile that opens the system photo picker.
 
 ### Issues List — Driver (Open tab)
 - [ ] Split the single list into two separate lists (or two tabs):

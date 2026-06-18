@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.momosi.trucktrack.core.issue.model.IssueHistoryType
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
+import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -16,6 +17,7 @@ data class IssueDetailState(
     val isSendingComment: Boolean = false,
     val mechanicAction: MechanicActionType? = null,
     val isMechanicActionLoading: Boolean = false,
+    val isUploadingPhoto: Boolean = false,
     val statusChanged: Boolean = false,
 )
 
@@ -53,6 +55,7 @@ data class IssueUi(
     val status: IssueStatus,
     val priority: IssuePriority,
     val vehicleLabel: String,
+    val vehicleType: VehicleType?,
     val reportedByName: String,
     val assignedToName: String,
     val createdAtFormatted: String,
@@ -78,5 +81,5 @@ data class PhotoItem(
 enum class MechanicActionType {
     StartWorking,
     ResolveIssue,
+    Reassign,
 }
-

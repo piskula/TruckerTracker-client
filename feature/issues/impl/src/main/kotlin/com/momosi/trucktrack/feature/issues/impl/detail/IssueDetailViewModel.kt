@@ -1,7 +1,10 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.momosi.trucktrack.core.common.coroutines.DispatcherProvider
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.Issue
@@ -13,6 +16,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,18 +25,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.io.path.createTempFile
 
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM d, HH:mm")
 
 @HiltViewModel(assistedFactory = IssueDetailViewModel.Factory::class)
 class IssueDetailViewModel @AssistedInject constructor(
     @Assisted private val issueId: Long,
+    @ApplicationContext private val context: Context,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
     private val userRepository: UserRepository,
+    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -54,10 +62,12 @@ class IssueDetailViewModel @AssistedInject constructor(
     fun onAction(action: IssueDetailAction) {
         when (action) {
             is IssueDetailAction.UpdateComment -> _state.update { it.copy(commentText = action.text) }
+            is IssueDetailAction.UploadPhoto -> uploadPhoto(action.uri)
             is IssueDetailAction.SendComment -> sendComment()
             is IssueDetailAction.Retry -> loadIssueDetail()
             is IssueDetailAction.StartWorking -> startWorking()
             is IssueDetailAction.ResolveIssue -> resolveIssue()
+            is IssueDetailAction.ReassignToMe -> reassignToMe()
         }
     }
 
@@ -128,10 +138,12 @@ class IssueDetailViewModel @AssistedInject constructor(
         if (user.role != UserRole.Mechanic) return null
         return when {
             issue.status == IssueStatus.Open && issue.assignedTo?.id != user.id -> MechanicActionType.StartWorking
-            issue.status == IssueStatus.InProgress -> MechanicActionType.ResolveIssue
+            issue.status == IssueStatus.InProgress && issue.assignedTo?.id == user.id -> MechanicActionType.ResolveIssue
+            issue.status == IssueStatus.InProgress && issue.assignedTo?.id != user.id -> MechanicActionType.Reassign
             else -> null
         }
     }
+
 
     private fun startWorking() {
         if (_state.value.isMechanicActionLoading) return
@@ -177,6 +189,27 @@ class IssueDetailViewModel @AssistedInject constructor(
         }
     }
 
+    private fun reassignToMe() {
+        if (_state.value.isMechanicActionLoading) return
+        _state.update { it.copy(isMechanicActionLoading = true) }
+        viewModelScope.launch {
+            issueRepository.assignIssue(issueId)
+                .onSuccess { issue ->
+                    _state.update {
+                        it.copy(
+                            content = IssueDetailContent.Loaded(issue.toUi()),
+                            mechanicAction = computeMechanicAction(issue),
+                            isMechanicActionLoading = false,
+                        )
+                    }
+                    loadHistory(updateOnly = true)
+                }
+                .onFailure {
+                    _state.update { it.copy(isMechanicActionLoading = false) }
+                }
+        }
+    }
+
     private fun sendComment() {
         val text = _state.value.commentText.trim()
         if (text.isEmpty() || _state.value.isSendingComment) return
@@ -194,6 +227,30 @@ class IssueDetailViewModel @AssistedInject constructor(
                 }
         }
     }
+
+    private fun uploadPhoto(uri: Uri) {
+        if (_state.value.isUploadingPhoto) return
+        _state.update { it.copy(isUploadingPhoto = true) }
+        viewModelScope.launch {
+            runCatching {
+                val tempFile = withContext(dispatcherProvider.io()) {
+                    val file = createTempFile("upload", ".jpg").toFile()
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        file.outputStream().use { output -> input.copyTo(output) }
+                    }
+                    file
+                }
+                try {
+                    val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                    issueAttachmentRepository.uploadPhoto(issueId, tempFile, mimeType)
+                } finally {
+                    tempFile.delete()
+                }
+            }
+            _state.update { it.copy(isUploadingPhoto = false) }
+            loadPhotos()
+        }
+    }
 }
 
 private fun Issue.toUi() = IssueUi(
@@ -203,6 +260,7 @@ private fun Issue.toUi() = IssueUi(
     status = status,
     priority = priority,
     vehicleLabel = vehicle?.let { "${it.licensePlate} · ${it.make} ${it.model}" } ?: "",
+    vehicleType = vehicle?.type,
     reportedByName = reportedBy?.fullName ?: "—",
     assignedToName = assignedTo?.fullName ?: "—",
     createdAtFormatted = createdAt.formatDate(),
