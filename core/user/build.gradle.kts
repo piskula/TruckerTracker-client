@@ -15,6 +15,5 @@ dependencies {
     implementation(projects.core.common)
     implementation(libs.jjwt.api)
     runtimeOnly(libs.jjwt.impl)
-    implementation(libs.jjwt.gson)
 }
 
