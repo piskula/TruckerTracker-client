@@ -14,9 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CurrentActivityHelper @Inject constructor(
-    @ApplicationContext context: Context,
-) {
+class CurrentActivityHelper @Inject constructor(@ApplicationContext context: Context) {
 
     private var currentActivities: MutableMap<String, WeakReference<Activity>> = ConcurrentHashMap()
 
@@ -45,12 +43,9 @@ class CurrentActivityHelper @Inject constructor(
         )
     }
 
-
-    fun Context.getLifecycleOwner(): LifecycleOwner? {
-        return when (this) {
-            is LifecycleOwner -> this
-            is ContextWrapper -> this.baseContext.getLifecycleOwner()
-            else -> null
-        }
+    fun Context.getLifecycleOwner(): LifecycleOwner? = when (this) {
+        is LifecycleOwner -> this
+        is ContextWrapper -> this.baseContext.getLifecycleOwner()
+        else -> null
     }
 }

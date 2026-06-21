@@ -31,18 +31,14 @@ abstract class IssueModule {
 
         @Provides
         @Singleton
-        fun provideIssueApi(retrofit: Retrofit): IssueApi =
-            retrofit.create(IssueApi::class.java)
+        fun provideIssueApi(retrofit: Retrofit): IssueApi = retrofit.create(IssueApi::class.java)
 
         @Provides
         @Singleton
-        fun provideIssueAttachmentApi(retrofit: Retrofit): IssueAttachmentApi =
-            retrofit.create(IssueAttachmentApi::class.java)
+        fun provideIssueAttachmentApi(retrofit: Retrofit): IssueAttachmentApi = retrofit.create(IssueAttachmentApi::class.java)
 
         @Provides
         @Singleton
-        fun provideIssueHistoryApi(retrofit: Retrofit): IssueHistoryApi =
-            retrofit.create(IssueHistoryApi::class.java)
+        fun provideIssueHistoryApi(retrofit: Retrofit): IssueHistoryApi = retrofit.create(IssueHistoryApi::class.java)
     }
 }
-

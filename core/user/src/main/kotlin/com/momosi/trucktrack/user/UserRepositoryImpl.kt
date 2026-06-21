@@ -7,9 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UserRepositoryImpl @Inject constructor(
-    private val userStorage: UserStorage,
-) : UserRepository {
+class UserRepositoryImpl @Inject constructor(private val userStorage: UserStorage) : UserRepository {
 
     override val user: StateFlow<User?> = userStorage.userFlow
 }

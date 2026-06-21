@@ -5,4 +5,3 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FullScreenPhotoNavKey(val photoUri: String) : NavKey
-

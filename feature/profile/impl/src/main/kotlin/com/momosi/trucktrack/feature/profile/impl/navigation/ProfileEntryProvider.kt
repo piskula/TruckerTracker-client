@@ -15,4 +15,3 @@ fun EntryProviderScope<NavKey>.profileEntries(navigator: Navigator) {
         )
     }
 }
-

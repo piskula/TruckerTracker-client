@@ -36,4 +36,3 @@ fun PullToRefresh(
         content = content,
     )
 }
-

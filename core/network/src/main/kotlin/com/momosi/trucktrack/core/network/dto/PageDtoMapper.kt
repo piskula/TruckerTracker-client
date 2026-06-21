@@ -10,4 +10,3 @@ fun <T, R> PageDto<T>.toPage(mapper: (T) -> R): Page<R> = Page(
     numberOfElements = numberOfElements,
     content = content.map(mapper),
 )
-

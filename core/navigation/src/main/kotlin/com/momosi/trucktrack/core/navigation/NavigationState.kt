@@ -20,17 +20,12 @@ fun rememberNavigationState(startKey: NavKey): NavigationState {
     return remember(startKey) { NavigationState(startKey = startKey, backStack = backStack) }
 }
 
-class NavigationState(
-    val startKey: NavKey,
-    val backStack: NavBackStack<NavKey>,
-) {
+class NavigationState(val startKey: NavKey, val backStack: NavBackStack<NavKey>) {
     val currentKey: NavKey by derivedStateOf { backStack.last() }
 }
 
 @Composable
-fun NavigationState.toEntries(
-    entryProvider: (NavKey) -> NavEntry<NavKey>,
-): SnapshotStateList<NavEntry<NavKey>> {
+fun NavigationState.toEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): SnapshotStateList<NavEntry<NavKey>> {
     val decorators = listOf(
         rememberSaveableStateHolderNavEntryDecorator<NavKey>(),
         rememberViewModelStoreNavEntryDecorator<NavKey>(),

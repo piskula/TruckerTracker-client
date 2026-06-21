@@ -10,9 +10,7 @@ import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
 import javax.inject.Inject
 
-class JwtParser @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
-) {
+class JwtParser @Inject constructor(private val dispatcherProvider: DispatcherProvider) {
 
     suspend fun verifyAndGetClaims(jwtToken: String, verifyingKey: String): Jws<Claims> = withContext(dispatcherProvider.io()) {
         Jwts.parser()

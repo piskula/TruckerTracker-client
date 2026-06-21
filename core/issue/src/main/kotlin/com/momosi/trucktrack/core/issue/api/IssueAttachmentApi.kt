@@ -23,15 +23,8 @@ interface IssueAttachmentApi {
 
     @Multipart
     @POST("api/v1/issue/{issueId}/photo")
-    suspend fun uploadPhoto(
-        @Path("issueId") issueId: Long,
-        @Part file: MultipartBody.Part,
-    ): IssueAttachmentDto
+    suspend fun uploadPhoto(@Path("issueId") issueId: Long, @Part file: MultipartBody.Part): IssueAttachmentDto
 
     @GET("api/v1/issue/{issueId}/photo/{attachmentId}")
-    suspend fun downloadPhoto(
-        @Path("issueId") issueId: Long,
-        @Path("attachmentId") attachmentId: Long,
-    ): ResponseBody
+    suspend fun downloadPhoto(@Path("issueId") issueId: Long, @Path("attachmentId") attachmentId: Long): ResponseBody
 }
-

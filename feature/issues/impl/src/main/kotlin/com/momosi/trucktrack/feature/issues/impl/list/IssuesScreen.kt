@@ -24,13 +24,12 @@ import com.momosi.trucktrack.core.issue.model.Account
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
-import com.momosi.trucktrack.core.uilibrary.components.PullToRefresh
-import com.momosi.trucktrack.user.model.UserRole
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.DashboardTopBar
 import com.momosi.trucktrack.core.uilibrary.components.FilterChipRow
 import com.momosi.trucktrack.core.uilibrary.components.FloatingActionButton
 import com.momosi.trucktrack.core.uilibrary.components.LoadingSpinner
+import com.momosi.trucktrack.core.uilibrary.components.PullToRefresh
 import com.momosi.trucktrack.core.uilibrary.components.Text
 import com.momosi.trucktrack.core.uilibrary.components.TopBarIconButton
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
@@ -39,6 +38,7 @@ import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
 import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
+import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import java.time.Duration
@@ -46,16 +46,16 @@ import java.time.Instant
 
 @Composable
 internal fun IssuesScreen(
-    viewModel: IssuesViewModel = hiltViewModel(),
-    issueStatusChanged: Boolean = false,
     onNavigateToProfile: () -> Unit,
     onNavigateToCreateIssue: () -> Unit,
     onNavigateToIssueDetail: (Long) -> Unit,
+    issueStatusChange: Boolean = false,
+    viewModel: IssuesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(issueStatusChanged) {
-        if (issueStatusChanged) {
+    LaunchedEffect(issueStatusChange) {
+        if (issueStatusChange) {
             viewModel.onAction(IssuesAction.Refresh)
         }
     }
@@ -108,11 +108,13 @@ private fun IssuesScreenContent(
                         IssueFilter.DualRole.InProgress,
                         IssueFilter.DualRole.All,
                     )
+
                     isMechanic -> persistentListOf(
                         IssueFilter.Mechanic.MyIssues,
                         IssueFilter.Mechanic.Open,
                         IssueFilter.Mechanic.All,
                     )
+
                     else -> persistentListOf(
                         IssueFilter.Driver.MyOpen,
                         IssueFilter.Driver.MyClosed,
@@ -125,8 +127,11 @@ private fun IssuesScreenContent(
             )
             when (val content = state.content) {
                 is IssuesContent.Loading -> LoadingContent()
+
                 is IssuesContent.Error -> ErrorContent(onRetry = onRetry)
+
                 is IssuesContent.Empty -> EmptyContent()
+
                 is IssuesContent.Issues -> IssueList(
                     content = content,
                     role = if (isMechanic) IssueCardRole.Mechanic else IssueCardRole.Driver,
@@ -181,7 +186,6 @@ private fun IssueList(
     }
 }
 
-
 @Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
     Box(
@@ -193,10 +197,7 @@ private fun LoadingContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ErrorContent(
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun ErrorContent(onRetry: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -227,7 +228,6 @@ private fun EmptyContent(modifier: Modifier = Modifier) {
     }
 }
 
-
 @Composable
 private fun IssueFilter.label(): String = stringResource(
     when (this) {
@@ -251,11 +251,18 @@ private fun UserRole.labelRes(): Int = when (this) {
 // region Previews
 
 private val previewVehicle = Vehicle(
-    id = 1, licensePlate = "MA-204-TT", make = "DAF", model = "XF", type = VehicleType.Truck,
+    id = 1,
+    licensePlate = "MA-204-TT",
+    make = "DAF",
+    model = "XF",
+    type = VehicleType.Truck,
 )
 
 private val previewReporter = Account(
-    id = "1", username = "mschumacher", firstName = "Michael", lastName = "Schumacher",
+    id = "1",
+    username = "mschumacher",
+    firstName = "Michael",
+    lastName = "Schumacher",
 )
 
 private val previewIssues = listOf(

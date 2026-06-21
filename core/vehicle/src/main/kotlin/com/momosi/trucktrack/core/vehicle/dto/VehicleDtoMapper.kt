@@ -10,4 +10,3 @@ fun VehicleDto.toVehicle(): Vehicle = Vehicle(
     model = model,
     type = VehicleType.fromApiValue(type),
 )
-

@@ -11,7 +11,9 @@ import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 @HiltAndroidApp
-class TruckTrack : Application(), SingletonImageLoader.Factory {
+class TruckTrack :
+    Application(),
+    SingletonImageLoader.Factory {
 
     @Inject
     lateinit var currentActivityHelper: CurrentActivityHelper
@@ -24,10 +26,9 @@ class TruckTrack : Application(), SingletonImageLoader.Factory {
         Logger.init(logToConsole = BuildConfig.DEBUG)
     }
 
-    override fun newImageLoader(context: android.content.Context): ImageLoader =
-        ImageLoader.Builder(context)
-            .components {
-                add(OkHttpNetworkFetcherFactory(callFactory = { okHttpClient }))
-            }
-            .build()
+    override fun newImageLoader(context: android.content.Context): ImageLoader = ImageLoader.Builder(context)
+        .components {
+            add(OkHttpNetworkFetcherFactory(callFactory = { okHttpClient }))
+        }
+        .build()
 }

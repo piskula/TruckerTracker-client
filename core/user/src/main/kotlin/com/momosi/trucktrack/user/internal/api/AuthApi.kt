@@ -5,5 +5,4 @@ import retrofit2.http.GET
 interface AuthApi {
     @GET("./")
     suspend fun getRealm(): RealmDto
-
 }

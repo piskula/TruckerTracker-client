@@ -39,5 +39,3 @@ interface IssueApi {
     @POST("api/v1/issue/{id}/comment")
     suspend fun addComment(@Path("id") id: Long, @Body comment: String): IssueHistoryDto
 }
-
-

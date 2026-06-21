@@ -15,4 +15,3 @@ data class Issue(
     val createdAt: Instant,
     val updatedAt: Instant,
 )
-

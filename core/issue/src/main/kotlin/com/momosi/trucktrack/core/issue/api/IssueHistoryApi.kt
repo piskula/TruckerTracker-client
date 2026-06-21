@@ -16,4 +16,3 @@ interface IssueHistoryApi {
         @Query("sort") sort: String? = null,
     ): PageDto<IssueHistoryDto>
 }
-

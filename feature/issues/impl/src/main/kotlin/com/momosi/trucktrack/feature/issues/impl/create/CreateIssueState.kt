@@ -30,4 +30,3 @@ sealed interface VehiclesContent {
     data class Loaded(val vehicles: ImmutableList<Vehicle>) : VehiclesContent
     data object Error : VehiclesContent
 }
-

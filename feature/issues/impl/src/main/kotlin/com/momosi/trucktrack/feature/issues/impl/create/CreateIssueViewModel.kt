@@ -141,4 +141,3 @@ class CreateIssueViewModel @Inject constructor(
         }
     }
 }
-

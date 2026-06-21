@@ -1,185 +1,129 @@
-# Apk Analyzer Copilot Instructions
+# TruckTrack — Copilot Agent Instructions
 
-## Project Overview
+**Trust these instructions. Only search the codebase if something here appears incomplete or incorrect.**
 
-Apk Analyzer is an Android multi-module application. Follow these project-specific standards:
+---
 
-* **Language** - Kotlin 2.3 for all Android development.
-* **UI** - Jetpack Compose only. Avoid XML layouts.
-* **Dependency Injection** - Hilt. Avoid Dagger or Koin.
-* **Libraries** - Use libraries from `libs.version.toml`. Do not introduce new libraries unless required.
-* **Concurrency** - Kotlin **coroutines** and **flows** exclusively.
+## Mandatory Skill Loading
 
-## Project Structure
+Before writing any code, scan this table. If the task matches a trigger, **read the full SKILL.md first**.
 
-Project uses a multi-module architecture divided into following modules:
+| Task type | Skill file |
+|-----------|-----------|
+| Creating a new feature (new `feature/*/api` + `feature/*/impl` pair) | [`agents/skills/create-feature-module/SKILL.md`](../agents/skills/create-feature-module/SKILL.md) |
+| Adding a new screen to an existing feature | [`agents/skills/add-screen-to-feature/SKILL.md`](../agents/skills/add-screen-to-feature/SKILL.md) |
+| Adding a repository or manager to a `core/*` module | [`agents/skills/add-repository/SKILL.md`](../agents/skills/add-repository/SKILL.md) |
+| Migrating a module from Retrofit+Hilt to Ktor+Koin | [`agents/skills/migrate-module-to-ktor-koin/SKILL.md`](../agents/skills/migrate-module-to-ktor-koin/SKILL.md) |
 
-* **`app`** - Contains main Application class, `ApkAnalyzerActivity` and top level application components, such as Hilt dependency graphs.
-* **`feature`** (multiple modules) - UI screens & logic related to a specific feature.
-  * Feature modules are split to 2 modules:
-    * `api` - navigation keys
-    * `impl` - implementation of the UI layer
-* **`core`** (multiple modules) - Domain logic, reusable components, utilities that can be shared across multiple features or other libraries.
-  * `common` - `DispatcherProvider`, `PersistenceRepository` (DataStore), `ResourcesManager`, `Logger` (Timber + Firebase Crashlytics wrapper). Base dependency for most modules.
-  * `app-analysis-core` - Android `PackageManager`-based app analysis: `AppGeneralDataManager`, `AppPermissionManager`, `CertificateExtractor`, `ManifestParser`. Data models like `GeneralData`, `PermissionData`, `AppSource`.
-  * `app-list` - `InstalledAppsRepository` for querying installed apps. Returns `LazyAppListData`.
-  * `app-permissions` - `LocalPermissionManager` for aggregating permission usage across all installed apps.
-  * `app-statistics` - `LocalApplicationStatisticManager` for computing device-wide app statistics.
-  * `navigation` - `NavigationState`, `Navigator`, `rememberNavigationState()` for Navigation 3 top-level navigation.
-  * `ui-library` - `ApkAnalyzerTheme`, `ApkAnalyzerIcons`, reusable Compose components (`NavigationBar`), color scheme, typography.
+> Skill files follow the convention in [`agents/skills/SKILL_CONVENTION.md`](../agents/skills/SKILL_CONVENTION.md).
+> Each skill contains **Triggers** (when to use it), **Prerequisites**, **Steps**, and **Verification** checklists.
+> Always complete the Verification checklist before considering a skill done.
 
-### Module Dependency Rules
+---
 
-* `feature/*/api` - depends on nothing except `:core:navigation` (via convention plugin). Contains only `NavKey` objects.
-* `feature/*/impl` - depends on its own `api` module (via `api(projects.feature.*.api)`), plus any `core` modules needed.
-* `core` modules - can depend on other `core` modules (e.g., `core:app-list` → `core:app-analysis-core` → `core:common`). Never depend on `feature` modules.
-* `app` - depends on all `feature/*/impl` and all `core` modules. The only module that wires everything together.
+## Project Summary
 
-### Package Structure
+TruckTrack is an Android fleet-management app that lets **drivers** report vehicle maintenance issues and **mechanics** manage and resolve them. It communicates with a REST backend at `https://tt.momosi.org/` (OpenAPI at `/v3/api-docs`) secured via OAuth2/OIDC (`https://sso.momosi.org/realms/trucktrack`).
 
-* Root package: `sk.styk.martin.apkanalyzer`
-* Feature packages: `sk.styk.martin.apkanalyzer.feature.<name>.api` / `.impl`
-* Core packages: `sk.styk.martin.apkanalyzer.core.<name>`
-* App packages: `sk.styk.martin.apkanalyzer.ui`, `.dependencyinjection`, `.manager`, `.util`
+**Stack:** Kotlin 2.3.21 · Android (minSdk 28, targetSdk/compileSdk 36) · Jetpack Compose · Hilt · Retrofit + OkHttp · Navigation 3 · Kotlinx Serialization · Coroutines/Flow · Coil 3
 
-## Coding Guidelines
+**Build tooling:** Gradle 8 (wrapper at `./gradlew`) · JDK 21 · AGP 9.x · Convention plugins in `build-logic/`
 
-### Navigation
+---
 
-* **Navigation 3** (`androidx.navigation3`) for all screen navigation. Do NOT use legacy Jetpack Navigation (`androidx.navigation.compose`).
-* Navigation keys are `@Serializable object`s implementing `NavKey`, placed in `feature/*/api` modules.
-* Screen entry registration uses `EntryProviderScope<NavKey>.featureEntries()` extension functions in `feature/*/impl/navigation/` packages.
-* Top-level navigation uses a custom `NavigationState` + `Navigator` from `:core:navigation`.
+## Build & Validate
 
-### Convention Plugins (build-logic)
+### Always run before committing
+```bash
+./gradlew spotlessApply    # auto-format all Kotlin/KTS files (ktlint + Compose rules)
+./gradlew assembleDebug    # full compile — this is what CI checks
+```
+If `spotlessApply` fails with a configuration cache error, retry with `--no-configuration-cache`.
 
-When creating new modules, use these convention plugins in `build.gradle.kts`:
+### Check formatting without modifying
+```bash
+./gradlew spotlessCheck    # fails with a diff if any file needs formatting
+```
 
-* `apkanalyzer.library` - base Android library setup (compileSdk, minSdk, Kotlin).
-* `apkanalyzer.application` - app module setup (Firebase, release config).
-* `apkanalyzer.feature.api` - feature API module (library + serialization + navigation3 runtime).
-* `apkanalyzer.feature.impl` - feature impl module (library + hilt + compose + `:core:ui-library` dependency).
-* `apkanalyzer.hilt` - adds Hilt + KSP compiler.
-* `apkanalyzer.compose` - adds Compose compiler + BOM + compose/navigation3 bundles.
-* `apkanalyzer.spotless` - adds ktlint formatting via Spotless.
+### Build a specific module only
+```bash
+./gradlew :core:issue:assembleDebug
+./gradlew :feature:issues:impl:assembleDebug
+```
 
-### Hilt Dependency Injection
+### No tests exist yet — skip test tasks.
 
-* ViewModels: annotate with `@HiltViewModel`, inject via `@Inject constructor`.
-* Hilt modules: use `@Module @InstallIn(SingletonComponent::class)`. Prefer `interface` with `@Binds` for binding interfaces to implementations. Use `class` with `@Provides` for platform types.
-* Use `@Singleton` for repository/manager bindings. Use `@ActivityScoped` only for activity-specific dependencies.
-* Constructor injection with `@Inject constructor()` is preferred over module `@Provides` where possible.
+### CI pipeline (`.github/workflows/build-app.yml`)
+Runs on push to `main`. Steps: checkout → JDK 21 (JetBrains) → `./gradlew assembleDebug` → publishes `truck-track.apk` as a pre-release. **CI does not run spotlessCheck** — but always apply spotless locally to avoid ktlint violations that break the compile.
 
-### MVVM Architecture
+---
 
-#### Component Responsibilities
-* **Composable** - Presenter layer. Reacts to `state`, collects `event` via `LaunchedEffect`, and delegates user interaction to VM. Callback naming: `on<Action>`. Parameter names should always be in present tense. Never use past tense like `on<Button>Clicked`.
-* **ViewModel** - Extends `ViewModel()` directly (no custom BaseViewModel). Combines internal flows into a single `state`. Communicates with Core layer (Managers/Repositories).
+## Project Layout
 
-#### ViewModel Pattern
-* Expose `val state: StateFlow<FeatureState>` built with `.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue)`.
-* In Activity/Composable: collect state with `collectAsStateWithLifecycle()`.
-* Events (one-shot): use `SharedFlow` or `Channel`.
-* Always use a **private backing field** for mutable flows, exposing only the immutable type publicly:
-  ```kotlin
-  private val _state = MutableStateFlow<FeatureState>(FeatureState.Loading)
-  val state: StateFlow<FeatureState> = _state
-  ```
-* For interface-defined flows, the same rule applies — the interface declares `val data: StateFlow<T>`, the implementation declares `private val _data = MutableStateFlow<T>(…)` and overrides with `override val data: StateFlow<T> = _data`.
+```
+build-logic/convention/   Convention plugins (trucktrack.*)
+gradle/libs.versions.toml All dependency versions and bundles — always add libs here
+settings.gradle.kts       Module include list — add new modules here
+gradle.properties         JVM heap (4g), parallel, config-cache, caching enabled
 
-#### State, Event, Action
-* **State** - Current component status. Use `sealed interface/class` + `StateFlow`. Mark data classes `@Immutable`. **No lambdas in State**; use `Action` instead.
-* **Event** - One-off VM-to-UI signals (e.g., navigation). Use `sealed interface`.
-* **Action** - UI-to-VM intents. Use `sealed interface`.
+app/                      Thin shell: Application, Activity, Hilt wiring, NavHost
+core/
+  common/                 Logger, DispatcherProvider, ConnectivityManager, Page<T>
+  network/                OkHttp+Retrofit client, PageDto, PageDtoMapper
+  user/                   AuthManager, UserRepository, AppAuth, jjwt, UserStorage
+  issue/                  IssueRepository, IssueAttachmentRepository, all issue models
+  vehicle/                VehicleRepository, Vehicle, VehicleType
+  navigation/             Navigator, NavigationState (wraps Navigation 3)
+  ui-library/             TruckTrackTheme, AppTheme, TruckTrackIcons, all components
+feature/
+  sign-in/{api,impl}/
+  issues/{api,impl}/      3 screens: list, detail, create
+  profile/{api,impl}/
+```
 
-#### Data Layer
-* **Repository** - Responsible for data retrieval, persistence, and source abstraction.
-* **Manager** - Responsible for complex business logic operations and implementation details.
-* Define public **interfaces** for repositories and managers. Place implementations in the same module (e.g., `InstalledAppsRepository` + `InstalledAppsRepositoryImpl`). Bind via Hilt `@Binds`.
-* Use **data classes** for domain models.
-* **No exceptions across interfaces.** Public interface methods must never throw — use Kotlin `Result<T>`, nullable return types, or empty collections to express failure:
-  * Recoverable operations with meaningful error info → `Result<T>` (use `runCatching` in the implementation)
-  * Optional/missing value with no error context needed → nullable `T?`
-  * Collection results that may be empty → `List<T>` (empty = none found)
-  * Implementations may use exceptions internally but must catch them before returning.
+**Detailed instructions:** `AGENTS.MD` (root), per-module `AGENTS.MD` in each module directory, skill workflows in `agents/skills/<skill-name>/SKILL.md`.
 
-#### File Structure
-Keep feature-related components together in a single package:
-`Feature.kt`, `FeatureViewModel.kt`, `FeatureState.kt`, `FeatureAction.kt`, `FeatureEvent.kt`.
+---
 
-### UI Library & Material Usage
+## Architecture Rules — violations cause compile or runtime failures
 
-* All reusable UI components (buttons, cards, scaffolds, etc.) must be wrapped in `:core:ui-library` and re-exported from there.
-* Feature and app modules must **not** import `androidx.compose.material3` directly. Use only plain Compose foundation APIs (`androidx.compose.foundation`, `androidx.compose.ui`) and components from `:core:ui-library`.
-* Theme access (`AppTheme`, `AppColors`, `AppText`) is provided exclusively by `:core:ui-library`.
+### Module graph
+- `feature/*/api` → only `:core:navigation`
+- `feature/*/impl` → own `api` + any `core/*`
+- `core/*` → other `core/*` (DAG only, never `feature`)
+- `app` → everything
 
-### Compose Stability
+### Adding a new module — required steps
+1. Create `build.gradle.kts` with a `trucktrack.*` convention plugin
+2. Add `":module:path"` to `settings.gradle.kts` include block
+3. Wire Hilt module in `app` if needed
 
-* Use `kotlinx.collections.immutable` (`ImmutableList`, `persistentListOf`) for list properties in State classes and Composable parameters.
-* Use `@Stable` annotation on non-data classes used as Composable parameters.
-* Use `@Immutable` on State data classes.
+### Convention plugins (in `build.gradle.kts`)
+| Plugin | Use for |
+|--------|---------|
+| `trucktrack.library` | Any `core/*` module |
+| `trucktrack.feature.api` | `feature/*/api` |
+| `trucktrack.feature.impl` | `feature/*/impl` |
+| `trucktrack.hilt` | Modules needing DI |
+| `trucktrack.compose` | Modules with Compose UI |
+| `trucktrack.retrofit` | Modules calling the API |
+| `trucktrack.spotless` | All modules (auto-included by `trucktrack.library`) |
 
-### Compose Previews
+### Code rules enforced by ktlint (will fail `spotlessCheck`)
+- No wildcard imports — always import specific symbols
+- Functions/constructors with ≥ 3 parameters must use multiline format
+- Compose `@Preview` functions must not use past-tense names (`onXxxClicked` → `onXxx`)
 
-* Every file containing `@Composable` functions must include `@Preview` functions for key composables.
-* Wrap previews in `ApkAnalyzerTheme { }` to ensure correct theming.
-* Preview functions must be `private` and suffixed with `Preview` (e.g., `AppListItemRowPreview`).
-* Use realistic sample data in previews. Avoid empty states unless explicitly previewing them.
-* Do not preview top-level screen composables that depend on `ViewModel` — preview the stateless content composable instead.
+### Critical patterns
+- **Never import `androidx.compose.material3` in feature or app modules** — use `:core:ui-library` components only
+- **Never throw across public interfaces** — return `Result<T>`, `T?`, or `List<T>`
+- **State data classes must be `@Immutable`** — use `ImmutableList` / `persistentListOf` for list fields
+- **ViewModels use `@HiltViewModel` + `@Inject constructor`** — injected via `hiltViewModel()` in Composables
+- **All new `@Serializable` navigation keys** in `feature/*/api` only
+- **New string resources** go in the feature module's `src/main/res/values/strings.xml`
+- **New icons** must be added to `TruckTrackIcons` in `core/ui-library` — never import Material icon classes in feature modules
 
-### Standard Libraries
+### Dependency declarations
+- `api(projects.feature.xxx.api)` in impl modules for their own api module
+- `implementation(libs.xxx)` for all other dependencies (never hardcode versions — use `libs.*`)
 
-* **Timber** - for logging (via `Logger` wrapper in `core:common`).
-* **DataStore Preferences** - for persisting user settings (`PersistenceRepository`).
-* **Firebase** - Analytics, Crashlytics, Performance. Set up via `apkanalyzer.application` convention plugin.
-* **LeakCanary** - debug-only memory leak detection.
-* **Kotlinx Serialization** - for navigation key serialization.
-* **Kotlinx Collections Immutable** - for Compose-stable collections.
-
-### Logging
-
-* Use `Logger` from `core:common` (not raw `Timber`). It wraps Timber and Firebase Crashlytics.
-* Always provide a tag string as the first parameter: `Logger.d("FeatureName", "message")`.
-* Available levels: `v`, `d`, `i`, `w`, `e`. Error/warning variants accept `Throwable`: `Logger.e("Tag", throwable, "message")`.
-
-### Serialization
-
-* **Kotlin Serialization** - for navigation keys (`@Serializable`). Prefer over `Parcelable` for new code.
-* **Parcelize** - legacy models use `@Parcelize`. Acceptable for Android-specific data passed via intents/bundles.
-
-### Style & Conventions
-
-* Follow official [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html).
-* Use `data object` instead of standard `object`.
-* Spotless - Ensure that all code adheres to the spotless-compatible formatting rules. Run `./gradlew spotlessApply` to auto-fix formatting before committing.
-* Avoid using wildcard imports. Always import specific classes or functions.
-* Do not generate comments, KDoc, or Javadoc unless explicitly requested. The code should be self-explanatory.
-* When logging, use `Logger` with a tag. Do not use raw `Timber`.
-* Functions and properties should be public only if they are part of the public API. Otherwise, prefer private visibility, or internal visibility if function should be visible within the module.
-
-### Naming Conventions
-
-* Use **camelCase** for function names, variable names, and property names.
-* Use **PascalCase** for class names, interface names, object names, enum values and `@Composable` function names.
-* Use **UPPER_SNAKE_CASE** for constants.
-
-## Unit Testing
-
-* No tests exist yet. When adding tests, follow these conventions:
-* Use **MockK** for mocking.
-* Use **Turbine** for Flow testing.
-* Use **kotlinx-coroutines-test** (`runTest`) for coroutine testing.
-* Place tests in `src/test/kotlin/` mirroring the main source package structure.
-
-## String Resources & Copywriting
-
-When writing or reviewing string resources (`strings.xml`), act as a **technical copywriter** — someone who understands Android internals precisely but writes for a general audience.
-
-### Tone & Audience
-
-* Write for a **non-technical user** who knows what an app is or what permission is, but is an expert in the field.
-* Be **concise but complete** — one or two short sentences is ideal.
-* Use **plain English**. Avoid jargon unless it is immediately explained (e.g., "APK — the installer file").
-* Use **active voice** and **present tense**.
-* Avoid vague phrases like "some data", "certain features", or "this option". Be specific.
-* Reflect Android concepts correctly. Be technically accurate.

@@ -2,11 +2,11 @@ package com.momosi.trucktrack.user.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.momosi.trucktrack.user.UserRepository
-import com.momosi.trucktrack.user.UserRepositoryImpl
-import com.momosi.trucktrack.user.REALM_URL
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.AuthManagerImpl
+import com.momosi.trucktrack.user.REALM_URL
+import com.momosi.trucktrack.user.UserRepository
+import com.momosi.trucktrack.user.UserRepositoryImpl
 import com.momosi.trucktrack.user.internal.USER_AUTH_STORAGE
 import com.momosi.trucktrack.user.internal.UserStorage
 import com.momosi.trucktrack.user.internal.UserStorageImpl
@@ -45,9 +45,7 @@ abstract class UserModule {
         @Provides
         @Singleton
         @Named(USER_AUTH_STORAGE)
-        fun provideAuthSharedPreferences(
-            @ApplicationContext context: Context,
-        ): SharedPreferences = context.getSharedPreferences(USER_AUTH_STORAGE, Context.MODE_PRIVATE)
+        fun provideAuthSharedPreferences(@ApplicationContext context: Context): SharedPreferences = context.getSharedPreferences(USER_AUTH_STORAGE, Context.MODE_PRIVATE)
 
         @Provides
         @Singleton
@@ -61,8 +59,6 @@ abstract class UserModule {
 
         @Provides
         @Singleton
-        fun provideAuthApi(@Named("auth") retrofit: Retrofit): AuthApi =
-            retrofit.create(AuthApi::class.java)
+        fun provideAuthApi(@Named("auth") retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
     }
 }
-

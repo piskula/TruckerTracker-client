@@ -107,6 +107,7 @@ internal fun IssueCard(
                             text = reporter.fullName,
                         )
                     }
+
                     IssueCardRole.Driver -> MetaItem(
                         icon = TruckTrackIcons.Build,
                         text = issue.assignedTo?.fullName ?: stringResource(R.string.issue_unassigned),
@@ -263,10 +264,15 @@ private fun Instant.timeAgo(): String {
     val duration = Duration.between(this, now)
     return when {
         duration.toMinutes() < 1 -> stringResource(R.string.time_ago_just_now)
+
         duration.toHours() < 1 -> stringResource(R.string.time_ago_minutes, duration.toMinutes())
+
         duration.toDays() < 1 -> stringResource(R.string.time_ago_hours, duration.toHours())
+
         duration.toDays() < 2 -> stringResource(R.string.time_ago_yesterday)
+
         duration.toDays() < 7 -> stringResource(R.string.time_ago_days, duration.toDays())
+
         else -> {
             val date = ZonedDateTime.ofInstant(this, ZoneId.systemDefault())
             "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.dayOfMonth}"

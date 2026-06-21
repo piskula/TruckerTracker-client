@@ -26,9 +26,7 @@ interface UserStorage {
     val userFlow: StateFlow<User?>
 }
 
-class UserStorageImpl @Inject constructor(
-    @Named(USER_AUTH_STORAGE) private val authStorage: SharedPreferences,
-) : UserStorage {
+class UserStorageImpl @Inject constructor(@Named(USER_AUTH_STORAGE) private val authStorage: SharedPreferences) : UserStorage {
 
     override var authState: AuthState
         set(value) = authStorage.edit { putString(AUTH_STATE, value.jsonSerializeString()) }

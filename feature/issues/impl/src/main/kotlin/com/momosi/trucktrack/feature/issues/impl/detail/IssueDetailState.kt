@@ -62,21 +62,10 @@ data class IssueUi(
 )
 
 @Immutable
-data class IssueHistoryUi(
-    val id: String,
-    val type: IssueHistoryType,
-    val statusTo: IssueStatus?,
-    val performedByName: String?,
-    val createdAtFormatted: String,
-    val commentText: String?,
-)
+data class IssueHistoryUi(val id: String, val type: IssueHistoryType, val statusTo: IssueStatus?, val performedByName: String?, val createdAtFormatted: String, val commentText: String?)
 
 @Immutable
-data class PhotoItem(
-    val id: Long,
-    val filename: String,
-    val url: String,
-)
+data class PhotoItem(val id: Long, val filename: String, val url: String)
 
 enum class MechanicActionType {
     StartWorking,

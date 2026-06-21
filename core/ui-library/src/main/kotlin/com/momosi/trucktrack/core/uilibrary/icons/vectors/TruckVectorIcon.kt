@@ -54,4 +54,3 @@ internal val TruckVectorIcon: ImageVector by lazy {
         )
     }.build()
 }
-

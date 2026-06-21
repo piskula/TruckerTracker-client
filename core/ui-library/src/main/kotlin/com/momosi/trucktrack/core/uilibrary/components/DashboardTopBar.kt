@@ -100,4 +100,3 @@ private fun DashboardTopBarMechanicPreview() {
         )
     }
 }
-

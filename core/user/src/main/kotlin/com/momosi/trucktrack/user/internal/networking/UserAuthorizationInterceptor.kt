@@ -12,10 +12,7 @@ import okhttp3.Response
 import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
 
-class UserAuthorizationInterceptor(
-    private val authManager: AuthManager,
-    private val connectivityManager: ConnectivityManager,
-) : Interceptor {
+class UserAuthorizationInterceptor(private val authManager: AuthManager, private val connectivityManager: ConnectivityManager) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = runCatching {
             chain.authorizedRequest()
@@ -31,13 +28,13 @@ class UserAuthorizationInterceptor(
         return chain.proceed(request)
     }
 
-    private fun Interceptor.Chain.authorizedRequest(): Request {
-        return when (val tokenResponse = runBlocking { authManager.token() }) {
-            is TokenResponse.GuestWithoutToken -> request()
-            is TokenResponse.Token -> request().withAuthHeader(token = tokenResponse.token)
-            is TokenResponse.TokenError -> {
-                throw IOException(tokenResponse.exception)
-            }
+    private fun Interceptor.Chain.authorizedRequest(): Request = when (val tokenResponse = runBlocking { authManager.token() }) {
+        is TokenResponse.GuestWithoutToken -> request()
+
+        is TokenResponse.Token -> request().withAuthHeader(token = tokenResponse.token)
+
+        is TokenResponse.TokenError -> {
+            throw IOException(tokenResponse.exception)
         }
     }
 

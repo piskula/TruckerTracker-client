@@ -9,10 +9,7 @@ import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 
 @Composable
-fun SectionLabel(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
+fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text.uppercase(),
         style = AppTheme.typography.labelSmall,
@@ -28,4 +25,3 @@ private fun SectionLabelPreview() {
         SectionLabel(text = "In Progress — Assigned to me (1)")
     }
 }
-

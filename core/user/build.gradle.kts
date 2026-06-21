@@ -6,8 +6,6 @@ plugins {
 
 android {
     namespace = "com.momosi.trucktrack.core.user"
-
-
 }
 
 dependencies {
@@ -17,4 +15,3 @@ dependencies {
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.gson)
 }
-

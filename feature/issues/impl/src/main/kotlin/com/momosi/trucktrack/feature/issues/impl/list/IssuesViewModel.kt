@@ -22,10 +22,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class IssuesViewModel @Inject constructor(
-    private val userRepository: UserRepository,
-    private val issueRepository: IssueRepository,
-) : ViewModel() {
+class IssuesViewModel @Inject constructor(private val userRepository: UserRepository, private val issueRepository: IssueRepository) : ViewModel() {
 
     private val initialFilter: IssueFilter = when {
         userRepository.user.value?.isDualRole == true -> IssueFilter.DualRole.All
@@ -34,14 +31,14 @@ class IssuesViewModel @Inject constructor(
     }
     private val selectedFilter = MutableStateFlow<IssueFilter>(initialFilter)
     private val retryTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    private val _isRefreshing = MutableStateFlow(false)
+    private val isRefreshing = MutableStateFlow(false)
 
     private val content: Flow<IssuesContent> =
         combine(selectedFilter, retryTrigger.onStart { emit(Unit) }, userRepository.user) { filter, _, user ->
             Triple(filter, user?.id, user?.roles)
         }.flatMapLatest { (filter, userId, _) ->
             flow {
-                if (!_isRefreshing.value) emit(IssuesContent.Loading)
+                if (!isRefreshing.value) emit(IssuesContent.Loading)
                 val statuses = filter.statuses()
                 val accountIds = filter.accountIds(userId)
                 issueRepository.getIssues(
@@ -55,7 +52,7 @@ class IssuesViewModel @Inject constructor(
                     .onFailure {
                         emit(IssuesContent.Error)
                     }
-                _isRefreshing.value = false
+                isRefreshing.value = false
             }
         }
 
@@ -63,7 +60,7 @@ class IssuesViewModel @Inject constructor(
         userRepository.user,
         selectedFilter,
         content,
-        _isRefreshing,
+        isRefreshing,
     ) { user, filter, content, isRefreshing ->
         IssuesState(
             userInfo = user?.let { IssuesUserInfo(name = it.name, roles = it.roles.toImmutableList()) },
@@ -79,12 +76,16 @@ class IssuesViewModel @Inject constructor(
     fun onAction(action: IssuesAction) {
         when (action) {
             is IssuesAction.SelectFilter -> selectedFilter.value = action.filter
+
             is IssuesAction.Retry -> retryTrigger.tryEmit(Unit)
+
             is IssuesAction.Refresh -> {
-                _isRefreshing.value = true
+                isRefreshing.value = true
                 retryTrigger.tryEmit(Unit)
             }
+
             is IssuesAction.OpenIssue -> Unit
+
             is IssuesAction.CreateIssue -> Unit
         }
     }

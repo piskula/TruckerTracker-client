@@ -18,9 +18,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
-import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.Shapes
+import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 
 @Immutable
 sealed interface ChipVariant {

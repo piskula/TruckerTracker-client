@@ -44,11 +44,13 @@ internal fun TruckTrackApp(viewModel: TruckTrackViewModel) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(bottom = innerPadding.calculateBottomPadding()),
-                    entries = navigationState.toEntries(entryProvider {
-                        signInEntries(navigator)
-                        issuesEntries(navigator, resultStore)
-                        profileEntries(navigator)
-                    }),
+                    entries = navigationState.toEntries(
+                        entryProvider {
+                            signInEntries(navigator)
+                            issuesEntries(navigator, resultStore)
+                            profileEntries(navigator)
+                        },
+                    ),
                     onBack = navigator::goBack,
                     sharedTransitionScope = this,
                 )

@@ -21,4 +21,3 @@ enum class IssueStatus {
         Done -> "DONE"
     }
 }
-

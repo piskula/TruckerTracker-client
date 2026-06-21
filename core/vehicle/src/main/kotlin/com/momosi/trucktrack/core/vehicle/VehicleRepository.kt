@@ -6,4 +6,3 @@ interface VehicleRepository {
 
     suspend fun getVehicles(): Result<List<Vehicle>>
 }
-

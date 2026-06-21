@@ -22,10 +22,6 @@ abstract class ConnectivityModule {
     companion object {
         @Provides
         @Singleton
-        fun provideAndroidConnectivityManager(
-            @ApplicationContext context: Context,
-        ): android.net.ConnectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        fun provideAndroidConnectivityManager(@ApplicationContext context: Context): android.net.ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
     }
 }
-

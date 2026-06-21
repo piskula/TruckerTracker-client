@@ -108,8 +108,11 @@ class IssueDetailViewModel @AssistedInject constructor(
                 ?.toImmutableList()
             _state.update {
                 it.copy(
-                    historyContent = if (items.isNullOrEmpty()) IssueHistoryContent.Empty
-                    else IssueHistoryContent.Loaded(items),
+                    historyContent = if (items.isNullOrEmpty()) {
+                        IssueHistoryContent.Empty
+                    } else {
+                        IssueHistoryContent.Loaded(items)
+                    },
                 )
             }
         }
@@ -142,7 +145,6 @@ class IssueDetailViewModel @AssistedInject constructor(
             else -> null
         }
     }
-
 
     private fun startWorking() {
         if (_state.value.isMechanicActionLoading) return

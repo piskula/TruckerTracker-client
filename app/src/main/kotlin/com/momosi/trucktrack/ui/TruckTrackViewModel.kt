@@ -8,10 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class TruckTrackViewModel @Inject constructor(
-    authManager: AuthManager,
-) : ViewModel() {
+class TruckTrackViewModel @Inject constructor(authManager: AuthManager) : ViewModel() {
 
     val authenticationState: StateFlow<AuthenticationState> = authManager.authenticationState
 }
-

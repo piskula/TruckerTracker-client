@@ -21,4 +21,3 @@ enum class IssuePriority {
         Low -> "P5_LOW"
     }
 }
-

@@ -4,6 +4,4 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RealmDto(
-    @SerialName("public_key") val publicKey: String,
-)
+data class RealmDto(@SerialName("public_key") val publicKey: String)

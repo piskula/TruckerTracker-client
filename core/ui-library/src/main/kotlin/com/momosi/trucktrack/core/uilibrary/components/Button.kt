@@ -40,7 +40,7 @@ fun Button(
     icon: ImageVector? = null,
     style: ButtonStyle = ButtonStyle.Primary,
 ) {
-    val (containerColor, contentColor)= when (style) {
+    val (containerColor, contentColor) = when (style) {
         ButtonStyle.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
         ButtonStyle.Warning -> AppTheme.colors.warning to AppTheme.colors.onPrimary
         ButtonStyle.Positive -> AppTheme.colors.positive to AppTheme.colors.onPrimary

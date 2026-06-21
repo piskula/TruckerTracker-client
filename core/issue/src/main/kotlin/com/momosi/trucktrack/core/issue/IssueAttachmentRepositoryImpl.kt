@@ -1,10 +1,10 @@
 package com.momosi.trucktrack.core.issue
 
+import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.api.IssueAttachmentApi
 import com.momosi.trucktrack.core.issue.dto.toIssueAttachment
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
 import com.momosi.trucktrack.core.network.dto.toPage
-import com.momosi.trucktrack.core.common.model.Page
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -15,13 +15,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class IssueAttachmentRepositoryImpl @Inject constructor(
-    private val issueAttachmentApi: IssueAttachmentApi,
-    private val retrofit: Retrofit,
-) : IssueAttachmentRepository {
+class IssueAttachmentRepositoryImpl @Inject constructor(private val issueAttachmentApi: IssueAttachmentApi, private val retrofit: Retrofit) : IssueAttachmentRepository {
 
-    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String =
-        "${retrofit.baseUrl()}api/v1/issue/$issueId/photo/$attachmentId"
+    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String = "${retrofit.baseUrl()}api/v1/issue/$issueId/photo/$attachmentId"
 
     override suspend fun getPhotos(
         issueId: Long,
@@ -47,11 +43,7 @@ class IssueAttachmentRepositoryImpl @Inject constructor(
         issueAttachmentApi.uploadPhoto(issueId, part).toIssueAttachment()
     }
 
-    override suspend fun downloadPhoto(
-        issueId: Long,
-        attachmentId: Long,
-    ): Result<ResponseBody> = runCatching {
+    override suspend fun downloadPhoto(issueId: Long, attachmentId: Long): Result<ResponseBody> = runCatching {
         issueAttachmentApi.downloadPhoto(issueId, attachmentId)
     }
 }
-

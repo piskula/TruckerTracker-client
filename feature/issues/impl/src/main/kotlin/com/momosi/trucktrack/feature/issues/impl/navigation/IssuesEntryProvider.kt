@@ -6,9 +6,9 @@ import com.momosi.trucktrack.core.navigation.Navigator
 import com.momosi.trucktrack.core.navigation.ResultStore
 import com.momosi.trucktrack.feature.issues.api.IssuesNavKey
 import com.momosi.trucktrack.feature.issues.impl.FullScreenPhotoScreen
-import com.momosi.trucktrack.feature.issues.impl.list.IssuesScreen
 import com.momosi.trucktrack.feature.issues.impl.create.CreateIssueScreen
 import com.momosi.trucktrack.feature.issues.impl.detail.IssueDetailScreen
+import com.momosi.trucktrack.feature.issues.impl.list.IssuesScreen
 import com.momosi.trucktrack.feature.profile.api.ProfileNavKey
 
 private object IssueStatusChangedKey
@@ -17,7 +17,7 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
     entry<IssuesNavKey> {
         val statusChanged = resultStore[IssueStatusChangedKey] ?: false
         IssuesScreen(
-            issueStatusChanged = statusChanged,
+            issueStatusChange = statusChanged,
             onNavigateToProfile = { navigator.navigate(ProfileNavKey) },
             onNavigateToCreateIssue = { navigator.navigate(CreateIssueNavKey) },
             onNavigateToIssueDetail = { issueId -> navigator.navigate(IssueDetailNavKey(issueId)) },
@@ -26,7 +26,7 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
     entry<CreateIssueNavKey> {
         CreateIssueScreen(
             onBack = navigator::goBack,
-            onIssueCreated = { issueId ->
+            onIssueCreate = { issueId ->
                 navigator.goBack()
                 navigator.navigate(IssueDetailNavKey(issueId))
             },

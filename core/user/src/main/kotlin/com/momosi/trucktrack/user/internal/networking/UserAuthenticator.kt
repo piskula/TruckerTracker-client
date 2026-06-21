@@ -12,25 +12,21 @@ import javax.inject.Inject
 
 private const val TAG = "UserAuthenticator"
 
-class UserAuthenticator @Inject constructor(
-    private val authManager: AuthManager,
-) : Authenticator {
-    override fun authenticate(route: Route?, response: Response): Request? {
-        return when (val tokenResponse = runBlocking { authManager.token() }) {
-            is TokenResponse.GuestWithoutToken -> {
-                Logger.d(TAG, "Authenticator challenge for guest - token is not available")
-                null
-            }
+class UserAuthenticator @Inject constructor(private val authManager: AuthManager) : Authenticator {
+    override fun authenticate(route: Route?, response: Response): Request? = when (val tokenResponse = runBlocking { authManager.token() }) {
+        is TokenResponse.GuestWithoutToken -> {
+            Logger.d(TAG, "Authenticator challenge for guest - token is not available")
+            null
+        }
 
-            is TokenResponse.TokenError -> {
-                Logger.d(TAG, "Authenticator challenge - can not obtain token")
-                null
-            }
+        is TokenResponse.TokenError -> {
+            Logger.d(TAG, "Authenticator challenge - can not obtain token")
+            null
+        }
 
-            is TokenResponse.Token -> {
-                Logger.d(TAG, "Authenticator challenge successful")
-                response.request.withAuthHeader(token = tokenResponse.token)
-            }
+        is TokenResponse.Token -> {
+            Logger.d(TAG, "Authenticator challenge successful")
+            response.request.withAuthHeader(token = tokenResponse.token)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.core.issue
 
+import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.api.IssueApi
 import com.momosi.trucktrack.core.issue.api.IssueHistoryApi
 import com.momosi.trucktrack.core.issue.dto.toDto
@@ -11,15 +12,11 @@ import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.network.dto.toPage
-import com.momosi.trucktrack.core.common.model.Page
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class IssueRepositoryImpl @Inject constructor(
-    private val issueApi: IssueApi,
-    private val issueHistoryApi: IssueHistoryApi,
-) : IssueRepository {
+class IssueRepositoryImpl @Inject constructor(private val issueApi: IssueApi, private val issueHistoryApi: IssueHistoryApi) : IssueRepository {
 
     override suspend fun getIssues(
         statuses: List<IssueStatus>,
@@ -73,4 +70,3 @@ class IssueRepositoryImpl @Inject constructor(
         ).toPage { it.toIssueHistory() }
     }
 }
-

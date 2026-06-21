@@ -16,4 +16,3 @@ data class IssueDto(
     val createdAt: String = "",
     val updatedAt: String = "",
 )
-

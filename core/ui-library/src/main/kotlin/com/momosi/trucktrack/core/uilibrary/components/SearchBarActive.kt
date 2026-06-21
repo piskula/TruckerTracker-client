@@ -18,8 +18,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
 import com.momosi.trucktrack.core.uilibrary.modifier.sharedElement
-import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
+import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 
 @Composable
 fun SearchBarActive(

@@ -41,4 +41,3 @@ private fun FloatingActionButtonPreview() {
         FloatingActionButton(icon = TruckTrackIcons.Add, onClick = {})
     }
 }
-

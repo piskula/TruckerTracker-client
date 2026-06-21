@@ -1,4 +1,4 @@
-package com.momosi.trucktrack.core.common.network;
+package com.momosi.trucktrack.core.common.network
 
 import kotlinx.coroutines.flow.Flow
 
@@ -17,16 +17,10 @@ interface ConnectivityManager {
         TYPE_MOBILE_CELLULAR,
         ;
 
-        fun isOffline(): Boolean {
-            return this == TYPE_OFFLINE
-        }
+        fun isOffline(): Boolean = this == TYPE_OFFLINE
 
-        fun isDataNetwork(): Boolean {
-            return isWifiNetwork().not() && isOffline().not()
-        }
+        fun isDataNetwork(): Boolean = isWifiNetwork().not() && isOffline().not()
 
-        fun isWifiNetwork(): Boolean {
-            return this == TYPE_WIFI
-        }
+        fun isWifiNetwork(): Boolean = this == TYPE_WIFI
     }
 }

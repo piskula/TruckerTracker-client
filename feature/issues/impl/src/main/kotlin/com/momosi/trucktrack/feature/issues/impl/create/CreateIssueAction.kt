@@ -14,4 +14,3 @@ sealed interface CreateIssueAction {
     data object Submit : CreateIssueAction
     data object ToggleVehicleDropdown : CreateIssueAction
 }
-

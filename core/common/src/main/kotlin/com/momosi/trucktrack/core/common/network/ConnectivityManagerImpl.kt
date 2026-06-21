@@ -11,9 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ConnectivityManagerImpl @Inject constructor(
-    private val androidConnectivityManager: android.net.ConnectivityManager,
-) : ConnectivityManager {
+class ConnectivityManagerImpl @Inject constructor(private val androidConnectivityManager: android.net.ConnectivityManager) : ConnectivityManager {
 
     private var networkConnectionFlow = MutableStateFlow(androidConnectivityManager.getNetworkCapabilities(androidConnectivityManager.activeNetwork).mapToNetworkCapabilities())
 

@@ -14,4 +14,3 @@ dependencies {
     implementation(projects.core.vehicle)
     implementation(libs.okhttp)
 }
-

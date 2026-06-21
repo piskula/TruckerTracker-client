@@ -38,10 +38,7 @@ internal fun IssueCreate.toDto(): IssueCreateDto = IssueCreateDto(
     priority = priority.toApiValue(),
 )
 
-internal fun List<IssueStatus>.toFilterDto(
-    vehicleIds: List<Long>,
-    accountIds: List<String>,
-): IssueFilterDto = IssueFilterDto(
+internal fun List<IssueStatus>.toFilterDto(vehicleIds: List<Long>, accountIds: List<String>): IssueFilterDto = IssueFilterDto(
     statuses = map { it.toApiValue() },
     vehicleIds = vehicleIds,
     accountIds = accountIds,
@@ -69,4 +66,3 @@ internal fun IssueHistoryDto.toIssueHistory(): IssueHistory = IssueHistory(
 private fun String.parseInstant(): Instant = runCatching {
     Instant.parse(this)
 }.getOrDefault(Instant.EPOCH)
-

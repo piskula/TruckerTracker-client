@@ -7,12 +7,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class VehicleRepositoryImpl @Inject constructor(
-    private val vehicleApi: VehicleApi,
-) : VehicleRepository {
+class VehicleRepositoryImpl @Inject constructor(private val vehicleApi: VehicleApi) : VehicleRepository {
 
     override suspend fun getVehicles(): Result<List<Vehicle>> = runCatching {
         vehicleApi.getVehicleList().map { it.toVehicle() }
     }
 }
-

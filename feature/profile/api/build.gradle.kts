@@ -5,4 +5,3 @@ plugins {
 android {
     namespace = "com.momosi.trucktrack.feature.profile.api"
 }
-

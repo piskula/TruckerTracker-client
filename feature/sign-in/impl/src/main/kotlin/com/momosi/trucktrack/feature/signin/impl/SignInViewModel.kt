@@ -13,9 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(
-    private val authManager: AuthManager,
-) : ViewModel() {
+class SignInViewModel @Inject constructor(private val authManager: AuthManager) : ViewModel() {
 
     private val _state = MutableStateFlow<SignInState>(SignInState.Idle)
     val state: StateFlow<SignInState> = _state
@@ -37,9 +35,13 @@ class SignInViewModel @Inject constructor(
                     _event.send(SignInEvent.NavigateToMyIssues)
                     SignInState.Idle
                 }
+
                 is AuthActionResult.Failed.UserCancelled -> SignInState.Idle
+
                 is AuthActionResult.Failed.NoInternet -> SignInState.Error.NoInternet
+
                 is AuthActionResult.Failed.NoActivity -> SignInState.Error.NoActivity
+
                 is AuthActionResult.Failed.Error -> SignInState.Error.Generic
             }
         }

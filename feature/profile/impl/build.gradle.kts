@@ -11,4 +11,3 @@ dependencies {
     implementation(projects.feature.signIn.api)
     implementation(projects.core.user)
 }
-

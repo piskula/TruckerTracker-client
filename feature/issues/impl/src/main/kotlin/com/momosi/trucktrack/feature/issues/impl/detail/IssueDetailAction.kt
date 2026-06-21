@@ -11,4 +11,3 @@ sealed interface IssueDetailAction {
     data object ResolveIssue : IssueDetailAction
     data object ReassignToMe : IssueDetailAction
 }
-

@@ -173,11 +173,9 @@ class AuthManagerImpl @Inject constructor(
             }
     }
 
-    override suspend fun token(): TokenResponse {
-        return when (authenticationState.value) {
-            AuthenticationState.Authorized -> getFreshUserAccessToken()
-            AuthenticationState.Guest -> TokenResponse.GuestWithoutToken
-        }
+    override suspend fun token(): TokenResponse = when (authenticationState.value) {
+        AuthenticationState.Authorized -> getFreshUserAccessToken()
+        AuthenticationState.Guest -> TokenResponse.GuestWithoutToken
     }
 
     private suspend fun getFreshUserAccessToken(): TokenResponse = refreshTokenMutex.withLock {
@@ -243,7 +241,6 @@ class AuthManagerImpl @Inject constructor(
                 .map { authState }
         } ?: Result.failure(IllegalStateException("Access token is empty"))
     }
-
 }
 
 private fun Throwable.isUnrecoverableException() = this in listOf(
@@ -254,7 +251,6 @@ private fun Throwable.isUnrecoverableException() = this in listOf(
     AuthorizationException.TokenRequestErrors.UNSUPPORTED_GRANT_TYPE,
     AuthorizationException.TokenRequestErrors.INVALID_SCOPE,
 ) || this is TokenVerificationException
-
 
 inline fun <R, T> Result<T>.flatMap(transform: (T) -> Result<R>): Result<R> = fold(
     onSuccess = { transform(it) },

@@ -4,4 +4,3 @@ sealed interface CreateIssueEvent {
     data class IssueCreated(val issueId: Long) : CreateIssueEvent
     data object CreationFailed : CreateIssueEvent
 }
-

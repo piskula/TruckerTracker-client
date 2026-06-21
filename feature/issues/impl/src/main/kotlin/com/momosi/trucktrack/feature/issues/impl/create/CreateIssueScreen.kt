@@ -59,7 +59,7 @@ import kotlinx.collections.immutable.persistentListOf
 @Composable
 internal fun CreateIssueScreen(
     onBack: () -> Unit,
-    onIssueCreated: (Long) -> Unit,
+    onIssueCreate: (Long) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     viewModel: CreateIssueViewModel = hiltViewModel(),
 ) {
@@ -68,7 +68,7 @@ internal fun CreateIssueScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is CreateIssueEvent.IssueCreated -> onIssueCreated(event.issueId)
+                is CreateIssueEvent.IssueCreated -> onIssueCreate(event.issueId)
                 is CreateIssueEvent.CreationFailed -> Unit
             }
         }
@@ -222,6 +222,7 @@ private fun VehicleSelector(
                 vehicles is VehiclesContent.Loading -> {
                     LoadingSpinner(size = 20.dp, strokeWidth = 2.dp)
                 }
+
                 selectedVehicle != null -> {
                     Text(
                         text = "${selectedVehicle.licensePlate} · ${selectedVehicle.make} ${selectedVehicle.model}",
@@ -230,6 +231,7 @@ private fun VehicleSelector(
                         modifier = Modifier.weight(1f),
                     )
                 }
+
                 else -> {
                     Text(
                         text = stringResource(R.string.create_issue_select_vehicle),
@@ -400,10 +402,7 @@ private fun IssuePriority.icon() = when (this) {
 }
 
 @Composable
-private fun PhotoUploadArea(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun PhotoUploadArea(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -519,4 +518,3 @@ private fun CreateIssueEmptyPreview() {
 }
 
 // endregion
-

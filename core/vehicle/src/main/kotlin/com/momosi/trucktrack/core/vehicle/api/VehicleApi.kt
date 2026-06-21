@@ -8,4 +8,3 @@ interface VehicleApi {
     @GET("api/v1/vehicle")
     suspend fun getVehicleList(): List<VehicleDto>
 }
-

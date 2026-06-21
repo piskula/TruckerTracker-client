@@ -44,4 +44,3 @@ internal val TrailerVectorIcon: ImageVector by lazy {
         )
     }.build()
 }
-

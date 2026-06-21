@@ -34,4 +34,3 @@ interface IssueRepository {
         size: Int? = null,
     ): Result<Page<IssueHistory>>
 }
-

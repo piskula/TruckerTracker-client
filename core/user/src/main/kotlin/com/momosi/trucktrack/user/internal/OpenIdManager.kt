@@ -22,9 +22,7 @@ import javax.inject.Singleton
 import kotlin.coroutines.resume
 
 @Singleton
-class OpenIdManager @Inject constructor(
-    @ApplicationContext private val appContext: Context,
-) {
+class OpenIdManager @Inject constructor(@ApplicationContext private val appContext: Context) {
 
     class UserCancelledException : RuntimeException()
 
@@ -77,10 +75,7 @@ class OpenIdManager @Inject constructor(
         return suspendCancellableCoroutine { pendingEndSessionRequest = it }
     }
 
-    internal suspend fun performAuthorizationRequest(
-        activity: Activity,
-        request: AuthorizationRequest,
-    ): Result<AuthorizationResponse> {
+    internal suspend fun performAuthorizationRequest(activity: Activity, request: AuthorizationRequest): Result<AuthorizationResponse> {
         AuthorizationService(activity).use {
             it.performAuthorizationRequest(request, authActivityPendingIntent(), authActivityPendingIntent())
         }

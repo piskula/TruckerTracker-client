@@ -123,7 +123,7 @@ private fun IssueDetailScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background)
+            .background(AppTheme.colors.background),
     ) {
         when (val content = state.content) {
             is IssueDetailContent.Loading -> {
@@ -212,7 +212,7 @@ private fun LoadedContent(
             HeaderCard(issue = issue)
             DescriptionCard(description = issue.description)
             AnimatedVisibility(
-                visible = mechanicAction == MechanicActionType.Reassign
+                visible = mechanicAction == MechanicActionType.Reassign,
             ) {
                 ReassignCard(
                     isLoading = isMechanicActionLoading,
@@ -310,10 +310,7 @@ private fun PersonCell(
 }
 
 @Composable
-private fun HeaderCard(
-    issue: IssueUi,
-    modifier: Modifier = Modifier,
-) {
+private fun HeaderCard(issue: IssueUi, modifier: Modifier = Modifier) {
     val borderColor = issue.priority.borderColor()
     Box(
         modifier = modifier
@@ -415,7 +412,8 @@ private fun HistoryCard(historyContent: IssueHistoryContent, modifier: Modifier 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp), contentAlignment = Alignment.Center
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
                     LoadingSpinner(size = 24.dp, strokeWidth = 2.dp)
                 }
@@ -441,7 +439,11 @@ private fun HistoryCard(historyContent: IssueHistoryContent, modifier: Modifier 
 }
 
 @Composable
-private fun TimelineStep(entry: IssueHistoryUi, isLast: Boolean, modifier: Modifier = Modifier) {
+private fun TimelineStep(
+    entry: IssueHistoryUi,
+    isLast: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Row(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -755,7 +757,6 @@ private fun CardContainer(
         content()
     }
 }
-
 
 @Composable
 private fun IssuePriority.borderColor(): Color = when (this) {

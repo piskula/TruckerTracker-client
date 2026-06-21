@@ -23,8 +23,6 @@ abstract class VehicleModule {
 
         @Provides
         @Singleton
-        fun provideVehicleApi(retrofit: Retrofit): VehicleApi =
-            retrofit.create(VehicleApi::class.java)
+        fun provideVehicleApi(retrofit: Retrofit): VehicleApi = retrofit.create(VehicleApi::class.java)
     }
 }
-

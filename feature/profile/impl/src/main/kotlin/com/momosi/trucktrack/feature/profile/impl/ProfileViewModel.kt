@@ -17,10 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
-    userRepository: UserRepository,
-    private val authManager: AuthManager,
-) : ViewModel() {
+class ProfileViewModel @Inject constructor(userRepository: UserRepository, private val authManager: AuthManager) : ViewModel() {
 
     private val _event = Channel<ProfileEvent>(Channel.BUFFERED)
     val event: Flow<ProfileEvent> = _event.receiveAsFlow()
@@ -56,4 +53,3 @@ class ProfileViewModel @Inject constructor(
         }
     }
 }
-
