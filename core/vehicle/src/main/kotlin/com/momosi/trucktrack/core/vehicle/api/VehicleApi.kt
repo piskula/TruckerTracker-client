@@ -1,10 +1,15 @@
 package com.momosi.trucktrack.core.vehicle.api
 
 import com.momosi.trucktrack.core.vehicle.dto.VehicleDto
-import retrofit2.http.GET
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import javax.inject.Inject
+import javax.inject.Singleton
 
-interface VehicleApi {
+@Singleton
+class VehicleApi @Inject constructor(private val client: HttpClient) {
 
-    @GET("api/v1/vehicle")
-    suspend fun getVehicleList(): List<VehicleDto>
+    suspend fun getVehicleList(): List<VehicleDto> =
+        client.get("api/v1/vehicle").body()
 }

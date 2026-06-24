@@ -2,29 +2,51 @@ package com.momosi.trucktrack.core.issue.api
 
 import com.momosi.trucktrack.core.issue.dto.IssueAttachmentDto
 import com.momosi.trucktrack.core.network.dto.PageDto
-import okhttp3.MultipartBody
-import okhttp3.ResponseBody
-import retrofit2.http.GET
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Path
-import retrofit2.http.Query
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsBytes
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import javax.inject.Inject
+import javax.inject.Singleton
 
-interface IssueAttachmentApi {
+@Singleton
+class IssueAttachmentApi @Inject constructor(private val client: HttpClient) {
 
-    @GET("api/v1/issue/{issueId}/photo")
     suspend fun getPhotoList(
-        @Path("issueId") issueId: Long,
-        @Query("page") page: Int? = null,
-        @Query("size") size: Int? = null,
-        @Query("sort") sort: String? = null,
-    ): PageDto<IssueAttachmentDto>
+        issueId: Long,
+        page: Int? = null,
+        size: Int? = null,
+        sort: String? = null,
+    ): PageDto<IssueAttachmentDto> = client.get("api/v1/issue/$issueId/photo") {
+        page?.let { parameter("page", it) }
+        size?.let { parameter("size", it) }
+        sort?.let { parameter("sort", it) }
+    }.body()
 
-    @Multipart
-    @POST("api/v1/issue/{issueId}/photo")
-    suspend fun uploadPhoto(@Path("issueId") issueId: Long, @Part file: MultipartBody.Part): IssueAttachmentDto
+    suspend fun uploadPhoto(
+        issueId: Long,
+        fileName: String,
+        fileBytes: ByteArray,
+        contentType: String,
+    ): IssueAttachmentDto = client.submitFormWithBinaryData(
+        url = "api/v1/issue/$issueId/photo",
+        formData = formData {
+            append(
+                "file",
+                fileBytes,
+                Headers.build {
+                    append(HttpHeaders.ContentType, contentType)
+                    append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
+                },
+            )
+        },
+    ).body()
 
-    @GET("api/v1/issue/{issueId}/photo/{attachmentId}")
-    suspend fun downloadPhoto(@Path("issueId") issueId: Long, @Path("attachmentId") attachmentId: Long): ResponseBody
+    suspend fun downloadPhoto(issueId: Long, attachmentId: Long): ByteArray =
+        client.get("api/v1/issue/$issueId/photo/$attachmentId").bodyAsBytes()
 }

@@ -141,6 +141,7 @@ One package per feature screen. Keep related files together:
 * All API interfaces/clients live in the relevant `core` module (e.g., `core:issue`, `core:user`).
 * Base URL: `https://tt.momosi.org/`.
 * Authentication: inject a bearer token via Ktor's `Auth` plugin, wired to `AuthManager`.
+* To use Ktor in a module: add `implementation(libs.bundles.ktor.client)` to `dependencies` in `build.gradle.kts`. No plugin needed.
 
 ### Serialization
 
@@ -157,7 +158,6 @@ Use these in module `build.gradle.kts` files:
 * `trucktrack.feature.impl` — feature impl module (library + Koin + Compose + `:core:ui-library` + `:core:navigation`).
 * `trucktrack.koin` — Koin core + Koin Android + Koin Compose dependencies.
 * `trucktrack.compose` — Compose compiler plugin + BOM + compose/navigation3 bundles.
-* `trucktrack.ktor` — Ktor client core + OkHttp engine + content-negotiation + Kotlinx Serialization plugin bundle.
 * `trucktrack.spotless` — ktlint formatting via Spotless.
 
 ### Style & Conventions
@@ -211,7 +211,8 @@ Reusable step-by-step workflows are in `agents/skills/`. Use them for recurring 
 | [`create-feature-module.md`](agents/skills/create-feature-module.md) | Scaffolding a new `feature/*/api` + `feature/*/impl` pair |
 | [`add-screen-to-feature.md`](agents/skills/add-screen-to-feature.md) | Adding a new screen (ViewModel + Composable + State/Action/Event) |
 | [`add-repository.md`](agents/skills/add-repository.md) | Adding a repository/manager to a `core/*` module |
-| [`migrate-module-to-ktor-koin.md`](agents/skills/migrate-module-to-ktor-koin.md) | Migrating a module from Retrofit+Hilt to Ktor+Koin |
+| [`migrate-retrofit-to-ktor.md`](agents/skills/migrate-retrofit-to-ktor/SKILL.md) | Migrating a module from Retrofit to Ktor Client |
+| [`di-migration.md`](agents/skills/di-migration/SKILL.md) | Migrating DI frameworks (Hilt→Koin, Dagger→Koin, etc.) |
 
 ### KMP-Compatible Replacements for Remaining Blockers
 

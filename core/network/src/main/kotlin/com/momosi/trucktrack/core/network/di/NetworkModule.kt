@@ -1,23 +1,28 @@
 package com.momosi.trucktrack.core.network.di
 
+import com.momosi.trucktrack.core.common.TruckTrackConfig
 import com.momosi.trucktrack.core.common.logger.Logger
-import com.momosi.trucktrack.core.common.network.ConnectivityManager
 import com.momosi.trucktrack.user.AuthManager
-import com.momosi.trucktrack.user.internal.networking.UserAuthenticator
-import com.momosi.trucktrack.user.internal.networking.UserAuthorizationInterceptor
+import com.momosi.trucktrack.user.model.TokenResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Singleton
 
-private const val BASE_URL = "https://tt.momosi.org/"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -32,25 +37,49 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(
-        authManager: AuthManager,
-        connectivityManager: ConnectivityManager,
-        userAuthenticator: UserAuthenticator,
-    ): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(UserAuthorizationInterceptor(authManager, connectivityManager))
-        .authenticator(userAuthenticator)
-        .addInterceptor(
-            HttpLoggingInterceptor { message -> Logger.d("HTTPCall", message) }.apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            },
-        )
-        .build()
+    fun provideHttpClient(json: Json, authManager: AuthManager): HttpClient = HttpClient(OkHttp) {
+        defaultRequest {
+            url(TruckTrackConfig.API_BASE_URL)
+            contentType(ContentType.Application.Json)
+        }
 
-    @Provides
-    @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-        .build()
+        install(ContentNegotiation) {
+            json(json)
+        }
+
+        install(Auth) {
+            bearer {
+                loadTokens {
+                    when (val tokenResponse = authManager.token()) {
+                        is TokenResponse.Token -> BearerTokens(
+                            accessToken = tokenResponse.token,
+                            refreshToken = "",
+                        )
+
+                        else -> null
+                    }
+                }
+
+                refreshTokens {
+                    when (val tokenResponse = authManager.token()) {
+                        is TokenResponse.Token -> BearerTokens(
+                            accessToken = tokenResponse.token,
+                            refreshToken = "",
+                        )
+
+                        else -> null
+                    }
+                }
+            }
+        }
+
+        install(Logging) {
+            level = LogLevel.BODY
+            logger = object : io.ktor.client.plugins.logging.Logger {
+                override fun log(message: String) {
+                    Logger.d("Ktor", message)
+                }
+            }
+        }
+    }
 }

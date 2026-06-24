@@ -13,7 +13,8 @@ Before writing any code, scan this table. If the task matches a trigger, **read 
 | Creating a new feature (new `feature/*/api` + `feature/*/impl` pair) | [`agents/skills/create-feature-module/SKILL.md`](../agents/skills/create-feature-module/SKILL.md) |
 | Adding a new screen to an existing feature | [`agents/skills/add-screen-to-feature/SKILL.md`](../agents/skills/add-screen-to-feature/SKILL.md) |
 | Adding a repository or manager to a `core/*` module | [`agents/skills/add-repository/SKILL.md`](../agents/skills/add-repository/SKILL.md) |
-| Migrating a module from Retrofit+Hilt to Ktor+Koin | [`agents/skills/migrate-module-to-ktor-koin/SKILL.md`](../agents/skills/migrate-module-to-ktor-koin/SKILL.md) |
+| Migrating a module from Retrofit to Ktor Client | [`agents/skills/migrate-retrofit-to-ktor/SKILL.md`](../agents/skills/migrate-retrofit-to-ktor/SKILL.md) |
+| Migrating DI frameworks (Hilt→Koin, Dagger→Koin, etc.) | [`agents/skills/di-migration/SKILL.md`](../agents/skills/di-migration/SKILL.md) |
 
 > Skill files follow the convention in [`agents/skills/SKILL_CONVENTION.md`](../agents/skills/SKILL_CONVENTION.md).
 > Each skill contains **Triggers** (when to use it), **Prerequisites**, **Steps**, and **Verification** checklists.

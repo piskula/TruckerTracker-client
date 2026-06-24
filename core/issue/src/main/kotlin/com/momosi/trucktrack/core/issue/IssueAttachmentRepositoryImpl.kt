@@ -1,23 +1,23 @@
 package com.momosi.trucktrack.core.issue
 
+import com.momosi.trucktrack.core.common.TruckTrackConfig
 import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.api.IssueAttachmentApi
 import com.momosi.trucktrack.core.issue.dto.toIssueAttachment
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
 import com.momosi.trucktrack.core.network.dto.toPage
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.ResponseBody
-import retrofit2.Retrofit
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class IssueAttachmentRepositoryImpl @Inject constructor(private val issueAttachmentApi: IssueAttachmentApi, private val retrofit: Retrofit) : IssueAttachmentRepository {
 
-    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String = "${retrofit.baseUrl()}api/v1/issue/$issueId/photo/$attachmentId"
+@Singleton
+class IssueAttachmentRepositoryImpl @Inject constructor(
+    private val issueAttachmentApi: IssueAttachmentApi,
+) : IssueAttachmentRepository {
+
+    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String =
+        "${TruckTrackConfig.API_BASE_URL}api/v1/issue/$issueId/photo/$attachmentId"
 
     override suspend fun getPhotos(
         issueId: Long,
@@ -38,12 +38,15 @@ class IssueAttachmentRepositoryImpl @Inject constructor(private val issueAttachm
         file: File,
         contentType: String,
     ): Result<IssueAttachment> = runCatching {
-        val requestBody = file.asRequestBody(contentType.toMediaType())
-        val part = MultipartBody.Part.createFormData("file", file.name, requestBody)
-        issueAttachmentApi.uploadPhoto(issueId, part).toIssueAttachment()
+        issueAttachmentApi.uploadPhoto(
+            issueId = issueId,
+            fileName = file.name,
+            fileBytes = file.readBytes(),
+            contentType = contentType,
+        ).toIssueAttachment()
     }
 
-    override suspend fun downloadPhoto(issueId: Long, attachmentId: Long): Result<ResponseBody> = runCatching {
+    override suspend fun downloadPhoto(issueId: Long, attachmentId: Long): Result<ByteArray> = runCatching {
         issueAttachmentApi.downloadPhoto(issueId, attachmentId)
     }
 }

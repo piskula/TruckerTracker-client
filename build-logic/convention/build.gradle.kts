@@ -45,9 +45,9 @@ gradlePlugin {
             id = "trucktrack.compose"
             implementationClass = "com.momosi.trucktrack.ComposePlugin"
         }
-        register("trucktrack.retrofit") {
-            id = "trucktrack.retrofit"
-            implementationClass = "com.momosi.trucktrack.RetrofitPlugin"
+        register("trucktrack.ktor") {
+            id = "trucktrack.ktor"
+            implementationClass = "com.momosi.trucktrack.KtorPlugin"
         }
     }
 }

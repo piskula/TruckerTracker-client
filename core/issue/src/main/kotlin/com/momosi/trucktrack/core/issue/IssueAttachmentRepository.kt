@@ -2,7 +2,6 @@ package com.momosi.trucktrack.core.issue
 
 import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
-import okhttp3.ResponseBody
 import java.io.File
 
 interface IssueAttachmentRepository {
@@ -22,5 +21,5 @@ interface IssueAttachmentRepository {
         contentType: String,
     ): Result<IssueAttachment>
 
-    suspend fun downloadPhoto(issueId: Long, attachmentId: Long): Result<ResponseBody>
+    suspend fun downloadPhoto(issueId: Long, attachmentId: Long): Result<ByteArray>
 }

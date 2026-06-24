@@ -1,6 +1,7 @@
 package com.momosi.trucktrack.user
 
 import androidx.core.net.toUri
+import com.momosi.trucktrack.core.common.TruckTrackConfig
 import com.momosi.trucktrack.core.common.lifecycle.CurrentActivityHelper
 import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.common.network.ConnectivityManager
@@ -29,10 +30,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "UserAuthManager"
-internal const val REALM_URL = "https://sso.momosi.org/realms/trucktrack/"
-private const val CLIENT_ID = "trucktrack-app"
-private const val REDIRECT_URL = "com.momosi.trucktrack://auth/callback"
-private const val POST_LOGOUT_REDIRECT_URL = "com.momosi.trucktrack://auth/logout"
 
 @Singleton
 class AuthManagerImpl @Inject constructor(
@@ -79,7 +76,7 @@ class AuthManagerImpl @Inject constructor(
 
         authenticationInProgress.value = true
 
-        val configuration = openIdManager.authConfiguration(REALM_URL).getOrElse {
+        val configuration = openIdManager.authConfiguration(TruckTrackConfig.REALM_URL).getOrElse {
             authenticationInProgress.value = false
             return AuthActionResult.Failed.Error(IllegalStateException("Can not resolve auth configuration"))
         }
@@ -88,9 +85,9 @@ class AuthManagerImpl @Inject constructor(
 
         val authorizationRequest = AuthorizationRequest.Builder(
             configuration,
-            CLIENT_ID,
+            TruckTrackConfig.OAUTH_CLIENT_ID,
             ResponseTypeValues.CODE,
-            REDIRECT_URL.toUri(),
+            TruckTrackConfig.OAUTH_REDIRECT_URL.toUri(),
         )
             .setScopes("openid", "offline_access")
             .setPrompt("login")
@@ -141,7 +138,7 @@ class AuthManagerImpl @Inject constructor(
 
         authenticationInProgress.value = true
 
-        val configuration = openIdManager.authConfiguration(REALM_URL).getOrElse {
+        val configuration = openIdManager.authConfiguration(TruckTrackConfig.REALM_URL).getOrElse {
             invalidateAuth()
             return
         }
@@ -154,7 +151,7 @@ class AuthManagerImpl @Inject constructor(
         Logger.d(TAG, "Start end session")
 
         runCatching {
-            openIdManager.performEndSessionRequest(configuration, idToken, POST_LOGOUT_REDIRECT_URL)
+            openIdManager.performEndSessionRequest(configuration, idToken, TruckTrackConfig.OAUTH_LOGOUT_REDIRECT_URL)
         }
             .onSuccess {
                 Logger.d(TAG, "End session successful")

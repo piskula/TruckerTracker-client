@@ -2,17 +2,24 @@ package com.momosi.trucktrack.core.issue.api
 
 import com.momosi.trucktrack.core.issue.dto.IssueHistoryDto
 import com.momosi.trucktrack.core.network.dto.PageDto
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import javax.inject.Inject
+import javax.inject.Singleton
 
-interface IssueHistoryApi {
+@Singleton
+class IssueHistoryApi @Inject constructor(private val client: HttpClient) {
 
-    @GET("api/v1/issue/{id}/history")
     suspend fun getIssueHistory(
-        @Path("id") id: Long,
-        @Query("page") page: Int? = null,
-        @Query("size") size: Int? = null,
-        @Query("sort") sort: String? = null,
-    ): PageDto<IssueHistoryDto>
+        id: Long,
+        page: Int? = null,
+        size: Int? = null,
+        sort: String? = null,
+    ): PageDto<IssueHistoryDto> = client.get("api/v1/issue/$id/history") {
+        page?.let { parameter("page", it) }
+        size?.let { parameter("size", it) }
+        sort?.let { parameter("sort", it) }
+    }.body()
 }
