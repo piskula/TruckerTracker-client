@@ -1,7 +1,8 @@
 # core:ui-library
 
-The single source of truth for all UI — theme, icons, and every reusable Compose component.
+The single source of truth for all UI — theme, icons, and every reusable Compose Multiplatform component.
 Feature modules must never import `androidx.compose.material3` directly; use this module instead.
+KMP module: components in `commonMain`, `@Preview` functions in `androidMain`.
 
 ## Theme
 
@@ -55,13 +56,11 @@ Key icons: `Person`, `Build`, `AccountCircle`, `Add`, `Back`, `CheckCircle`, `Ra
 
 ## Depends On
 
-- `androidx.compose.foundation` + `androidx.compose.ui`
-- `androidx.compose.material3` (internal only — never re-export material3 types)
+- Compose Multiplatform (`org.jetbrains.compose`): runtime, foundation, material3, icons
 - `androidx.navigation3:navigation3-ui`
 
 ## Rules
 
 - All new reusable components go here.
 - Never expose `material3` types in public function signatures — wrap them.
-- Always add a `@Preview` for every new component.
-
+- Always add a `@Preview` for every new component (in `androidMain`).

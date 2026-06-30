@@ -1,38 +1,34 @@
 # core:common
 
-Base dependency for all other modules. Contains shared utilities with no business logic.
+Base dependency for all other modules. Contains shared utilities with no business logic. KMP module with `commonMain` and `androidMain` source sets.
 
 ## Public API
 
 | Symbol | Description |
 |--------|-------------|
 | `DispatcherProvider` | Coroutine dispatcher abstraction (`main`, `io`, `default`). Inject instead of hardcoding `Dispatchers.*`. |
-| `ConnectivityManager` | Interface. `ConnectivityManagerImpl` is the Android impl. Use the interface everywhere. |
-| `CurrentActivityHelper` | Provides the current `Activity` — used by `core:user` for OAuth browser launch. Android-only. |
-| `Logger` | Kermit wrapper. Always use this, never call `KermitLogger` directly. |
+| `ConnectivityManager` | Interface in `commonMain`. `ConnectivityManagerImpl` is the Android impl in `androidMain`. Use the interface everywhere. |
+| `CurrentActivityHelper` | Provides the current `Activity` — used by `core:user` for OAuth browser launch. Android-only (`androidMain`). |
+| `Logger` | Kermit wrapper. Always use this, never call Kermit directly. |
 | `Page<T>` | Generic pagination model returned by all paginated repository calls. |
 
 ## Key Files
 
 ```
-logger/Logger.kt
-coroutines/DispatcherProvider.kt
-coroutines/Flows.kt          ← Flow utility extensions
-network/ConnectivityManager.kt
-network/ConnectivityManagerImpl.kt
-lifecycle/CurrentActivityHelper.kt
-model/Page.kt
-di/ConnectivityModule.kt     ← Hilt bindings for ConnectivityManager
+commonMain/
+  logger/Logger.kt
+  coroutines/DispatcherProvider.kt
+  coroutines/Flows.kt              ← Flow utility extensions
+  network/ConnectivityManager.kt   ← Interface (pure Kotlin)
+  model/Page.kt
+  di/CommonModule.kt               ← Koin bindings (common part)
+androidMain/
+  network/ConnectivityManagerImpl.kt
+  lifecycle/CurrentActivityHelper.kt
+  di/AndroidCommonModule.kt        ← Koin bindings needing androidContext()
 ```
 
 ## Depends On
 
 Nothing. This is the base module — no project dependencies.
-
-## KMP Notes
-
-- `DispatcherProvider` and `Page<T>` are already pure Kotlin — safe to move to `commonMain` as-is.
-- `Logger` wraps Kermit (`co.touchlab:kermit`) — KMP-compatible, no further migration needed.
-- `ConnectivityManager` interface is pure Kotlin; `ConnectivityManagerImpl` uses Android APIs — keep impl in `androidMain`.
-- `CurrentActivityHelper` is inherently Android-only; stays in `androidMain`.
 

@@ -1,6 +1,6 @@
 # core:navigation
 
-Wraps Navigation 3 (`androidx.navigation3`) to provide a simple backstack-based navigation API used by the `app` module and feature modules.
+Wraps Navigation 3 (`androidx.navigation3`) to provide a simple backstack-based navigation API. Fully KMP — all code in `commonMain`. Navigation 3 is KMP-compatible.
 
 ## Public API
 
@@ -14,9 +14,10 @@ Wraps Navigation 3 (`androidx.navigation3`) to provide a simple backstack-based 
 ## Key Files
 
 ```
-NavigationState.kt         ← rememberNavigationState(), toEntries()
-Navigator.kt
-ResultStore.kt
+commonMain/
+  NavigationState.kt         ← rememberNavigationState(), toEntries()
+  Navigator.kt
+  ResultStore.kt
 ```
 
 ## Depends On
@@ -27,7 +28,7 @@ ResultStore.kt
 ## Usage Pattern
 
 ```kotlin
-// In app's NavHost
+// In composeApp's TruckTrackApp
 val navState = rememberNavigationState(startKey = SignInNavKey)
 val navigator = remember { Navigator(navState) }
 
@@ -36,7 +37,4 @@ NavDisplay(entries = navState.toEntries { key ->
 })
 ```
 
-## KMP Notes
-
-`androidx.navigation3` has no KMP artifact — this entire module is a migration blocker. Planned replacement: **Decompose** or **Voyager**. Navigation keys in `feature/*/api` are already pure Kotlin and will move without changes.
 

@@ -1,5 +1,5 @@
 package com.momosi.trucktrack.utils
 
-const val CompileSdk = 36
-const val TargetSdk = 36
+const val CompileSdk = 37
+const val TargetSdk = 37
 const val MinSdk = 28

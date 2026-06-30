@@ -1,13 +1,21 @@
-﻿plugins {
+plugins {
     alias(libs.plugins.trucktrack.feature.impl)
 }
 
-android {
-    namespace = "com.momosi.trucktrack.feature.signin.impl"
+compose.resources {
+    packageOfResClass = "com.momosi.trucktrack.feature.signin.impl.resources"
+    generateResClass = always
 }
 
-dependencies {
-    api(projects.feature.signIn.api)
-    implementation(projects.feature.issues.api)
-    implementation(projects.core.user)
+kotlin {
+    android {
+        namespace = "com.momosi.trucktrack.feature.signin.impl"
+    }
+    sourceSets {
+        commonMain.dependencies {
+            api(projects.feature.signIn.api)
+            implementation(projects.feature.issues.api)
+            implementation(projects.core.user)
+        }
+    }
 }

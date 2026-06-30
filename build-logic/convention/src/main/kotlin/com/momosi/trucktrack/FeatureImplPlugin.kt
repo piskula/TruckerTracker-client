@@ -1,9 +1,8 @@
 package com.momosi.trucktrack
 
+import com.momosi.trucktrack.utils.commonMainDependencies
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.dependencies
-import com.momosi.trucktrack.utils.implementation
 
 class FeatureImplPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -13,7 +12,7 @@ class FeatureImplPlugin : Plugin<Project> {
             apply("trucktrack.compose")
         }
 
-        dependencies {
+        commonMainDependencies {
             implementation(project(":core:ui-library"))
             implementation(project(":core:navigation"))
         }

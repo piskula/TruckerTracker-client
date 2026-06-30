@@ -1,10 +1,10 @@
 package com.momosi.trucktrack
 
 import com.diffplug.gradle.spotless.SpotlessExtension
+import com.momosi.trucktrack.utils.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import com.momosi.trucktrack.utils.libs
 
 class SpotlessPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {

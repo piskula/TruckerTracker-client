@@ -2,10 +2,10 @@
 
 ## Project Overview
 
-TruckTrack is an Android multi-module application for fleet management. Follow these project-specific standards:
+TruckTrack is a **Kotlin Multiplatform** multi-module application for fleet management. Follow these project-specific standards:
 
 * **Language** — Kotlin 2.x for all development.
-* **UI** — Jetpack Compose only. Never use XML layouts.
+* **UI** — Compose Multiplatform (`org.jetbrains.compose`) only. Never use XML layouts.
 * **Dependency Injection** — Koin. KMP-compatible, no annotation processing required.
 * **Libraries** — Use entries from `gradle/libs.versions.toml`. Do not add new libraries without checking KMP compatibility first.
 * **Concurrency** — Kotlin coroutines and Flows exclusively. No RxJava, no callbacks.
@@ -14,37 +14,52 @@ TruckTrack is an Android multi-module application for fleet management. Follow t
 
 ## Project Structure
 
-Multi-module architecture. Root package: `com.momosi.trucktrack`.
+Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
 
 ### Modules
 
-* **`app`** — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`, Koin wiring (`startKoin`), top-level `NavHost`. Should contain only Android entrypoints.
+* **`androidApp`** — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`. Contains only Android entrypoints (`Application`, `Activity`). Depends on `composeApp`.
+* **`composeApp`** — Shared KMP app module. `TruckTrackApp` (root Composable), `TruckTrackViewModel`, `AppModule` (Koin wiring), `AppInitializer` (`startKoin`). Depends on all `core` and `feature` modules. Source in `src/commonMain/kotlin/`.
 * **`feature`** (multiple modules) — UI screens and logic for each product feature. Always split into:
-  * `api` — navigation keys only (`@Serializable` `NavKey` objects).
-  * `impl` — ViewModel, screen Composables, state, actions, events.
+  * `api` — navigation keys only (`@Serializable` `NavKey` objects). Source in `src/commonMain/kotlin/`.
+  * `impl` — ViewModel, screen Composables, state, actions, events. Source in `src/commonMain/kotlin/`.
   * Current features: `sign-in`, `issues`, `profile`.
 * **`core`** (multiple modules) — Shared domain logic, utilities, and infrastructure:
-  * `common` — `DispatcherProvider`, `ConnectivityManager`, `CurrentActivityHelper`, `Logger` (Timber wrapper), `Page<T>` model.
-  * `network` — `NetworkModule` (Ktor client setup), `PageDto`, `PageDtoMapper`.
-  * `user` — `AuthManager`, `UserRepository`, OAuth/OIDC via AppAuth, JWT parsing via jjwt, `UserStorage`.
-  * `issue` — `Issue`, `IssueStatus`, `IssuePriority`, `Account` models; `IssueRepository`.
-  * `vehicle` — `Vehicle`, `VehicleType` models; `VehicleRepository`.
-  * `navigation` — `NavigationState`, `Navigator` wrapping Navigation 3.
-  * `ui-library` — `TruckTrackTheme`, `AppTheme`, `TruckTrackIcons`, all reusable Compose components.
+  * `common` — `DispatcherProvider`, `ConnectivityManager`, `CurrentActivityHelper`, `Logger` (Kermit wrapper), `Page<T>` model. Pure Kotlin in `commonMain`; Android impls in `androidMain`.
+  * `network` — `NetworkModule` (Ktor client setup), `PageDto`, `PageDtoMapper`. Fully in `commonMain`.
+  * `user` — `AuthManager`, `UserRepository`, OAuth/OIDC via AppAuth, JWT parsing, `UserStorage`. Interfaces in `commonMain`; AppAuth/storage impls in `androidMain`.
+  * `issue` — `Issue`, `IssueStatus`, `IssuePriority`, `Account` models; `IssueRepository`. Fully in `commonMain`.
+  * `vehicle` — `Vehicle`, `VehicleType` models; `VehicleRepository`. Fully in `commonMain`.
+  * `navigation` — `NavigationState`, `Navigator` wrapping Navigation 3. Fully in `commonMain`.
+  * `ui-library` — `TruckTrackTheme`, `AppTheme`, `TruckTrackIcons`, all reusable Compose Multiplatform components. Components in `commonMain`; `@Preview` functions in `androidMain`.
 
 ### Module Dependency Rules
 
 * `feature/*/api` — depends only on `:core:navigation`. Contains only `NavKey` objects. No business logic.
 * `feature/*/impl` — depends on its own `api` module + any `core` modules needed. No cross-feature dependencies.
 * `core` modules — may depend on other `core` modules in a directed acyclic graph. Never depend on `feature` modules.
-* `app` — depends on all `feature/*/impl` and all `core` modules. The only wiring point.
+* `composeApp` — depends on all `feature/*/impl` and all `core` modules. The shared wiring point.
+* `androidApp` — depends on `composeApp`, `core:common`, `core:network`. Thin Android shell only.
 
 ### Package Structure
 
 * Root: `com.momosi.trucktrack`
 * Features: `com.momosi.trucktrack.feature.<name>.api` / `.impl`
 * Core: `com.momosi.trucktrack.core.<name>`
-* App: `com.momosi.trucktrack` (top-level application, activity, DI)
+* App: `com.momosi.trucktrack.app` (shared Composable entry, DI wiring)
+* Android shell: `com.momosi.trucktrack` (Application, Activity)
+
+### Source Set Structure (KMP)
+
+All modules use the Kotlin Multiplatform source set layout:
+
+```
+module/
+  src/
+    commonMain/kotlin/    ← Shared pure-Kotlin and Compose Multiplatform code
+    androidMain/kotlin/   ← Android-specific implementations (expect/actual, @Preview)
+    iosMain/kotlin/       ← iOS-specific implementations (future)
+```
 
 ---
 
@@ -84,7 +99,7 @@ One package per feature screen. Keep related files together:
 
 * **Repository** — data retrieval, persistence, source abstraction.
 * **Manager** — complex business logic, orchestration.
-* Always define a public **interface**; place implementation in the same module (e.g., `IssueRepository` + `IssueRepositoryImpl`). Bind with Hilt `@Binds`.
+* Always define a public **interface**; place implementation in the same module (e.g., `IssueRepository` + `IssueRepositoryImpl`). Bind with Koin `single<Interface> { Impl(get()) }`.
 * Use **data classes** for domain models.
 * **Never throw across public interfaces.** Express failure with:
   * `Result<T>` — for recoverable operations with error context (use `runCatching` internally).
@@ -101,7 +116,7 @@ One package per feature screen. Keep related files together:
 
 * **Koin** (`io.insert-koin:koin-core`) is the DI framework — KMP-compatible, runtime-based.
 * ViewModels: declare with `viewModel { MyViewModel(get()) }` in a Koin module. Inject in Composables via `koinViewModel()`.
-* Modules: use `val myModule = module { }`. Group by feature/core module. Single top-level `startKoin { }` in `TruckTrackApplication`.
+* Modules: use `val myModule = module { }`. Group by feature/core module. Single top-level `startKoin { }` in `AppInitializer` (called from `TruckTrackApplication`).
 * Prefer `single { }` for repositories and managers (singleton scope).
 * Prefer `factory { }` for use-cases and other short-lived objects.
 * No `@Inject` annotations on constructors — pass dependencies explicitly in the `module { }` DSL.
@@ -110,7 +125,7 @@ One package per feature screen. Keep related files together:
 ### UI Library
 
 * All reusable Compose components must live in `:core:ui-library`.
-* Feature and `app` modules must **not** import `androidx.compose.material3` directly. Use only `androidx.compose.foundation`, `androidx.compose.ui`, and components from `:core:ui-library`.
+* Feature and `composeApp` modules must **not** import `androidx.compose.material3` directly. Use only `androidx.compose.foundation`, `androidx.compose.ui`, and components from `:core:ui-library`.
 * Theme access via `AppTheme` (colors, typography, shapes) provided exclusively by `:core:ui-library`.
 
 ### Compose Stability
@@ -126,10 +141,11 @@ One package per feature screen. Keep related files together:
 * Preview functions must be `private`, named with a `Preview` suffix (e.g., `IssueCardDriverPreview`).
 * Use realistic sample data. Avoid empty/null states unless explicitly testing that variant.
 * Never preview top-level screen composables that require a `ViewModel`. Preview the inner stateless content composable instead.
+* `@Preview` functions live in `src/androidMain/kotlin/` (Android Studio tooling only).
 
 ### Logging
 
-* Use `Logger` from `core:common` — never call `Timber` directly.
+* Use `Logger` from `core:common` — never call Kermit directly.
 * Always provide a tag: `Logger.d("FeatureName", "message")`.
 * Levels: `v`, `d`, `i`, `w`, `e`. Throwable variants: `Logger.e("Tag", throwable, "message")`.
 
@@ -141,7 +157,7 @@ One package per feature screen. Keep related files together:
 * All API interfaces/clients live in the relevant `core` module (e.g., `core:issue`, `core:user`).
 * Base URL: `https://tt.momosi.org/`.
 * Authentication: inject a bearer token via Ktor's `Auth` plugin, wired to `AuthManager`.
-* To use Ktor in a module: add `implementation(libs.bundles.ktor.client)` to `dependencies` in `build.gradle.kts`. No plugin needed.
+* To use Ktor in a module: apply `trucktrack.ktor` plugin or add `implementation(libs.bundles.ktor)` to `commonMain` dependencies.
 
 ### Serialization
 
@@ -150,15 +166,17 @@ One package per feature screen. Keep related files together:
 
 ### Convention Plugins (build-logic)
 
+All modules are KMP. Convention plugins configure `kotlin("multiplatform")` + `com.android.kotlin.multiplatform.library`.
+
 Use these in module `build.gradle.kts` files:
 
-* `trucktrack.library` — base Android library (compileSdk, minSdk, Kotlin, Spotless).
-* `trucktrack.application` — `app` module only (Android application setup).
-* `trucktrack.feature.api` — feature API module (library + serialization + navigation3 runtime).
+* `trucktrack.library` — base KMP library (Kotlin Multiplatform, Android target with compileSdk/minSdk, JDK 21 toolchain, Spotless).
+* `trucktrack.feature.api` — feature API module (library + serialization + Navigation 3 runtime).
 * `trucktrack.feature.impl` — feature impl module (library + Koin + Compose + `:core:ui-library` + `:core:navigation`).
-* `trucktrack.koin` — Koin core + Koin Android + Koin Compose dependencies.
-* `trucktrack.compose` — Compose compiler plugin + BOM + compose/navigation3 bundles.
-* `trucktrack.spotless` — ktlint formatting via Spotless.
+* `trucktrack.koin` — Koin core (`commonMain`) + Koin Android + Koin Compose (`androidMain`).
+* `trucktrack.compose` — Compose Multiplatform plugin + Material3 + icons + resources + Navigation 3 bundles.
+* `trucktrack.ktor` — Ktor Client core + serialization for KMP.
+* `trucktrack.spotless` — ktlint formatting via Spotless (auto-included by `trucktrack.library`).
 
 ### Style & Conventions
 
@@ -184,19 +202,21 @@ Use these in module `build.gradle.kts` files:
 | `kotlinx-coroutines` | Concurrency | ✅ |
 | `kotlinx-serialization-json` | JSON, nav keys | ✅ |
 | `kotlinx-collections-immutable` | Stable Compose state | ✅ |
-| Coil 3 (`coil-compose`, `coil-network-okhttp`) | Image loading | ✅ |
+| Coil 3 (`coil-compose`, `coil-network-ktor`) | Image loading | ✅ |
 | Ktor Client (`ktor-client-core`, `ktor-client-okhttp`) | HTTP client | ✅ |
-| Koin (`koin-core`, `koin-android`, `koin-compose`) | Dependency injection | ✅ |
-| Timber (via `Logger`) | Logging | ❌ Android only — replace with Kermit |
-| AppAuth (`net.openid:appauth`) | OAuth/OIDC | ❌ Android only |
-| jjwt | JWT parsing | ❌ JVM only |
-| Navigation 3 (`androidx.navigation3`) | Navigation | ❌ Android only |
+| Koin (`koin-core`, `koin-android`, `koin-androidx-compose`) | Dependency injection | ✅ |
+| Kermit (`co.touchlab:kermit`) via `Logger` | Logging | ✅ |
+| Compose Multiplatform (`org.jetbrains.compose`) | UI framework | ✅ |
+| Navigation 3 (`androidx.navigation3`) | Navigation | ✅ |
+| AndroidX ViewModel (`lifecycle-viewmodel`) | ViewModel | ✅ |
+| AppAuth (`net.openid:appauth`) | OAuth/OIDC | ❌ Android only (`androidMain`) |
+| jjwt | JWT parsing | ❌ JVM only (`androidMain`) |
 
 ---
 
-## KMP Migration Readiness
+## KMP Architecture
 
-The project is being prepared for **Kotlin Multiplatform** migration. This affects every technical decision. A full migration analysis is at `docs/KMP_MIGRATION_ANALYSIS.md`.
+The project has completed its **Kotlin Multiplatform** migration. All modules use KMP source sets. A full migration history is at `docs/KMP_MIGRATION_ANALYSIS.md`.
 
 ### Core Principle
 
@@ -208,46 +228,32 @@ Reusable step-by-step workflows are in `agents/skills/`. Use them for recurring 
 
 | Skill | When to use |
 |-------|-------------|
-| [`create-feature-module.md`](agents/skills/create-feature-module.md) | Scaffolding a new `feature/*/api` + `feature/*/impl` pair |
-| [`add-screen-to-feature.md`](agents/skills/add-screen-to-feature.md) | Adding a new screen (ViewModel + Composable + State/Action/Event) |
-| [`add-repository.md`](agents/skills/add-repository.md) | Adding a repository/manager to a `core/*` module |
-| [`migrate-retrofit-to-ktor.md`](agents/skills/migrate-retrofit-to-ktor/SKILL.md) | Migrating a module from Retrofit to Ktor Client |
-| [`di-migration.md`](agents/skills/di-migration/SKILL.md) | Migrating DI frameworks (Hilt→Koin, Dagger→Koin, etc.) |
+| [`create-feature-module/SKILL.md`](agents/skills/create-feature-module/SKILL.md) | Scaffolding a new `feature/*/api` + `feature/*/impl` pair |
+| [`add-screen-to-feature/SKILL.md`](agents/skills/add-screen-to-feature/SKILL.md) | Adding a new screen (ViewModel + Composable + State/Action/Event) |
+| [`add-repository/SKILL.md`](agents/skills/add-repository/SKILL.md) | Adding a repository/manager to a `core/*` module |
 
-### KMP-Compatible Replacements for Remaining Blockers
+### What Lives in `commonMain` vs `androidMain`
 
-| Current (Android-only) | KMP Replacement | Status |
-|------------------------|-----------------|--------|
-| Timber (via `Logger`) | **Kermit** (`co.touchlab:kermit`) — done ✅ | ✅ Complete |
-| AppAuth | Platform `expect/actual` with AppAuth on Android, AppAuth-iOS on iOS | Planned Phase 3 |
-| jjwt | Manual Base64 + Kotlinx Serialization parsing, or `io.github.nefilim.kjwt` | Planned Phase 3 |
-| Navigation 3 | **Decompose** or **Voyager** (both KMP-compatible) | Planned Phase 5 |
-| `androidx.compose` BOM | **Compose Multiplatform** (`org.jetbrains.compose`) — drop-in replacement | Planned Phase 5 |
-| Android DataStore | `androidx.datastore:datastore-preferences-core` (KMP artifact) | Planned Phase 1 |
+| `commonMain` (shared) | `androidMain` (Android-only) |
+|------------------------|------------------------------|
+| Domain models, repository interfaces, repository impls | `ConnectivityManagerImpl` (Android `ConnectivityManager`) |
+| Ktor API clients, DTOs, mappers | `CurrentActivityHelper` (Activity lifecycle) |
+| ViewModels, State, Action, Event | AppAuth / `OpenIdManager` (OAuth browser flow) |
+| Screen Composables (Compose Multiplatform) | `UserStorageImpl` (SharedPreferences/DataStore) |
+| Koin module definitions (common bindings) | Koin Android-specific bindings (`androidContext()`) |
+| Theme, icons, components (`core:ui-library`) | `@Preview` functions (Android Studio tooling) |
+| Navigation keys, Navigator, NavigationState | `TruckTrackApplication`, `TruckTrackActivity` |
 
 ### Rules for New Code
 
-1. **New `core` domain models** — pure Kotlin only. No Android imports. No `Context`, no `@StringRes`, no Android-specific types.
-2. **New `core` repository/manager interfaces** — pure Kotlin. Return types use only KMP-compatible types (`String`, `Long`, `kotlinx.datetime`, data classes, `Flow`, `Result`, etc.).
+1. **New `core` domain models** — pure Kotlin only. No Android imports. No `Context`, no `@StringRes`, no Android-specific types. Place in `commonMain`.
+2. **New `core` repository/manager interfaces** — pure Kotlin. Return types use only KMP-compatible types (`String`, `Long`, `kotlinx.datetime`, data classes, `Flow`, `Result`, etc.). Place in `commonMain`.
 3. **New libraries** — must be KMP-compatible or explicitly scoped to `androidMain`. Document the reason for any Android-only addition.
 4. **Avoid `@Parcelize`** — use Kotlinx Serialization instead.
 5. **Avoid `android.net.Uri`** — use `String` or `java.net.URI` for URIs.
-6. **Avoid `android.content.Context` in `commonMain` scope** — pass only the data you need, not the Context.
-
-### Planned Target Architecture (for context)
-
-```
-shared/
-  commonMain/       ← Pure Kotlin: domain models, interfaces, business logic
-  androidMain/      ← Android expect/actual implementations
-  iosMain/          ← iOS expect/actual implementations (future)
-
-androidApp/         ← Thin Android shell (Activity, Application, Koin init)
-iosApp/             ← Thin iOS shell calling shared Compose Multiplatform (future)
-
-feature/*/impl      ← Compose Multiplatform UI (minimal changes needed)
-core/ui-library     ← Compose Multiplatform component library
-```
+6. **Avoid `android.content.Context` in `commonMain`** — pass only the data you need, not the Context.
+7. **New Composables** — place in `commonMain`. Only `@Preview` functions go in `androidMain`.
+8. **New source files** — always go in `src/commonMain/kotlin/` unless they use Android-specific APIs.
 
 ---
 
@@ -258,13 +264,15 @@ No tests exist yet. When adding tests, follow these conventions:
 * **MockK** — for mocking.
 * **Turbine** — for `Flow` testing.
 * **kotlinx-coroutines-test** (`runTest`) — for coroutine testing.
-* Place tests in `src/test/kotlin/` mirroring the main source package.
+* Place tests in `src/commonTest/kotlin/` for shared tests, `src/androidTest/kotlin/` for Android-specific tests. Mirror the main source package.
 
 ---
 
 ## String Resources & Copywriting
 
-When writing `strings.xml` resources, act as a **technical copywriter** — precise about domain concepts, but writing for a non-developer fleet operator.
+String resources use Compose Multiplatform resources (`compose.resources`). Each module that needs strings declares `compose.resources { packageOfResClass = "..." }`.
+
+When writing string resources, act as a **technical copywriter** — precise about domain concepts, but writing for a non-developer fleet operator.
 
 * Write for a **non-technical user** — a driver or mechanic who understands their job but not software.
 * Be **concise** — one or two short sentences maximum.

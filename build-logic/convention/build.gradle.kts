@@ -9,17 +9,14 @@ kotlin {
 }
 
 dependencies {
-    compileOnly(libs.android.gradle.plugin)
-    compileOnly(libs.kotlin.gradle.plugin)
-    compileOnly(libs.spotless.gradle.plugin)
+    implementation(libs.android.gradle.plugin)
+    implementation(libs.kotlin.gradle.plugin)
+    implementation(libs.compose.multiplatform.gradle.plugin)
+    implementation(libs.spotless.gradle.plugin)
 }
 
 gradlePlugin {
     plugins {
-        register("trucktrack.application") {
-            id = "trucktrack.application"
-            implementationClass = "com.momosi.trucktrack.ApplicationPlugin"
-        }
         register("trucktrack.library") {
             id = "trucktrack.library"
             implementationClass = "com.momosi.trucktrack.LibraryPlugin"

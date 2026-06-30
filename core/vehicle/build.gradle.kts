@@ -4,11 +4,15 @@ plugins {
     alias(libs.plugins.trucktrack.ktor)
 }
 
-android {
-    namespace = "com.momosi.trucktrack.core.vehicle"
-}
+kotlin {
+    android {
+        namespace = "com.momosi.trucktrack.core.vehicle"
+    }
 
-dependencies {
-    implementation(projects.core.common)
-    implementation(projects.core.network)
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.core.common)
+            implementation(projects.core.network)
+        }
+    }
 }

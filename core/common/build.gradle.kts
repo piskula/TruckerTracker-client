@@ -3,10 +3,16 @@ plugins {
     alias(libs.plugins.trucktrack.koin)
 }
 
-android {
-    namespace = "com.momosi.trucktrack.core.common"
-}
-
-dependencies {
-    implementation(libs.kermit)
+kotlin {
+    android {
+        namespace = "com.momosi.trucktrack.core.common"
+    }
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kermit)
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+        }
+    }
 }

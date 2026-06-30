@@ -1,7 +1,9 @@
-﻿plugins {
+plugins {
     alias(libs.plugins.trucktrack.feature.api)
 }
 
-android {
-    namespace = "com.momosi.trucktrack.feature.signin.api"
+kotlin {
+    android {
+        namespace = "com.momosi.trucktrack.feature.signin.api"
+    }
 }

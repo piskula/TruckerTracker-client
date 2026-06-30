@@ -1,0 +1,66 @@
+<resources>
+    <string name="my_issues_title_driver">My Issues</string>
+    <string name="my_issues_title_mechanic">All Issues</string>
+    <string name="my_issues_error_message">Something went wrong</string>
+    <string name="my_issues_retry">Retry</string>
+    <string name="my_issues_empty">No issues found</string>
+    <string name="my_issues_filter_my_open">My Open</string>
+    <string name="my_issues_filter_my_closed">Closed</string>
+    <string name="my_issues_filter_all">All</string>
+    <string name="my_issues_filter_my_issues">My Issues</string>
+    <string name="my_issues_filter_open">Open</string>
+    <string name="my_issues_filter_in_progress">In Progress</string>
+    <string name="my_issues_subtitle_driver">Driver</string>
+    <string name="my_issues_subtitle_mechanic">Mechanic</string>
+
+    <string name="issue_status_open">Open</string>
+    <string name="issue_status_in_progress">In Progress</string>
+    <string name="issue_status_done">Done</string>
+    <string name="issue_priority_high">High</string>
+    <string name="issue_priority_medium">Medium</string>
+    <string name="issue_priority_low">Low</string>
+    <string name="issue_unassigned">Unassigned</string>
+
+    <string name="time_ago_just_now">Just now</string>
+    <string name="time_ago_minutes">%1$d min ago</string>
+    <string name="time_ago_hours">%1$d hr ago</string>
+    <string name="time_ago_yesterday">Yesterday</string>
+    <string name="time_ago_days">%1$d days ago</string>
+
+    <string name="issue_detail_title">Issue #%1$d</string>
+    <string name="issue_detail_reporter">Reporter</string>
+    <string name="issue_detail_assigned">Assigned</string>
+    <string name="issue_detail_description">Description</string>
+    <string name="issue_detail_history">History</string>
+    <string name="issue_detail_history_empty">No history yet</string>
+    <string name="issue_detail_history_reassigned">Reassigned</string>
+    <string name="issue_detail_add_comment">Add Comment</string>
+    <string name="issue_detail_comment_placeholder">Write a comment…</string>
+    <string name="issue_detail_photos_loading">Photos</string>
+    <string name="issue_detail_photos">Photos (%1$d)</string>
+    <string name="issue_detail_resolve_confirm_title">Resolve Issue</string>
+    <string name="issue_detail_resolve_confirm_message">Mark this issue as resolved? This action cannot be undone.</string>
+    <string name="issue_detail_resolve_confirm_confirm">Resolve</string>
+    <string name="issue_detail_resolve_confirm_cancel">Cancel</string>
+    <string name="issue_detail_error">Could not load issue details</string>
+    <string name="issue_detail_start_working">Start Working</string>
+    <string name="issue_detail_resolve_issue">Resolve Issue</string>
+    <string name="issue_detail_reassign_description">This issue is assigned to another mechanic. You can reassign it to yourself.</string>
+    <string name="issue_detail_reassign_to_me">Reassign to Me</string>
+
+    <string name="create_issue_title">Report Issue</string>
+    <string name="create_issue_vehicle">Vehicle</string>
+    <string name="create_issue_description">Description</string>
+    <string name="create_issue_short_title">Short title</string>
+    <string name="create_issue_details">Details</string>
+    <string name="create_issue_priority">Priority</string>
+    <string name="create_issue_photos">Photos</string>
+    <string name="create_issue_submit">Submit Issue</string>
+    <string name="create_issue_select_vehicle">Select a vehicle</string>
+    <string name="create_issue_add_photos">Add photos</string>
+    <string name="create_issue_camera_or_gallery">From camera or gallery</string>
+    <string name="create_issue_priority_high_hint">Blocks operation, immediate attention needed</string>
+    <string name="create_issue_priority_medium_hint">Should be fixed soon, but not critical</string>
+    <string name="create_issue_priority_low_hint">Minor issue, can wait for scheduled maintenance</string>
+</resources>
+

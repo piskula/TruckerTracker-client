@@ -5,7 +5,7 @@ description: Use when adding a new repository, manager, or API data source to a 
 
 # Skill: Add a Repository to a Core Module
 
-> Adds a repository (or manager) to an existing `core/*` module: domain model, interface, DTO, mapper, Ktor API client, implementation, and Koin binding.
+> Adds a repository (or manager) to an existing `core/*` module: domain model, interface, DTO, mapper, Ktor API client, implementation, and Koin binding. All files go in `src/commonMain/kotlin/`.
 
 ## Triggers
 
@@ -24,7 +24,7 @@ Load this skill when the task matches **any** of these:
 
 ### 1. Create the domain model in `model/`
 
-Place in `core/<module>/src/main/kotlin/.../core/<module>/model/<Thing>.kt`.
+Place in `core/<module>/src/commonMain/kotlin/.../core/<module>/model/<Thing>.kt`.
 Pure Kotlin only — no Android imports, no `Context`, no `@StringRes`.
 
 ```kotlin
@@ -164,9 +164,9 @@ val <module>Module = module {
 }
 ```
 
-### 8. Register in `TruckTrackApplication` (new Koin module files only)
+### 8. Register in `AppModule` (new Koin module files only)
 
-If this is a new `val xxxModule`, add it to `startKoin { modules(...) }` in `app/`.
+If this is a new `val xxxModule`, add it to `composeApp/src/commonMain/kotlin/.../app/di/AppModule.kt`.
 If adding to an existing module file, no app-level change is needed.
 
 ### 9. Update `core/<module>/AGENTS.MD`
@@ -176,11 +176,10 @@ Add the new files to the Key Files section.
 
 ## Verification
 
-- [ ] Domain model in `model/` contains no Android imports
+- [ ] Domain model in `model/` contains no Android imports — placed in `src/commonMain/kotlin/`
 - [ ] Repository interface returns only `Result<T>`, `T?`, or `List<T>` — never throws
 - [ ] `<Thing>Api` and `<Thing>RepositoryImpl` are marked `internal`
 - [ ] DTO uses `@Serializable` and `@SerialName` on all fields
 - [ ] Koin module has `single { <Thing>Api(get()) }` and `single<<Thing>Repository> { ... }`
 - [ ] `./gradlew :core:<module>:assembleDebug` passes
 - [ ] `./gradlew spotlessCheck` passes
-

@@ -1,10 +1,9 @@
 package com.momosi.trucktrack
 
+import com.momosi.trucktrack.utils.commonMainDependencies
+import com.momosi.trucktrack.utils.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.dependencies
-import com.momosi.trucktrack.utils.api
-import com.momosi.trucktrack.utils.libs
 
 class FeatureApiPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
@@ -13,7 +12,7 @@ class FeatureApiPlugin : Plugin<Project> {
             apply("org.jetbrains.kotlin.plugin.serialization")
         }
 
-        dependencies {
+        commonMainDependencies {
             api(libs.findLibrary("androidx-navigation3-runtime").get())
         }
     }

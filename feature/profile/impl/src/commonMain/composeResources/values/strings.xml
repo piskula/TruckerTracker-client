@@ -1,0 +1,7 @@
+<resources>
+    <string name="profile_title">Profile</string>
+    <string name="profile_sign_out">Sign Out</string>
+    <string name="profile_role_driver">Driver</string>
+    <string name="profile_role_mechanic">Mechanic</string>
+</resources>
+

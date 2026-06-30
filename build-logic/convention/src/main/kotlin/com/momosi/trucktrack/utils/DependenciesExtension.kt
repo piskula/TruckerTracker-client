@@ -1,22 +1,19 @@
 package com.momosi.trucktrack.utils
 
-import org.gradle.api.Action
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.provider.Provider
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
-internal fun DependencyHandler.implementation(dependencyNotation: Any): Dependency? =
-    add("implementation", dependencyNotation)
 
-internal fun DependencyHandler.implementation(dependencyNotation: Provider<*>, configuration: Action<*>) =
-    addProvider("implementation", dependencyNotation, configuration)
+internal fun Project.commonMainDependencies(block: KotlinDependencyHandler.() -> Unit) {
+    extensions.configure<KotlinMultiplatformExtension> {
+        sourceSets.commonMain.dependencies(block)
+    }
+}
 
-internal fun DependencyHandler.api(dependencyNotation: Any): Dependency? =
-    add("api", dependencyNotation)
-
-internal fun DependencyHandler.api(dependencyNotation: Provider<*>, configuration: Action<*>) =
-    addProvider("api", dependencyNotation, configuration)
-
-internal fun DependencyHandler.runtimeOnly(dependencyNotation: Any): Dependency? =
-    add("runtimeOnly", dependencyNotation)
-
+internal fun Project.androidMainDependencies(block: KotlinDependencyHandler.() -> Unit) {
+    extensions.configure<KotlinMultiplatformExtension> {
+        sourceSets.androidMain.dependencies(block)
+    }
+}

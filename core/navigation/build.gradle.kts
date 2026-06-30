@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.trucktrack.compose)
 }
 
-android {
-    namespace = "com.momosi.trucktrack.core.navigation"
+kotlin {
+    android {
+        namespace = "com.momosi.trucktrack.core.navigation"
+    }
 }

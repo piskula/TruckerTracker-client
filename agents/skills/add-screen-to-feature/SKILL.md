@@ -5,7 +5,7 @@ description: Use when adding a new screen, page, or view to an existing feature 
 
 # Skill: Add a Screen to an Existing Feature
 
-> Adds a new screen — ViewModel, Composable, State, Action, and optional Event — to an existing `feature/*/impl` module.
+> Adds a new screen — ViewModel, Composable, State, Action, and optional Event — to an existing `feature/*/impl` module. All files go in `src/commonMain/kotlin/`.
 
 ## Triggers
 
@@ -26,7 +26,7 @@ Load this skill when the task matches **any** of these:
 ### 1. Create the screen package
 
 ```
-feature/<feature>/impl/src/main/kotlin/com/momosi/trucktrack/feature/<feature>/impl/<screen>/
+feature/<feature>/impl/src/commonMain/kotlin/com/momosi/trucktrack/feature/<feature>/impl/<screen>/
   <Screen>Screen.kt
   <Screen>ViewModel.kt
   <Screen>State.kt
@@ -135,7 +135,6 @@ package com.momosi.trucktrack.feature.<feature>.impl.<screen>
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import org.koin.compose.viewmodel.koinViewModel
@@ -172,7 +171,12 @@ private fun <Screen>Content(
         is <Screen>State.Content -> { /* actual content */ }
     }
 }
+```
 
+**Note:** `@Preview` functions for this screen go in `src/androidMain/kotlin/` in the same package:
+
+```kotlin
+// feature/<feature>/impl/src/androidMain/kotlin/.../feature/<feature>/impl/<screen>/<Screen>Preview.kt
 @Preview(showBackground = true)
 @Composable
 private fun <Screen>ContentPreview() {
@@ -190,7 +194,7 @@ private fun <Screen>ContentPreview() {
 Internal nav keys (not the feature entry point) live in `impl/navigation/`, not `api/`:
 
 ```kotlin
-// feature/<feature>/impl/navigation/<Screen>NavKey.kt
+// feature/<feature>/impl/src/commonMain/kotlin/.../feature/<feature>/impl/navigation/<Screen>NavKey.kt
 package com.momosi.trucktrack.feature.<feature>.impl.navigation
 
 import androidx.navigation3.runtime.NavKey
@@ -202,7 +206,7 @@ internal data class <Screen>NavKey(val id: Long) : NavKey
 
 ### 8. Register the entry in the EntryProvider
 
-In `feature/<feature>/impl/navigation/<Feature>EntryProvider.kt`, add:
+In `feature/<feature>/impl/src/commonMain/kotlin/.../navigation/<Feature>EntryProvider.kt`, add:
 
 ```kotlin
 entry<<Screen>NavKey> { key ->
@@ -215,7 +219,7 @@ entry<<Screen>NavKey> { key ->
 
 ### 9. Register the ViewModel in the Koin module
 
-In `feature/<feature>/impl/di/<Feature>Module.kt`:
+In `feature/<feature>/impl/src/commonMain/kotlin/.../di/<Feature>Module.kt`:
 
 ```kotlin
 val <feature>Module = module {
@@ -226,12 +230,13 @@ val <feature>Module = module {
 
 ## Verification
 
-- [ ] All five files exist in the screen package (`Screen`, `ViewModel`, `State`, `Action`, and `Event` if needed)
+- [ ] All five files exist in the screen package (`Screen`, `ViewModel`, `State`, `Action`, and `Event` if needed) — in `src/commonMain/kotlin/`
 - [ ] `<Screen>State` data classes are annotated `@Immutable`; list fields use `ImmutableList`
 - [ ] `<Screen>Screen` does not import `androidx.compose.material3` — only `core:ui-library` components
 - [ ] `<Screen>Screen` uses `koinViewModel()`, not `hiltViewModel()`
 - [ ] ViewModel is registered in the feature's Koin module
 - [ ] Nav entry is registered in the EntryProvider
+- [ ] `@Preview` functions are in `src/androidMain/kotlin/` (if added)
 - [ ] `./gradlew :feature:<feature>:impl:assembleDebug` passes
 - [ ] `./gradlew spotlessCheck` passes
 

@@ -1,0 +1,9 @@
+<resources>
+    <string name="sign_in_app_name">TruckTrack</string>
+    <string name="sign_in_app_subtitle">Fleet maintenance, simplified</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="sign_in_error_no_internet">No internet connection. Check your network and try again.</string>
+    <string name="sign_in_error_unable_to_start">Unable to start sign-in. Please try again.</string>
+    <string name="sign_in_error_failed">Sign-in failed. Please try again.</string>
+</resources>
+
