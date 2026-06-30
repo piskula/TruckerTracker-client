@@ -2,7 +2,12 @@ package com.momosi.trucktrack.feature.issues.impl.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.momosi.trucktrack.core.issue.IssueRepository
+import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
 import kotlinx.collections.immutable.toImmutableList
@@ -14,7 +19,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 
@@ -27,42 +31,42 @@ class IssuesViewModel(private val userRepository: UserRepository, private val is
         else -> IssueFilter.Driver.MyOpen
     }
     private val selectedFilter = MutableStateFlow<IssueFilter>(initialFilter)
-    private val retryTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    private val isRefreshing = MutableStateFlow(false)
+    private val refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
-    private val content: Flow<IssuesContent> =
-        combine(selectedFilter, retryTrigger.onStart { emit(Unit) }, userRepository.user) { filter, _, user ->
-            Triple(filter, user?.id, user?.roles)
-        }.flatMapLatest { (filter, userId, _) ->
-            flow {
-                if (!isRefreshing.value) emit(IssuesContent.Loading)
-                val statuses = filter.statuses()
-                val accountIds = filter.accountIds(userId)
-                issueRepository.getIssues(
-                    statuses = statuses,
-                    accountIds = accountIds,
-                )
-                    .onSuccess { page ->
-                        val issues = page.content.toImmutableList()
-                        emit(if (issues.isEmpty()) IssuesContent.Empty else IssuesContent.Issues(issues))
-                    }
-                    .onFailure {
-                        emit(IssuesContent.Error)
-                    }
-                isRefreshing.value = false
-            }
-        }
+    val pagingData: Flow<PagingData<Issue>> =
+        combine(
+            selectedFilter,
+            refreshTrigger.onStart { emit(Unit) },
+            userRepository.user,
+        ) { filter, _, user ->
+            Pair(filter, user?.id)
+        }.flatMapLatest { (filter, userId) ->
+            Pager(
+                config = PagingConfig(
+                    pageSize = 50,
+                    enablePlaceholders = false,
+                ),
+                pagingSourceFactory = {
+                    issueRepository.getIssuesPagingSource(
+                        statuses = filter.statuses(),
+                        accountIds = filter.accountIds(userId),
+                    )
+                },
+            ).flow
+        }.cachedIn(viewModelScope)
 
     val state: StateFlow<IssuesState> = combine(
         userRepository.user,
         selectedFilter,
-        content,
-        isRefreshing,
-    ) { user, filter, content, isRefreshing ->
+    ) { user, filter ->
         IssuesState(
-            userInfo = user?.let { IssuesUserInfo(name = it.name, roles = it.roles.toImmutableList()) },
+            userInfo = user?.let {
+                IssuesUserInfo(
+                    name = it.name,
+                    roles = it.roles.toImmutableList(),
+                )
+            },
             selectedFilter = filter,
-            content = if (isRefreshing && content is IssuesContent.Issues) content.copy(isRefreshing = true) else content,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -73,16 +77,9 @@ class IssuesViewModel(private val userRepository: UserRepository, private val is
     fun onAction(action: IssuesAction) {
         when (action) {
             is IssuesAction.SelectFilter -> selectedFilter.value = action.filter
-
-            is IssuesAction.Retry -> retryTrigger.tryEmit(Unit)
-
-            is IssuesAction.Refresh -> {
-                isRefreshing.value = true
-                retryTrigger.tryEmit(Unit)
-            }
-
+            is IssuesAction.Retry -> refreshTrigger.tryEmit(Unit)
+            is IssuesAction.Refresh -> refreshTrigger.tryEmit(Unit)
             is IssuesAction.OpenIssue -> Unit
-
             is IssuesAction.CreateIssue -> Unit
         }
     }

@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.core.issue
 
+import androidx.paging.PagingSource
 import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueCreate
@@ -33,4 +34,10 @@ interface IssueRepository {
         page: Int? = null,
         size: Int? = null,
     ): Result<Page<IssueHistory>>
+
+    fun getIssuesPagingSource(
+        statuses: List<IssueStatus> = emptyList(),
+        vehicleIds: List<Long> = emptyList(),
+        accountIds: List<String> = emptyList(),
+    ): PagingSource<Int, Issue>
 }

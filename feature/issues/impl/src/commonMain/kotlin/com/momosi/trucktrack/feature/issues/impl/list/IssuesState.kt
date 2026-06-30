@@ -1,7 +1,6 @@
 package com.momosi.trucktrack.feature.issues.impl.list
 
 import androidx.compose.runtime.Immutable
-import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.collections.immutable.ImmutableList
 
@@ -12,14 +11,4 @@ data class IssuesUserInfo(val name: String, val roles: ImmutableList<UserRole>) 
 }
 
 @Immutable
-data class IssuesState(val userInfo: IssuesUserInfo? = null, val selectedFilter: IssueFilter = IssueFilter.Driver.MyOpen, val content: IssuesContent = IssuesContent.Loading)
-
-@Immutable
-sealed interface IssuesContent {
-    data object Loading : IssuesContent
-    data object Error : IssuesContent
-    data object Empty : IssuesContent
-
-    @Immutable
-    data class Issues(val issues: ImmutableList<Issue>, val isRefreshing: Boolean = false) : IssuesContent
-}
+data class IssuesState(val userInfo: IssuesUserInfo? = null, val selectedFilter: IssueFilter = IssueFilter.Driver.MyOpen)

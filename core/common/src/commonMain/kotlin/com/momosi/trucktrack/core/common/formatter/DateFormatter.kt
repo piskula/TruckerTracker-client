@@ -49,4 +49,3 @@ sealed interface TimeAgo {
     data class Days(val count: Long) : TimeAgo
     data class OlderThanWeek(val formatted: String) : TimeAgo
 }
-

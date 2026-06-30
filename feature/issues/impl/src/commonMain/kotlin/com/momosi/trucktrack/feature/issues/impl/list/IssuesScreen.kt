@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,6 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.momosi.trucktrack.core.common.formatter.DateFormatter
 import com.momosi.trucktrack.core.issue.model.Account
 import com.momosi.trucktrack.core.issue.model.Issue
@@ -52,12 +55,12 @@ import com.momosi.trucktrack.feature.issues.impl.resources.my_issues_title_drive
 import com.momosi.trucktrack.feature.issues.impl.resources.my_issues_title_mechanic
 import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
-import kotlin.time.Clock
+import kotlinx.coroutines.flow.flowOf
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
 
 @Composable
 internal fun IssuesScreen(
@@ -69,19 +72,21 @@ internal fun IssuesScreen(
     dateFormatter: DateFormatter = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val pagingItems = viewModel.pagingData.collectAsLazyPagingItems()
 
     LaunchedEffect(issueStatusChange) {
         if (issueStatusChange) {
-            viewModel.onAction(IssuesAction.Refresh)
+            pagingItems.refresh()
         }
     }
 
     IssuesScreenContent(
         state = state,
+        pagingItems = pagingItems,
         dateFormatter = dateFormatter,
         onSelectFilter = { viewModel.onAction(IssuesAction.SelectFilter(it)) },
-        onRetry = { viewModel.onAction(IssuesAction.Retry) },
-        onRefresh = { viewModel.onAction(IssuesAction.Refresh) },
+        onRetry = { pagingItems.retry() },
+        onRefresh = { pagingItems.refresh() },
         onNavigateToProfile = onNavigateToProfile,
         onNavigateToCreateIssue = onNavigateToCreateIssue,
         onNavigateToIssueDetail = onNavigateToIssueDetail,
@@ -91,6 +96,7 @@ internal fun IssuesScreen(
 @Composable
 private fun IssuesScreenContent(
     state: IssuesState,
+    pagingItems: LazyPagingItems<Issue>,
     dateFormatter: DateFormatter,
     onSelectFilter: (IssueFilter) -> Unit,
     onRetry: () -> Unit,
@@ -104,6 +110,7 @@ private fun IssuesScreenContent(
     val isDualRole = userInfo?.isDualRole == true
     val isMechanic = !isDualRole && userInfo?.isMechanic == true
     val isDriver = !isDualRole && !isMechanic
+    val role = if (isMechanic) IssueCardRole.Mechanic else IssueCardRole.Driver
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -143,20 +150,24 @@ private fun IssuesScreenContent(
                 labelSelector = { it.label() },
                 onSelect = onSelectFilter,
             )
-            when (val content = state.content) {
-                is IssuesContent.Loading -> LoadingContent()
+            when (pagingItems.loadState.refresh) {
+                is LoadState.Loading -> LoadingContent()
 
-                is IssuesContent.Error -> ErrorContent(onRetry = onRetry)
+                is LoadState.Error -> ErrorContent(onRetry = onRetry)
 
-                is IssuesContent.Empty -> EmptyContent()
-
-                is IssuesContent.Issues -> IssueList(
-                    content = content,
-                    role = if (isMechanic) IssueCardRole.Mechanic else IssueCardRole.Driver,
-                    dateFormatter = dateFormatter,
-                    onOpenIssue = onNavigateToIssueDetail,
-                    onRefresh = onRefresh,
-                )
+                is LoadState.NotLoading -> {
+                    if (pagingItems.itemCount == 0) {
+                        EmptyContent()
+                    } else {
+                        IssueList(
+                            pagingItems = pagingItems,
+                            role = role,
+                            dateFormatter = dateFormatter,
+                            onOpenIssue = onNavigateToIssueDetail,
+                            onRefresh = onRefresh,
+                        )
+                    }
+                }
             }
         }
         if (isDriver || isDualRole) {
@@ -173,15 +184,17 @@ private fun IssuesScreenContent(
 
 @Composable
 private fun IssueList(
-    content: IssuesContent.Issues,
+    pagingItems: LazyPagingItems<Issue>,
     role: IssueCardRole,
     dateFormatter: DateFormatter,
     onOpenIssue: (Long) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isRefreshing = pagingItems.loadState.refresh is LoadState.Loading
+
     PullToRefresh(
-        isRefreshing = content.isRefreshing,
+        isRefreshing = isRefreshing,
         onRefresh = onRefresh,
     ) {
         LazyColumn(
@@ -190,9 +203,10 @@ private fun IssueList(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             items(
-                items = content.issues,
-                key = { it.id },
-            ) { issue ->
+                count = pagingItems.itemCount,
+                key = { index -> pagingItems.peek(index)?.id ?: index },
+            ) { index ->
+                val issue = pagingItems[index] ?: return@items
                 IssueCard(
                     state = IssueCardState(
                         issue = issue,
@@ -201,6 +215,16 @@ private fun IssueList(
                     dateFormatter = dateFormatter,
                     onClick = { onOpenIssue(issue.id) },
                 )
+            }
+            if (pagingItems.loadState.append is LoadState.Loading) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        LoadingSpinner()
+                    }
+                }
             }
             item { Spacer(modifier = Modifier.height(72.dp)) }
         }
@@ -313,42 +337,22 @@ private val previewIssues = listOf(
         createdAt = previewNow.minus(kotlin.time.Duration.parse("5h")),
         updatedAt = previewNow,
     ),
-    Issue(
-        id = 3,
-        title = "Windshield wiper blade broken",
-        description = "",
-        status = IssueStatus.Open,
-        priority = IssuePriority.Medium,
-        vehicle = previewVehicle.copy(id = 3, licensePlate = "MA-337-PK"),
-        reportedBy = previewReporter,
-        assignedTo = null,
-        createdAt = previewNow.minus(kotlin.time.Duration.parse("24h")),
-        updatedAt = previewNow,
-    ),
-    Issue(
-        id = 4,
-        title = "Routine oil change service",
-        description = "",
-        status = IssueStatus.Done,
-        priority = IssuePriority.Low,
-        vehicle = previewVehicle.copy(id = 2, licensePlate = "MA-118-AB"),
-        reportedBy = previewReporter,
-        assignedTo = null,
-        createdAt = previewNow.minus(kotlin.time.Duration.parse("600h")),
-        updatedAt = previewNow,
-    ),
-).toImmutableList()
+)
 
 @Preview
 @Composable
 private fun IssuesDriverPreview() {
+    val pagingItems = flowOf(PagingData.from(previewIssues)).collectAsLazyPagingItems()
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(
-                userInfo = IssuesUserInfo(name = "Michael Schumacher", roles = persistentListOf(UserRole.Driver)),
+                userInfo = IssuesUserInfo(
+                    name = "Michael Schumacher",
+                    roles = persistentListOf(UserRole.Driver),
+                ),
                 selectedFilter = IssueFilter.Driver.MyOpen,
-                content = IssuesContent.Issues(previewIssues),
             ),
+            pagingItems = pagingItems,
             dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
@@ -363,51 +367,17 @@ private fun IssuesDriverPreview() {
 @Preview
 @Composable
 private fun IssuesMechanicPreview() {
+    val pagingItems = flowOf(PagingData.from(previewIssues)).collectAsLazyPagingItems()
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(
-                userInfo = IssuesUserInfo(name = "Mattia Binotto", roles = persistentListOf(UserRole.Mechanic)),
+                userInfo = IssuesUserInfo(
+                    name = "Mattia Binotto",
+                    roles = persistentListOf(UserRole.Mechanic),
+                ),
                 selectedFilter = IssueFilter.Mechanic.MyIssues,
-                content = IssuesContent.Issues(previewIssues),
             ),
-            dateFormatter = DateFormatter(),
-            onSelectFilter = {},
-            onRetry = {},
-            onRefresh = {},
-            onNavigateToProfile = {},
-            onNavigateToCreateIssue = {},
-            onNavigateToIssueDetail = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun IssuesDualRolePreview() {
-    TruckTrackTheme {
-        IssuesScreenContent(
-            state = IssuesState(
-                userInfo = IssuesUserInfo(name = "Lewis Hamilton", roles = persistentListOf(UserRole.Driver, UserRole.Mechanic)),
-                selectedFilter = IssueFilter.DualRole.All,
-                content = IssuesContent.Issues(previewIssues),
-            ),
-            dateFormatter = DateFormatter(),
-            onSelectFilter = {},
-            onRetry = {},
-            onRefresh = {},
-            onNavigateToProfile = {},
-            onNavigateToCreateIssue = {},
-            onNavigateToIssueDetail = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun IssuesLoadingPreview() {
-    TruckTrackTheme {
-        IssuesScreenContent(
-            state = IssuesState(content = IssuesContent.Loading),
+            pagingItems = pagingItems,
             dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
@@ -422,12 +392,16 @@ private fun IssuesLoadingPreview() {
 @Preview
 @Composable
 private fun IssuesEmptyPreview() {
+    val pagingItems = flowOf(PagingData.empty<Issue>()).collectAsLazyPagingItems()
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(
-                userInfo = IssuesUserInfo(name = "Test User", roles = persistentListOf(UserRole.Driver)),
-                content = IssuesContent.Empty,
+                userInfo = IssuesUserInfo(
+                    name = "Test User",
+                    roles = persistentListOf(UserRole.Driver),
+                ),
             ),
+            pagingItems = pagingItems,
             dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},

@@ -46,9 +46,9 @@ import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_hours
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_just_now
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_minutes
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_yesterday
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 import kotlin.time.Instant
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun IssueCard(
@@ -272,15 +272,14 @@ private fun IssuePriority.displayName(): String = stringResource(
 )
 
 @Composable
-private fun Instant.timeAgo(dateFormatter: DateFormatter): String =
-    when (val result = dateFormatter.timeAgoComponents(this)) {
-        is TimeAgo.JustNow -> stringResource(Res.string.time_ago_just_now)
-        is TimeAgo.Minutes -> stringResource(Res.string.time_ago_minutes, result.count)
-        is TimeAgo.Hours -> stringResource(Res.string.time_ago_hours, result.count)
-        is TimeAgo.Yesterday -> stringResource(Res.string.time_ago_yesterday)
-        is TimeAgo.Days -> stringResource(Res.string.time_ago_days, result.count)
-        is TimeAgo.OlderThanWeek -> result.formatted
-    }
+private fun Instant.timeAgo(dateFormatter: DateFormatter): String = when (val result = dateFormatter.timeAgoComponents(this)) {
+    is TimeAgo.JustNow -> stringResource(Res.string.time_ago_just_now)
+    is TimeAgo.Minutes -> stringResource(Res.string.time_ago_minutes, result.count)
+    is TimeAgo.Hours -> stringResource(Res.string.time_ago_hours, result.count)
+    is TimeAgo.Yesterday -> stringResource(Res.string.time_ago_yesterday)
+    is TimeAgo.Days -> stringResource(Res.string.time_ago_days, result.count)
+    is TimeAgo.OlderThanWeek -> result.formatted
+}
 
 private fun VehicleType.vehicleIcon() = when (this) {
     VehicleType.Trailer -> TruckTrackIcons.Trailer

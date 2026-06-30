@@ -14,6 +14,7 @@ kotlin {
             implementation(projects.core.common)
             implementation(projects.core.network)
             implementation(projects.core.vehicle)
+            implementation(libs.androidx.paging.common)
         }
     }
 }

@@ -28,6 +28,7 @@ kotlinx-serialization-json = "1.11.0"
 jjwt = "0.13.0"
 spotless = "8.8.0"
 compose-rules-ktlint = "0.6.2"
+paging = "3.5.0"
 
 [libraries]
 # AndroidX Core
@@ -48,6 +49,10 @@ androidx-compose-foundation-layout = { module = "androidx.compose.foundation:fou
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle-viewmodel-nav3" }
+
+# Paging
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
 # Koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

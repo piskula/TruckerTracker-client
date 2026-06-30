@@ -40,7 +40,9 @@ fun TruckTrackApp(modifier: Modifier = Modifier, viewModel: TruckTrackViewModel 
     val resultStore = rememberResultStore()
 
     TruckTrackTheme {
-        SharedTransitionLayout {
+        SharedTransitionLayout(
+            modifier = modifier,
+        ) {
             CompositionLocalProvider(LocalSharedTransitionScope provides this) {
                 Scaffold(modifier = Modifier.fillMaxSize().imePadding()) { innerPadding ->
                     NavDisplay(

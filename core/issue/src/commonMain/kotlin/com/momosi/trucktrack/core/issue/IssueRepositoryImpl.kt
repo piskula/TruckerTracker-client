@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.core.issue
 
+import androidx.paging.PagingSource
 import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.api.IssueApi
 import com.momosi.trucktrack.core.issue.api.IssueHistoryApi
@@ -66,4 +67,15 @@ class IssueRepositoryImpl(private val issueApi: IssueApi, private val issueHisto
             sort = "createdAtUtc,asc",
         ).toPage { it.toIssueHistory() }
     }
+
+    override fun getIssuesPagingSource(
+        statuses: List<IssueStatus>,
+        vehicleIds: List<Long>,
+        accountIds: List<String>,
+    ): PagingSource<Int, Issue> = IssuePagingSource(
+        issueApi = issueApi,
+        statuses = statuses,
+        vehicleIds = vehicleIds,
+        accountIds = accountIds,
+    )
 }
