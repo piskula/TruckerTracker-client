@@ -14,6 +14,7 @@ class KoinPlugin : Plugin<Project> {
         androidMainDependencies {
             implementation(libs.findLibrary("koin-android").get())
             implementation(libs.findLibrary("koin-androidx-compose").get())
+            implementation(libs.findLibrary("koin-compose-viewmodel").get())
         }
     }
 }

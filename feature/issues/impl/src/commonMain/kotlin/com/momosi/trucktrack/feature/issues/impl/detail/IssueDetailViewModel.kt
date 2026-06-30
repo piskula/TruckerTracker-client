@@ -2,6 +2,7 @@ package com.momosi.trucktrack.feature.issues.impl.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.momosi.trucktrack.core.common.formatter.DateFormatter
 import com.momosi.trucktrack.core.common.io.PhotoReader
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
@@ -17,11 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-
-private val dateFormatter = DateTimeFormatter.ofPattern("MMM d, HH:mm")
 
 class IssueDetailViewModel(
     private val issueId: Long,
@@ -29,6 +25,7 @@ class IssueDetailViewModel(
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
     private val userRepository: UserRepository,
+    private val dateFormatter: DateFormatter,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(IssueDetailState())
@@ -230,30 +227,25 @@ class IssueDetailViewModel(
             loadPhotos()
         }
     }
+    private fun Issue.toUi() = IssueUi(
+        id = id,
+        title = title,
+        description = description,
+        status = status,
+        priority = priority,
+        vehicleLabel = vehicle?.let { "${it.licensePlate} · ${it.make} ${it.model}" } ?: "",
+        vehicleType = vehicle?.type,
+        reportedByName = reportedBy?.fullName ?: "—",
+        assignedToName = assignedTo?.fullName ?: "—",
+        createdAtFormatted = dateFormatter.formatDateTime(createdAt),
+    )
+
+    private fun IssueHistory.toUi() = IssueHistoryUi(
+        id = id,
+        type = type,
+        statusTo = statusTo,
+        performedByName = performedBy?.fullName,
+        createdAtFormatted = dateFormatter.formatDateTime(createdAt),
+        commentText = commentText,
+    )
 }
-
-private fun Issue.toUi() = IssueUi(
-    id = id,
-    title = title,
-    description = description,
-    status = status,
-    priority = priority,
-    vehicleLabel = vehicle?.let { "${it.licensePlate} · ${it.make} ${it.model}" } ?: "",
-    vehicleType = vehicle?.type,
-    reportedByName = reportedBy?.fullName ?: "—",
-    assignedToName = assignedTo?.fullName ?: "—",
-    createdAtFormatted = createdAt.formatDate(),
-)
-
-private fun IssueHistory.toUi() = IssueHistoryUi(
-    id = id,
-    type = type,
-    statusTo = statusTo,
-    performedByName = performedBy?.fullName,
-    createdAtFormatted = createdAt.formatDate(),
-    commentText = commentText,
-)
-
-private fun Instant.formatDate(): String = dateFormatter.format(
-    this.atZone(ZoneId.systemDefault()),
-)

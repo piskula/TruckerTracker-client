@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.momosi.trucktrack.core.common.formatter.DateFormatter
 import com.momosi.trucktrack.core.issue.model.Account
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssuePriority
@@ -52,11 +53,11 @@ import com.momosi.trucktrack.feature.issues.impl.resources.my_issues_title_mecha
 import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlin.time.Clock
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
-import java.time.Duration
-import java.time.Instant
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun IssuesScreen(
@@ -65,6 +66,7 @@ internal fun IssuesScreen(
     onNavigateToIssueDetail: (Long) -> Unit,
     issueStatusChange: Boolean = false,
     viewModel: IssuesViewModel = koinViewModel(),
+    dateFormatter: DateFormatter = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -76,6 +78,7 @@ internal fun IssuesScreen(
 
     IssuesScreenContent(
         state = state,
+        dateFormatter = dateFormatter,
         onSelectFilter = { viewModel.onAction(IssuesAction.SelectFilter(it)) },
         onRetry = { viewModel.onAction(IssuesAction.Retry) },
         onRefresh = { viewModel.onAction(IssuesAction.Refresh) },
@@ -88,6 +91,7 @@ internal fun IssuesScreen(
 @Composable
 private fun IssuesScreenContent(
     state: IssuesState,
+    dateFormatter: DateFormatter,
     onSelectFilter: (IssueFilter) -> Unit,
     onRetry: () -> Unit,
     onRefresh: () -> Unit,
@@ -149,6 +153,7 @@ private fun IssuesScreenContent(
                 is IssuesContent.Issues -> IssueList(
                     content = content,
                     role = if (isMechanic) IssueCardRole.Mechanic else IssueCardRole.Driver,
+                    dateFormatter = dateFormatter,
                     onOpenIssue = onNavigateToIssueDetail,
                     onRefresh = onRefresh,
                 )
@@ -170,6 +175,7 @@ private fun IssuesScreenContent(
 private fun IssueList(
     content: IssuesContent.Issues,
     role: IssueCardRole,
+    dateFormatter: DateFormatter,
     onOpenIssue: (Long) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
@@ -192,6 +198,7 @@ private fun IssueList(
                         issue = issue,
                         role = role,
                     ),
+                    dateFormatter = dateFormatter,
                     onClick = { onOpenIssue(issue.id) },
                 )
             }
@@ -279,6 +286,8 @@ private val previewReporter = Account(
     lastName = "Schumacher",
 )
 
+private val previewNow = Clock.System.now()
+
 private val previewIssues = listOf(
     Issue(
         id = 1,
@@ -289,8 +298,8 @@ private val previewIssues = listOf(
         vehicle = previewVehicle,
         reportedBy = previewReporter,
         assignedTo = null,
-        createdAt = Instant.now().minus(Duration.ofHours(2)),
-        updatedAt = Instant.now(),
+        createdAt = previewNow.minus(kotlin.time.Duration.parse("2h")),
+        updatedAt = previewNow,
     ),
     Issue(
         id = 2,
@@ -301,8 +310,8 @@ private val previewIssues = listOf(
         vehicle = previewVehicle.copy(id = 2, licensePlate = "MA-118-AB"),
         reportedBy = previewReporter,
         assignedTo = null,
-        createdAt = Instant.now().minus(Duration.ofHours(5)),
-        updatedAt = Instant.now(),
+        createdAt = previewNow.minus(kotlin.time.Duration.parse("5h")),
+        updatedAt = previewNow,
     ),
     Issue(
         id = 3,
@@ -313,8 +322,8 @@ private val previewIssues = listOf(
         vehicle = previewVehicle.copy(id = 3, licensePlate = "MA-337-PK"),
         reportedBy = previewReporter,
         assignedTo = null,
-        createdAt = Instant.now().minus(Duration.ofDays(1)),
-        updatedAt = Instant.now(),
+        createdAt = previewNow.minus(kotlin.time.Duration.parse("24h")),
+        updatedAt = previewNow,
     ),
     Issue(
         id = 4,
@@ -325,8 +334,8 @@ private val previewIssues = listOf(
         vehicle = previewVehicle.copy(id = 2, licensePlate = "MA-118-AB"),
         reportedBy = previewReporter,
         assignedTo = null,
-        createdAt = Instant.now().minus(Duration.ofDays(25)),
-        updatedAt = Instant.now(),
+        createdAt = previewNow.minus(kotlin.time.Duration.parse("600h")),
+        updatedAt = previewNow,
     ),
 ).toImmutableList()
 
@@ -340,6 +349,7 @@ private fun IssuesDriverPreview() {
                 selectedFilter = IssueFilter.Driver.MyOpen,
                 content = IssuesContent.Issues(previewIssues),
             ),
+            dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
             onRefresh = {},
@@ -360,6 +370,7 @@ private fun IssuesMechanicPreview() {
                 selectedFilter = IssueFilter.Mechanic.MyIssues,
                 content = IssuesContent.Issues(previewIssues),
             ),
+            dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
             onRefresh = {},
@@ -380,6 +391,7 @@ private fun IssuesDualRolePreview() {
                 selectedFilter = IssueFilter.DualRole.All,
                 content = IssuesContent.Issues(previewIssues),
             ),
+            dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
             onRefresh = {},
@@ -396,6 +408,7 @@ private fun IssuesLoadingPreview() {
     TruckTrackTheme {
         IssuesScreenContent(
             state = IssuesState(content = IssuesContent.Loading),
+            dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
             onRefresh = {},
@@ -415,6 +428,7 @@ private fun IssuesEmptyPreview() {
                 userInfo = IssuesUserInfo(name = "Test User", roles = persistentListOf(UserRole.Driver)),
                 content = IssuesContent.Empty,
             ),
+            dateFormatter = DateFormatter(),
             onSelectFilter = {},
             onRetry = {},
             onRefresh = {},

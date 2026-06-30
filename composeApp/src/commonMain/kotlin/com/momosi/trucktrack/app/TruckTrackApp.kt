@@ -24,7 +24,7 @@ import com.momosi.trucktrack.feature.profile.impl.navigation.profileEntries
 import com.momosi.trucktrack.feature.signin.api.SignInNavKey
 import com.momosi.trucktrack.feature.signin.impl.navigation.signInEntries
 import com.momosi.trucktrack.user.model.AuthenticationState
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun TruckTrackApp(modifier: Modifier = Modifier, viewModel: TruckTrackViewModel = koinViewModel()) {

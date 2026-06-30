@@ -1,7 +1,7 @@
 package com.momosi.trucktrack.core.issue.model
 
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
-import java.time.Instant
+import kotlin.time.Instant
 
 data class Issue(
     val id: Long,

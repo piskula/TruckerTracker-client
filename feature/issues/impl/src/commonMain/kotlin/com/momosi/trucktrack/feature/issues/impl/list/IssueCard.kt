@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.momosi.trucktrack.core.common.formatter.DateFormatter
+import com.momosi.trucktrack.core.common.formatter.TimeAgo
 import com.momosi.trucktrack.core.issue.model.Account
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssuePriority
@@ -44,15 +46,14 @@ import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_hours
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_just_now
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_minutes
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_yesterday
+import kotlin.time.Clock
+import kotlin.time.Instant
 import org.jetbrains.compose.resources.stringResource
-import java.time.Duration
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 @Composable
 internal fun IssueCard(
     state: IssueCardState,
+    dateFormatter: DateFormatter,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -126,7 +127,7 @@ internal fun IssueCard(
                     )
                 }
                 Text(
-                    text = issue.createdAt.timeAgo(),
+                    text = issue.createdAt.timeAgo(dateFormatter),
                     style = AppTheme.typography.labelSmall,
                     color = AppTheme.colors.onSurfaceVariant,
                 )
@@ -271,26 +272,15 @@ private fun IssuePriority.displayName(): String = stringResource(
 )
 
 @Composable
-private fun Instant.timeAgo(): String {
-    val now = Instant.now()
-    val duration = Duration.between(this, now)
-    return when {
-        duration.toMinutes() < 1 -> stringResource(Res.string.time_ago_just_now)
-
-        duration.toHours() < 1 -> stringResource(Res.string.time_ago_minutes, duration.toMinutes())
-
-        duration.toDays() < 1 -> stringResource(Res.string.time_ago_hours, duration.toHours())
-
-        duration.toDays() < 2 -> stringResource(Res.string.time_ago_yesterday)
-
-        duration.toDays() < 7 -> stringResource(Res.string.time_ago_days, duration.toDays())
-
-        else -> {
-            val date = ZonedDateTime.ofInstant(this, ZoneId.systemDefault())
-            "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)} ${date.dayOfMonth}"
-        }
+private fun Instant.timeAgo(dateFormatter: DateFormatter): String =
+    when (val result = dateFormatter.timeAgoComponents(this)) {
+        is TimeAgo.JustNow -> stringResource(Res.string.time_ago_just_now)
+        is TimeAgo.Minutes -> stringResource(Res.string.time_ago_minutes, result.count)
+        is TimeAgo.Hours -> stringResource(Res.string.time_ago_hours, result.count)
+        is TimeAgo.Yesterday -> stringResource(Res.string.time_ago_yesterday)
+        is TimeAgo.Days -> stringResource(Res.string.time_ago_days, result.count)
+        is TimeAgo.OlderThanWeek -> result.formatted
     }
-}
 
 private fun VehicleType.vehicleIcon() = when (this) {
     VehicleType.Trailer -> TruckTrackIcons.Trailer
@@ -317,8 +307,8 @@ private val sampleIssue = Issue(
         lastName = "Schumacher",
     ),
     assignedTo = null,
-    createdAt = Instant.now().minus(Duration.ofHours(2)),
-    updatedAt = Instant.now().minus(Duration.ofHours(1)),
+    createdAt = Clock.System.now().minus(kotlin.time.Duration.parse("2h")),
+    updatedAt = Clock.System.now().minus(kotlin.time.Duration.parse("1h")),
 )
 
 @Preview(showBackground = true)
@@ -327,6 +317,7 @@ private fun IssueCardDriverHighPreview() {
     TruckTrackTheme {
         IssueCard(
             state = IssueCardState(issue = sampleIssue, role = IssueCardRole.Driver),
+            dateFormatter = DateFormatter(),
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -339,6 +330,7 @@ private fun IssueCardMechanicHighPreview() {
     TruckTrackTheme {
         IssueCard(
             state = IssueCardState(issue = sampleIssue, role = IssueCardRole.Mechanic),
+            dateFormatter = DateFormatter(),
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -356,10 +348,11 @@ private fun IssueCardOpenMediumPreview() {
                     status = IssueStatus.Open,
                     priority = IssuePriority.Medium,
                     vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-089-MR"),
-                    createdAt = Instant.now().minus(Duration.ofDays(1)),
+                    createdAt = Clock.System.now().minus(kotlin.time.Duration.parse("24h")),
                 ),
                 role = IssueCardRole.Driver,
             ),
+            dateFormatter = DateFormatter(),
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )
@@ -377,10 +370,11 @@ private fun IssueCardDoneLowPreview() {
                     status = IssueStatus.Done,
                     priority = IssuePriority.Low,
                     vehicle = sampleIssue.vehicle?.copy(licensePlate = "MA-118-AB"),
-                    createdAt = Instant.now().minus(Duration.ofDays(25)),
+                    createdAt = Clock.System.now().minus(kotlin.time.Duration.parse("600h")),
                 ),
                 role = IssueCardRole.Mechanic,
             ),
+            dateFormatter = DateFormatter(),
             onClick = {},
             modifier = Modifier.padding(12.dp),
         )

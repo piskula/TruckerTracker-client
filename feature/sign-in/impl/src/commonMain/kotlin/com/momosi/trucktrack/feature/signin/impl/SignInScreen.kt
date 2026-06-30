@@ -38,7 +38,7 @@ import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_failed
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_no_internet
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_unable_to_start
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 private val HeroGradient = Brush.linearGradient(
     colors = listOf(Color(0xFF1565C0), Color(0xFF1976D2)),

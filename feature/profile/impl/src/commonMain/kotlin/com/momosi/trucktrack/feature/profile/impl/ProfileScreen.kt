@@ -40,7 +40,7 @@ import com.momosi.trucktrack.user.model.User
 import com.momosi.trucktrack.user.model.UserRole
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 private val HeroGradient = Brush.linearGradient(
     colors = listOf(Color(0xFF1565C0), Color(0xFF1976D2)),

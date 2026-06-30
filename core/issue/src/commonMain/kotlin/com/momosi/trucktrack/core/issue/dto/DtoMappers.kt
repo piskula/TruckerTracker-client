@@ -9,7 +9,7 @@ import com.momosi.trucktrack.core.issue.model.IssueHistoryType
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.vehicle.dto.toVehicle
-import java.time.Instant
+import kotlin.time.Instant
 
 internal fun AccountDto.toAccount(): Account = Account(
     id = id,
@@ -65,4 +65,4 @@ internal fun IssueHistoryDto.toIssueHistory(): IssueHistory = IssueHistory(
 
 private fun String.parseInstant(): Instant = runCatching {
     Instant.parse(this)
-}.getOrDefault(Instant.EPOCH)
+}.getOrDefault(Instant.fromEpochMilliseconds(0))

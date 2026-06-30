@@ -86,7 +86,7 @@ import com.momosi.trucktrack.feature.issues.impl.resources.issue_status_open
 import com.momosi.trucktrack.feature.issues.impl.resources.my_issues_retry
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
