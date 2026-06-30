@@ -6,7 +6,6 @@ import com.momosi.trucktrack.core.issue.api.IssueAttachmentApi
 import com.momosi.trucktrack.core.issue.dto.toIssueAttachment
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
 import com.momosi.trucktrack.core.network.dto.toPage
-import java.io.File
 
 class IssueAttachmentRepositoryImpl(private val issueAttachmentApi: IssueAttachmentApi) : IssueAttachmentRepository {
 
@@ -28,13 +27,14 @@ class IssueAttachmentRepositoryImpl(private val issueAttachmentApi: IssueAttachm
 
     override suspend fun uploadPhoto(
         issueId: Long,
-        file: File,
+        fileName: String,
+        fileBytes: ByteArray,
         contentType: String,
     ): Result<IssueAttachment> = runCatching {
         issueAttachmentApi.uploadPhoto(
             issueId = issueId,
-            fileName = file.name,
-            fileBytes = file.readBytes(),
+            fileName = fileName,
+            fileBytes = fileBytes,
             contentType = contentType,
         ).toIssueAttachment()
     }

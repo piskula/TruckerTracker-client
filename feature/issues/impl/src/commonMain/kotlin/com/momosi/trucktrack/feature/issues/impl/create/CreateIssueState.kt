@@ -1,6 +1,5 @@
 package com.momosi.trucktrack.feature.issues.impl.create
 
-import android.net.Uri
 import androidx.compose.runtime.Immutable
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
@@ -15,7 +14,7 @@ data class CreateIssueState(
     val title: String = "",
     val description: String = "",
     val selectedPriority: IssuePriority = IssuePriority.Medium,
-    val photoUris: ImmutableList<Uri> = persistentListOf(),
+    val photoUris: ImmutableList<String> = persistentListOf(),
     val isSubmitting: Boolean = false,
 ) {
     val isSubmitEnabled: Boolean

@@ -108,7 +108,7 @@ private fun CreateIssueContent(
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
-        onResult = { uris -> if (uris.isNotEmpty()) onAction(CreateIssueAction.AddPhotos(uris)) },
+        onResult = { uris -> if (uris.isNotEmpty()) onAction(CreateIssueAction.AddPhotos(uris.map { it.toString() })) },
     )
 
     Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background)) {
@@ -166,7 +166,7 @@ private fun CreateIssueContent(
                     PhotoPreviews(
                         uris = state.photoUris,
                         onRemove = { onAction(CreateIssueAction.RemovePhoto(it)) },
-                        onPhotoClick = { uri -> onNavigateToFullScreenPhoto(uri.toString()) },
+                        onPhotoClick = { uri -> onNavigateToFullScreenPhoto(uri) },
                     )
                 }
             }
@@ -448,9 +448,9 @@ private fun PhotoUploadArea(onClick: () -> Unit, modifier: Modifier = Modifier) 
 
 @Composable
 private fun PhotoPreviews(
-    uris: ImmutableList<Uri>,
-    onRemove: (Uri) -> Unit,
-    onPhotoClick: (Uri) -> Unit,
+    uris: ImmutableList<String>,
+    onRemove: (String) -> Unit,
+    onPhotoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
@@ -458,7 +458,8 @@ private fun PhotoPreviews(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(0.dp),
     ) {
-        items(uris, key = { it.toString() }) { uri ->
+        items(count = uris.size, key = { uris[it] }) { index ->
+            val uri = uris[index]
             Box(modifier = Modifier.size(72.dp)) {
                 AsyncImage(
                     model = uri,

@@ -1,10 +1,8 @@
 package com.momosi.trucktrack.feature.issues.impl.create
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.momosi.trucktrack.core.common.coroutines.DispatcherProvider
+import com.momosi.trucktrack.core.common.io.PhotoReader
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.IssueCreate
@@ -20,16 +18,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.io.path.createTempFile
 
-class CreateIssueViewModel(
-    private val context: Context,
-    private val vehicleRepository: VehicleRepository,
-    private val issueRepository: IssueRepository,
-    private val issueAttachmentRepository: IssueAttachmentRepository,
-    private val dispatcherProvider: DispatcherProvider,
-) : ViewModel() {
+class CreateIssueViewModel(private val photoReader: PhotoReader, private val vehicleRepository: VehicleRepository, private val issueRepository: IssueRepository, private val issueAttachmentRepository: IssueAttachmentRepository) :
+    ViewModel() {
 
     private val _state = MutableStateFlow(CreateIssueState())
     val state: StateFlow<CreateIssueState> = _state.stateIn(
@@ -74,14 +65,14 @@ class CreateIssueViewModel(
         _state.update { it.copy(selectedVehicle = vehicle, vehicleDropdownExpanded = false) }
     }
 
-    private fun addPhotos(uris: List<Uri>) {
+    private fun addPhotos(uris: List<String>) {
         _state.update { current ->
             val combined = (current.photoUris + uris).distinct().toImmutableList()
             current.copy(photoUris = combined)
         }
     }
 
-    private fun removePhoto(uri: Uri) {
+    private fun removePhoto(uri: String) {
         _state.update { current ->
             current.copy(photoUris = current.photoUris.filter { it != uri }.toImmutableList())
         }
@@ -114,23 +105,17 @@ class CreateIssueViewModel(
         }
     }
 
-    private suspend fun uploadPhotos(issueId: Long, uris: List<Uri>) {
+    private suspend fun uploadPhotos(issueId: Long, uris: List<String>) {
         coroutineScope {
             uris.forEach { uri ->
                 launch {
-                    val tempFile = withContext(dispatcherProvider.io()) {
-                        val file = createTempFile("upload", ".jpg").toFile()
-                        context.contentResolver.openInputStream(uri)?.use { input ->
-                            file.outputStream().use { output -> input.copyTo(output) }
-                        }
-                        file
-                    }
-                    try {
-                        val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
-                        issueAttachmentRepository.uploadPhoto(issueId, tempFile, mimeType)
-                    } finally {
-                        tempFile.delete()
-                    }
+                    val photoData = photoReader.read(uri) ?: return@launch
+                    issueAttachmentRepository.uploadPhoto(
+                        issueId = issueId,
+                        fileName = photoData.fileName,
+                        fileBytes = photoData.bytes,
+                        contentType = photoData.mimeType,
+                    )
                 }
             }
         }

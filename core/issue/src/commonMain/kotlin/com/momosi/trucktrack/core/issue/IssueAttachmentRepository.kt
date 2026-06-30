@@ -2,7 +2,6 @@ package com.momosi.trucktrack.core.issue
 
 import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
-import java.io.File
 
 interface IssueAttachmentRepository {
 
@@ -17,7 +16,8 @@ interface IssueAttachmentRepository {
 
     suspend fun uploadPhoto(
         issueId: Long,
-        file: File,
+        fileName: String,
+        fileBytes: ByteArray,
         contentType: String,
     ): Result<IssueAttachment>
 

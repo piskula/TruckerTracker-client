@@ -1,6 +1,5 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -125,7 +124,7 @@ private fun IssueDetailScreenContent(
     onStartWorking: () -> Unit,
     onResolveIssue: () -> Unit,
     onReassignToMe: () -> Unit,
-    onUploadPhoto: (Uri) -> Unit,
+    onUploadPhoto: (String) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -214,13 +213,13 @@ private fun LoadedContent(
     onStartWorking: () -> Unit,
     onResolveIssue: () -> Unit,
     onReassignToMe: () -> Unit,
-    onUploadPhoto: (Uri) -> Unit,
+    onUploadPhoto: (String) -> Unit,
     onPhotoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let { onUploadPhoto(it) } },
+        onResult = { uri -> uri?.let { onUploadPhoto(it.toString()) } },
     )
 
     Column(modifier = modifier.fillMaxSize()) {

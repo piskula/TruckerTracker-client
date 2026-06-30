@@ -1,10 +1,8 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
-import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.momosi.trucktrack.core.common.coroutines.DispatcherProvider
+import com.momosi.trucktrack.core.common.io.PhotoReader
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.Issue
@@ -19,21 +17,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.io.path.createTempFile
 
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM d, HH:mm")
 
 class IssueDetailViewModel(
     private val issueId: Long,
-    private val context: Context,
+    private val photoReader: PhotoReader,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
     private val userRepository: UserRepository,
-    private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(IssueDetailState())
@@ -218,24 +213,18 @@ class IssueDetailViewModel(
         }
     }
 
-    private fun uploadPhoto(uri: Uri) {
+    private fun uploadPhoto(uri: String) {
         if (_state.value.isUploadingPhoto) return
         _state.update { it.copy(isUploadingPhoto = true) }
         viewModelScope.launch {
-            runCatching {
-                val tempFile = withContext(dispatcherProvider.io()) {
-                    val file = createTempFile("upload", ".jpg").toFile()
-                    context.contentResolver.openInputStream(uri)?.use { input ->
-                        file.outputStream().use { output -> input.copyTo(output) }
-                    }
-                    file
-                }
-                try {
-                    val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
-                    issueAttachmentRepository.uploadPhoto(issueId, tempFile, mimeType)
-                } finally {
-                    tempFile.delete()
-                }
+            val photoData = photoReader.read(uri)
+            if (photoData != null) {
+                issueAttachmentRepository.uploadPhoto(
+                    issueId = issueId,
+                    fileName = photoData.fileName,
+                    fileBytes = photoData.bytes,
+                    contentType = photoData.mimeType,
+                )
             }
             _state.update { it.copy(isUploadingPhoto = false) }
             loadPhotos()
