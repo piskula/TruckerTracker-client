@@ -1,0 +1,66 @@
+<resources>
+    <string name="my_issues_title_driver">Moje hlásenia</string>
+    <string name="my_issues_title_mechanic">Všetky hlásenia</string>
+    <string name="my_issues_error_message">Niečo sa pokazilo</string>
+    <string name="my_issues_retry">Skúsiť znova</string>
+    <string name="my_issues_empty">Nenašli sa žiadne hlásenia</string>
+    <string name="my_issues_filter_my_open">Moje otvorené</string>
+    <string name="my_issues_filter_my_closed">Uzatvorené</string>
+    <string name="my_issues_filter_all">Všetky</string>
+    <string name="my_issues_filter_my_issues">Moje hlásenia</string>
+    <string name="my_issues_filter_open">Otvorené</string>
+    <string name="my_issues_filter_in_progress">V riešení</string>
+    <string name="my_issues_subtitle_driver">Vodič</string>
+    <string name="my_issues_subtitle_mechanic">Mechanik</string>
+
+    <string name="issue_status_open">Otvorené</string>
+    <string name="issue_status_in_progress">V riešení</string>
+    <string name="issue_status_done">Hotové</string>
+    <string name="issue_priority_high">Vysoká</string>
+    <string name="issue_priority_medium">Stredná</string>
+    <string name="issue_priority_low">Nízka</string>
+    <string name="issue_unassigned">Nepriradené</string>
+
+    <string name="time_ago_just_now">Práve teraz</string>
+    <string name="time_ago_minutes">pred %1$d min.</string>
+    <string name="time_ago_hours">pred %1$d h</string>
+    <string name="time_ago_yesterday">Včera</string>
+    <string name="time_ago_days">pred %1$d dňami</string>
+
+    <string name="issue_detail_title">Hlásenie č. %1$d</string>
+    <string name="issue_detail_reporter">Nahlásil</string>
+    <string name="issue_detail_assigned">Priradené</string>
+    <string name="issue_detail_description">Popis</string>
+    <string name="issue_detail_history">História</string>
+    <string name="issue_detail_history_empty">Zatiaľ bez histórie</string>
+    <string name="issue_detail_history_reassigned">Prepriradené</string>
+    <string name="issue_detail_add_comment">Pridať komentár</string>
+    <string name="issue_detail_comment_placeholder">Napíšte komentár…</string>
+    <string name="issue_detail_photos_loading">Fotografie</string>
+    <string name="issue_detail_photos">Fotografie (%1$d)</string>
+    <string name="issue_detail_resolve_confirm_title">Uzavrieť hlásenie</string>
+    <string name="issue_detail_resolve_confirm_message">Označiť toto hlásenie ako vyriešené? Túto akciu nemožno vrátiť späť.</string>
+    <string name="issue_detail_resolve_confirm_confirm">Uzavrieť</string>
+    <string name="issue_detail_resolve_confirm_cancel">Zrušiť</string>
+    <string name="issue_detail_error">Nepodarilo sa načítať detail hlásenia</string>
+    <string name="issue_detail_start_working">Začať pracovať</string>
+    <string name="issue_detail_resolve_issue">Uzavrieť hlásenie</string>
+    <string name="issue_detail_reassign_description">Toto hlásenie je pridelené inému mechanikovi. Môžete ho prideliť sebe.</string>
+    <string name="issue_detail_reassign_to_me">Prideliť mne</string>
+
+    <string name="create_issue_title">Nahlásiť problém</string>
+    <string name="create_issue_vehicle">Vozidlo</string>
+    <string name="create_issue_description">Popis</string>
+    <string name="create_issue_short_title">Krátky názov</string>
+    <string name="create_issue_details">Podrobnosti</string>
+    <string name="create_issue_priority">Priorita</string>
+    <string name="create_issue_photos">Fotografie</string>
+    <string name="create_issue_submit">Odoslať hlásenie</string>
+    <string name="create_issue_select_vehicle">Vyberte vozidlo</string>
+    <string name="create_issue_add_photos">Pridať fotografie</string>
+    <string name="create_issue_camera_or_gallery">Z fotoaparátu alebo galérie</string>
+    <string name="create_issue_priority_high_hint">Blokuje prevádzku, treba riešiť ihneď</string>
+    <string name="create_issue_priority_medium_hint">Treba opraviť čoskoro, ale nie je to kritické</string>
+    <string name="create_issue_priority_low_hint">Menší problém, môže počkať na plánovanú údržbu</string>
+</resources>
+

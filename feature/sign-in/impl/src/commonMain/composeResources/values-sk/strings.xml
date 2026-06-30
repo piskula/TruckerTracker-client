@@ -1,0 +1,9 @@
+<resources>
+    <string name="sign_in_app_name">TruckTrack</string>
+    <string name="sign_in_app_subtitle">Správa údržby vozového parku bez komplikácií</string>
+    <string name="sign_in_button">Prihlásiť sa</string>
+    <string name="sign_in_error_no_internet">Žiadne internetové pripojenie. Skontrolujte sieť a skúste to znova.</string>
+    <string name="sign_in_error_unable_to_start">Nepodarilo sa spustiť prihlásenie. Skúste to znova.</string>
+    <string name="sign_in_error_failed">Prihlásenie zlyhalo. Skúste to znova.</string>
+</resources>
+

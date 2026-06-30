@@ -14,7 +14,6 @@ Before writing any code, scan this table. If the task matches a trigger, **read 
 | Adding a new screen to an existing feature | [`agents/skills/add-screen-to-feature/SKILL.md`](../agents/skills/add-screen-to-feature/SKILL.md) |
 | Adding a repository or manager to a `core/*` module | [`agents/skills/add-repository/SKILL.md`](../agents/skills/add-repository/SKILL.md) |
 
-> Skill files follow the convention in [`agents/skills/SKILL_CONVENTION.md`](../agents/skills/SKILL_CONVENTION.md).
 > Each skill contains **Triggers** (when to use it), **Prerequisites**, **Steps**, and **Verification** checklists.
 > Always complete the Verification checklist before considering a skill done.
 
@@ -124,6 +123,7 @@ All modules use KMP source sets (`src/commonMain/kotlin/`, `src/androidMain/kotl
 - **ViewModels use Koin** — declare with `viewModel { }` in Koin modules, inject via `koinViewModel()` in Composables
 - **All new `@Serializable` navigation keys** in `feature/*/api` only
 - **New string resources** use Compose Multiplatform resources (`compose.resources`)
+- **Whenever you add or change a user-facing string, update both English and Slovak resources together** — keep English in `values/strings.xml` and Slovak in matching `values-sk/strings.xml`
 - **New icons** must be added to `TruckTrackIcons` in `core/ui-library` — never import Material icon classes in feature modules
 - **New source files** go in `src/commonMain/kotlin/` unless they use Android-specific APIs
 

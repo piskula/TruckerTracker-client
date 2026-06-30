@@ -1,31 +1,18 @@
 package com.momosi.trucktrack.core.common.formatter
 
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
-private val MONTH_ABBREVS =
-    listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 class DateFormatter {
 
-    fun formatDateTime(instant: Instant): String {
-        val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-        val month = MONTH_ABBREVS[local.monthNumber - 1]
-        val hour = local.hour.toString().padStart(2, '0')
-        val minute = local.minute.toString().padStart(2, '0')
-        return "$month ${local.dayOfMonth}, $hour:$minute"
-    }
+    private val platformDateFormatter = createPlatformDateFormatter()
 
-    fun formatShortDate(instant: Instant): String {
-        val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-        val month = MONTH_ABBREVS[local.monthNumber - 1]
-        return "$month ${local.dayOfMonth}"
-    }
+    fun formatDateTime(instant: Instant): String = platformDateFormatter.formatDateTime(instant)
+
+    fun formatShortDate(instant: Instant): String = platformDateFormatter.formatShortDate(instant)
 
     fun timeAgoComponents(instant: Instant): TimeAgo {
         val now = Clock.System.now()
@@ -40,6 +27,14 @@ class DateFormatter {
         }
     }
 }
+
+internal interface PlatformDateFormatter {
+    fun formatDateTime(instant: Instant): String
+
+    fun formatShortDate(instant: Instant): String
+}
+
+internal expect fun createPlatformDateFormatter(): PlatformDateFormatter
 
 sealed interface TimeAgo {
     data object JustNow : TimeAgo

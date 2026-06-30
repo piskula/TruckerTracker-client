@@ -1,0 +1,7 @@
+<resources>
+    <string name="profile_title">Profil</string>
+    <string name="profile_sign_out">Odhlásiť sa</string>
+    <string name="profile_role_driver">Vodič</string>
+    <string name="profile_role_mechanic">Mechanik</string>
+</resources>
+

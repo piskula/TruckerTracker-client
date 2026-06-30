@@ -272,6 +272,8 @@ No tests exist yet. When adding tests, follow these conventions:
 
 String resources use Compose Multiplatform resources (`compose.resources`). Each module that needs strings declares `compose.resources { packageOfResClass = "..." }`.
 
+Every new or changed user-facing string must be added in both supported languages at the same time: English in the module's default `values/strings.xml` and Slovak in the matching `values-sk/strings.xml`.
+
 When writing string resources, act as a **technical copywriter** — precise about domain concepts, but writing for a non-developer fleet operator.
 
 * Write for a **non-technical user** — a driver or mechanic who understands their job but not software.
