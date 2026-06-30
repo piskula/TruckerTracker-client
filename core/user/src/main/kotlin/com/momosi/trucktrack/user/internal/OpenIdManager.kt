@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.net.toUri
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.openid.appauth.AuthState
@@ -17,12 +16,9 @@ import net.openid.appauth.AuthorizationService
 import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.EndSessionRequest
 import net.openid.appauth.EndSessionResponse
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.resume
 
-@Singleton
-class OpenIdManager @Inject constructor(@ApplicationContext private val appContext: Context) {
+class OpenIdManager(private val appContext: Context) {
 
     class UserCancelledException : RuntimeException()
 

@@ -11,11 +11,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class IssueApi @Inject constructor(private val client: HttpClient) {
+class IssueApi(private val client: HttpClient) {
 
     suspend fun getIssueList(
         filter: IssueFilterDto,
@@ -29,21 +26,15 @@ class IssueApi @Inject constructor(private val client: HttpClient) {
         setBody(filter)
     }.body()
 
-    suspend fun createIssue(body: IssueCreateDto): IssueDto =
-        client.post("api/v1/issue/create") { setBody(body) }.body()
+    suspend fun createIssue(body: IssueCreateDto): IssueDto = client.post("api/v1/issue/create") { setBody(body) }.body()
 
-    suspend fun getIssue(id: Long): IssueDto =
-        client.get("api/v1/issue/byId/$id").body()
+    suspend fun getIssue(id: Long): IssueDto = client.get("api/v1/issue/byId/$id").body()
 
-    suspend fun startIssue(id: Long): IssueDto =
-        client.post("api/v1/issue/$id/start").body()
+    suspend fun startIssue(id: Long): IssueDto = client.post("api/v1/issue/$id/start").body()
 
-    suspend fun resolveIssue(id: Long): IssueDto =
-        client.post("api/v1/issue/$id/resolve").body()
+    suspend fun resolveIssue(id: Long): IssueDto = client.post("api/v1/issue/$id/resolve").body()
 
-    suspend fun assignIssue(id: Long): IssueDto =
-        client.post("api/v1/issue/$id/assignTome").body()
+    suspend fun assignIssue(id: Long): IssueDto = client.post("api/v1/issue/$id/assignTome").body()
 
-    suspend fun addComment(id: Long, comment: String): IssueHistoryDto =
-        client.post("api/v1/issue/$id/comment") { setBody(comment) }.body()
+    suspend fun addComment(id: Long, comment: String): IssueHistoryDto = client.post("api/v1/issue/$id/comment") { setBody(comment) }.body()
 }

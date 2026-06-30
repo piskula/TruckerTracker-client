@@ -11,7 +11,6 @@ kotlin {
 dependencies {
     compileOnly(libs.android.gradle.plugin)
     compileOnly(libs.kotlin.gradle.plugin)
-    compileOnly(libs.ksp.gradle.plugin)
     compileOnly(libs.spotless.gradle.plugin)
 }
 
@@ -33,9 +32,9 @@ gradlePlugin {
             id = "trucktrack.feature.impl"
             implementationClass = "com.momosi.trucktrack.FeatureImplPlugin"
         }
-        register("trucktrack.hilt") {
-            id = "trucktrack.hilt"
-            implementationClass = "com.momosi.trucktrack.HiltPlugin"
+        register("trucktrack.koin") {
+            id = "trucktrack.koin"
+            implementationClass = "com.momosi.trucktrack.KoinPlugin"
         }
         register("trucktrack.spotless") {
             id = "trucktrack.spotless"

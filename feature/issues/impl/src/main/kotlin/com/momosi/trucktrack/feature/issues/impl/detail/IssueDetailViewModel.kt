@@ -11,11 +11,6 @@ import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,20 +27,14 @@ import kotlin.io.path.createTempFile
 
 private val dateFormatter = DateTimeFormatter.ofPattern("MMM d, HH:mm")
 
-@HiltViewModel(assistedFactory = IssueDetailViewModel.Factory::class)
-class IssueDetailViewModel @AssistedInject constructor(
-    @Assisted private val issueId: Long,
-    @ApplicationContext private val context: Context,
+class IssueDetailViewModel(
+    private val issueId: Long,
+    private val context: Context,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
     private val userRepository: UserRepository,
     private val dispatcherProvider: DispatcherProvider,
 ) : ViewModel() {
-
-    @AssistedFactory
-    interface Factory {
-        fun create(issueId: Long): IssueDetailViewModel
-    }
 
     private val _state = MutableStateFlow(IssueDetailState())
     val state: StateFlow<IssueDetailState> = _state.stateIn(

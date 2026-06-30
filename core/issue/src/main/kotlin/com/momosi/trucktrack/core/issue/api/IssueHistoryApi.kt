@@ -6,11 +6,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class IssueHistoryApi @Inject constructor(private val client: HttpClient) {
+class IssueHistoryApi(private val client: HttpClient) {
 
     suspend fun getIssueHistory(
         id: Long,

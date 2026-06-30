@@ -4,16 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.model.AuthActionResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class SignInViewModel @Inject constructor(private val authManager: AuthManager) : ViewModel() {
+class SignInViewModel(private val authManager: AuthManager) : ViewModel() {
 
     private val _state = MutableStateFlow<SignInState>(SignInState.Idle)
     val state: StateFlow<SignInState> = _state

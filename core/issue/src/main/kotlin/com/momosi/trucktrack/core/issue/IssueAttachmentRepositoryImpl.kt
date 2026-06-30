@@ -7,17 +7,10 @@ import com.momosi.trucktrack.core.issue.dto.toIssueAttachment
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
 import com.momosi.trucktrack.core.network.dto.toPage
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Singleton
 
+class IssueAttachmentRepositoryImpl(private val issueAttachmentApi: IssueAttachmentApi) : IssueAttachmentRepository {
 
-@Singleton
-class IssueAttachmentRepositoryImpl @Inject constructor(
-    private val issueAttachmentApi: IssueAttachmentApi,
-) : IssueAttachmentRepository {
-
-    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String =
-        "${TruckTrackConfig.API_BASE_URL}api/v1/issue/$issueId/photo/$attachmentId"
+    override fun getPhotoUrl(issueId: Long, attachmentId: Long): String = "${TruckTrackConfig.API_BASE_URL}api/v1/issue/$issueId/photo/$attachmentId"
 
     override suspend fun getPhotos(
         issueId: Long,

@@ -5,11 +5,10 @@ import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.user.internal.api.AuthApi
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
-import javax.inject.Inject
 
 data class TokenVerificationException(override val message: String? = null, override val cause: Throwable? = null) : RuntimeException(message, cause)
 
-class TokenVerifier @Inject constructor(private val jwtParser: JwtParser, private val userStorage: UserStorage, private val authApi: AuthApi, private val dispatcherProvider: DispatcherProvider) {
+class TokenVerifier(private val jwtParser: JwtParser, private val userStorage: UserStorage, private val authApi: AuthApi, private val dispatcherProvider: DispatcherProvider) {
 
     internal suspend fun verifyToken(accessToken: String, refreshPublicKey: Boolean = false): Result<Jws<Claims>> = with(dispatcherProvider.io()) {
         val currentPublicKey = userStorage.serverPublicKey

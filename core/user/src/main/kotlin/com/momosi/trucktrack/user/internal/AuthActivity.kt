@@ -2,14 +2,11 @@ package com.momosi.trucktrack.user.internal
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
-@AndroidEntryPoint
 class AuthActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var openIdManager: OpenIdManager
+    private val openIdManager: OpenIdManager by inject()
 
     override fun onResume() {
         super.onResume()

@@ -12,11 +12,8 @@ import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.network.dto.toPage
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class IssueRepositoryImpl @Inject constructor(private val issueApi: IssueApi, private val issueHistoryApi: IssueHistoryApi) : IssueRepository {
+class IssueRepositoryImpl(private val issueApi: IssueApi, private val issueHistoryApi: IssueHistoryApi) : IssueRepository {
 
     override suspend fun getIssues(
         statuses: List<IssueStatus>,

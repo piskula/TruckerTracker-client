@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.momosi.trucktrack.core.issue.model.Account
 import com.momosi.trucktrack.core.issue.model.Issue
@@ -41,6 +40,7 @@ import com.momosi.trucktrack.feature.issues.impl.R
 import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.koinViewModel
 import java.time.Duration
 import java.time.Instant
 
@@ -50,7 +50,7 @@ internal fun IssuesScreen(
     onNavigateToCreateIssue: () -> Unit,
     onNavigateToIssueDetail: (Long) -> Unit,
     issueStatusChange: Boolean = false,
-    viewModel: IssuesViewModel = hiltViewModel(),
+    viewModel: IssuesViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

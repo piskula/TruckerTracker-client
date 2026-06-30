@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.Icon
@@ -35,6 +34,7 @@ import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.user.model.User
 import com.momosi.trucktrack.user.model.UserRole
+import org.koin.androidx.compose.koinViewModel
 
 private val HeroGradient = Brush.linearGradient(
     colors = listOf(Color(0xFF1565C0), Color(0xFF1976D2)),
@@ -42,9 +42,9 @@ private val HeroGradient = Brush.linearGradient(
 
 @Composable
 internal fun ProfileScreen(
-    viewModel: ProfileViewModel = hiltViewModel(),
     onNavigateToSignIn: () -> Unit,
     onBack: () -> Unit,
+    viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -216,4 +216,3 @@ private fun ProfileSigningOutPreview() {
         )
     }
 }
-

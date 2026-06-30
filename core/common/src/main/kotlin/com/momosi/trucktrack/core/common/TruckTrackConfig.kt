@@ -9,4 +9,3 @@ object TruckTrackConfig {
     const val OAUTH_REDIRECT_URL = "$APP_SCHEME://auth/callback"
     const val OAUTH_LOGOUT_REDIRECT_URL = "$APP_SCHEME://auth/logout"
 }
-

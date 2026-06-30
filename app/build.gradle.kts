@@ -1,6 +1,6 @@
 ﻿plugins {
     alias(libs.plugins.trucktrack.application)
-    alias(libs.plugins.trucktrack.hilt)
+    alias(libs.plugins.trucktrack.koin)
     alias(libs.plugins.trucktrack.compose)
     alias(libs.plugins.trucktrack.spotless)
     alias(libs.plugins.parcelize)

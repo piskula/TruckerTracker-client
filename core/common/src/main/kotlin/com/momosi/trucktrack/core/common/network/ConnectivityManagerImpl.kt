@@ -7,11 +7,8 @@ import android.os.ext.SdkExtensions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class ConnectivityManagerImpl @Inject constructor(private val androidConnectivityManager: android.net.ConnectivityManager) : ConnectivityManager {
+class ConnectivityManagerImpl(private val androidConnectivityManager: android.net.ConnectivityManager) : ConnectivityManager {
 
     private var networkConnectionFlow = MutableStateFlow(androidConnectivityManager.getNetworkCapabilities(androidConnectivityManager.activeNetwork).mapToNetworkCapabilities())
 

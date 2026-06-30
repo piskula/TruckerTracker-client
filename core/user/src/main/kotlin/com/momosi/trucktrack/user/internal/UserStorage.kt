@@ -7,8 +7,6 @@ import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.openid.appauth.AuthState
-import javax.inject.Inject
-import javax.inject.Named
 
 const val USER_AUTH_STORAGE = "user_auth_storage"
 
@@ -26,7 +24,7 @@ interface UserStorage {
     val userFlow: StateFlow<User?>
 }
 
-class UserStorageImpl @Inject constructor(@Named(USER_AUTH_STORAGE) private val authStorage: SharedPreferences) : UserStorage {
+class UserStorageImpl(private val authStorage: SharedPreferences) : UserStorage {
 
     override var authState: AuthState
         set(value) = authStorage.edit { putString(AUTH_STATE, value.jsonSerializeString()) }

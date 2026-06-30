@@ -218,7 +218,7 @@ Reusable step-by-step workflows are in `agents/skills/`. Use them for recurring 
 
 | Current (Android-only) | KMP Replacement | Status |
 |------------------------|-----------------|--------|
-| Timber | **Kermit** (`co.touchlab:kermit`) or custom `expect/actual` | Planned Phase 1 |
+| Timber (via `Logger`) | **Kermit** (`co.touchlab:kermit`) — done ✅ | ✅ Complete |
 | AppAuth | Platform `expect/actual` with AppAuth on Android, AppAuth-iOS on iOS | Planned Phase 3 |
 | jjwt | Manual Base64 + Kotlinx Serialization parsing, or `io.github.nefilim.kjwt` | Planned Phase 3 |
 | Navigation 3 | **Decompose** or **Voyager** (both KMP-compatible) | Planned Phase 5 |

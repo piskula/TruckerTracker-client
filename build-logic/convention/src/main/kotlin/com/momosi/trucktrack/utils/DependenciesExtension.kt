@@ -17,9 +17,6 @@ internal fun DependencyHandler.api(dependencyNotation: Any): Dependency? =
 internal fun DependencyHandler.api(dependencyNotation: Provider<*>, configuration: Action<*>) =
     addProvider("api", dependencyNotation, configuration)
 
-internal fun DependencyHandler.ksp(dependencyNotation: Any): Dependency? =
-    add("ksp", dependencyNotation)
-
 internal fun DependencyHandler.runtimeOnly(dependencyNotation: Any): Dependency? =
     add("runtimeOnly", dependencyNotation)
 

@@ -7,14 +7,10 @@ import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class CurrentActivityHelper @Inject constructor(@ApplicationContext context: Context) {
+class CurrentActivityHelper(context: Context) {
 
     private var currentActivities: MutableMap<String, WeakReference<Activity>> = ConcurrentHashMap()
 

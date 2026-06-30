@@ -1,45 +1,29 @@
 package com.momosi.trucktrack.user.di
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.AuthManagerImpl
 import com.momosi.trucktrack.user.UserRepository
 import com.momosi.trucktrack.user.UserRepositoryImpl
+import com.momosi.trucktrack.user.internal.JwtParser
+import com.momosi.trucktrack.user.internal.OpenIdManager
+import com.momosi.trucktrack.user.internal.TokenVerifier
 import com.momosi.trucktrack.user.internal.USER_AUTH_STORAGE
 import com.momosi.trucktrack.user.internal.UserStorage
 import com.momosi.trucktrack.user.internal.UserStorageImpl
-import dagger.Binds
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Named
-import javax.inject.Singleton
+import com.momosi.trucktrack.user.internal.api.AuthApi
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class UserModule {
-
-    @Binds
-    @Singleton
-    abstract fun bindUserAuthManager(impl: AuthManagerImpl): AuthManager
-
-    @Binds
-    @Singleton
-    abstract fun bindUserAuthStorage(impl: UserStorageImpl): UserStorage
-
-    @Binds
-    @Singleton
-    abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
-
-    companion object {
-
-        @Provides
-        @Singleton
-        @Named(USER_AUTH_STORAGE)
-        fun provideAuthSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-            context.getSharedPreferences(USER_AUTH_STORAGE, Context.MODE_PRIVATE)
+val userModule = module {
+    single(named(USER_AUTH_STORAGE)) {
+        get<Context>().getSharedPreferences(USER_AUTH_STORAGE, Context.MODE_PRIVATE)
     }
+    single<UserStorage> { UserStorageImpl(get(named(USER_AUTH_STORAGE))) }
+    single<UserRepository> { UserRepositoryImpl(get()) }
+    single { OpenIdManager(get()) }
+    single { AuthApi() }
+    single { JwtParser(get()) }
+    single { TokenVerifier(get(), get(), get(), get()) }
+    single<AuthManager> { AuthManagerImpl(get(), get(), get(), get(), get(), get()) }
 }

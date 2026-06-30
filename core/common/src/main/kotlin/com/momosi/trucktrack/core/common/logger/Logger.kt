@@ -1,58 +1,32 @@
 ﻿package com.momosi.trucktrack.core.common.logger
 
-import timber.log.Timber
+import co.touchlab.kermit.Logger as KermitLogger
+import co.touchlab.kermit.Severity
 
 object Logger {
     fun init(logToConsole: Boolean) {
-        val trees =
-            buildList {
-                if (logToConsole) add(Timber.DebugTree())
-//                add(FirebaseTree())
-            }
-        Timber.plant(*trees.toTypedArray())
+        KermitLogger.setMinSeverity(if (logToConsole) Severity.Verbose else Severity.Warn)
     }
 
-    fun v(tag: String, message: String) = Timber.tag(tag).v(message)
+    fun v(tag: String, message: String) = KermitLogger.v(message, tag = tag)
 
-    fun d(tag: String, message: String) = Timber.tag(tag).d(message)
+    fun d(tag: String, message: String) = KermitLogger.d(message, tag = tag)
 
-    fun i(tag: String, message: String) = Timber.tag(tag).i(message)
+    fun i(tag: String, message: String) = KermitLogger.i(message, tag = tag)
 
-    fun w(tag: String, message: String) = Timber.tag(tag).w(message)
+    fun w(tag: String, message: String) = KermitLogger.w(message, tag = tag)
 
     fun w(
         tag: String,
         t: Throwable,
         message: String,
-    ) = Timber.tag(tag).w(t, message)
+    ) = KermitLogger.w(message, t, tag)
 
-    fun e(tag: String, message: String) = Timber.tag(tag).e(message)
+    fun e(tag: String, message: String) = KermitLogger.e(message, tag = tag)
 
     fun e(
         tag: String,
         t: Throwable,
         message: String,
-    ) = Timber.tag(tag).e(t, message)
-
-//    private class FirebaseTree : Timber.DebugTree() {
-//        override fun log(
-//            priority: Int,
-//            tag: String?,
-//            message: String,
-//            t: Throwable?,
-//        ) {
-//            FirebaseCrashlytics.getInstance().log("${priority.toPriorityChar()}/$tag: $message")
-//            if (priority >= Log.WARN && t != null) {
-//                FirebaseCrashlytics.getInstance().recordException(t)
-//            }
-//        }
-//
-//        private fun Int.toPriorityChar() = when (this) {
-//            Log.ASSERT, Log.ERROR -> 'E'
-//            Log.WARN -> 'W'
-//            Log.INFO -> 'I'
-//            Log.DEBUG -> 'D'
-//            else -> 'V'
-//        }
-//    }
+    ) = KermitLogger.e(message, t, tag)
 }

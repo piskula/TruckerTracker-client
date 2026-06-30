@@ -26,13 +26,10 @@ import net.openid.appauth.AuthState
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.ResponseTypeValues
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "UserAuthManager"
 
-@Singleton
-class AuthManagerImpl @Inject constructor(
+class AuthManagerImpl(
     private val currentActivityHelper: CurrentActivityHelper,
     private val connectivityManager: ConnectivityManager,
     private val openIdManager: OpenIdManager,

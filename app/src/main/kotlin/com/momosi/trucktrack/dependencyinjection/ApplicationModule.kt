@@ -1,17 +1,12 @@
 ﻿package com.momosi.trucktrack.dependencyinjection
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import com.momosi.trucktrack.ui.TruckTrackViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import javax.inject.Singleton
+import org.koin.core.module.dsl.viewModel
+import org.koin.dsl.module
 
-@InstallIn(SingletonComponent::class)
-@Module
-class ApplicationModule {
-    @Provides
-    @Singleton
-    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob())
+val applicationModule = module {
+    single { CoroutineScope(SupervisorJob()) }
+    viewModel { TruckTrackViewModel(get()) }
 }

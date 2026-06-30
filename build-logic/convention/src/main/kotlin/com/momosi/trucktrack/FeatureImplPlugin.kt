@@ -9,7 +9,7 @@ class FeatureImplPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         with(pluginManager) {
             apply("trucktrack.library")
-            apply("trucktrack.hilt")
+            apply("trucktrack.koin")
             apply("trucktrack.compose")
         }
 

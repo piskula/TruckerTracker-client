@@ -41,7 +41,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.momosi.trucktrack.core.issue.model.IssueHistoryType
@@ -61,15 +60,15 @@ import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
 import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 internal fun IssueDetailScreen(
     issueId: Long,
     onBack: (shouldReload: Boolean) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
-    viewModel: IssueDetailViewModel = hiltViewModel<IssueDetailViewModel, IssueDetailViewModel.Factory>(
-        creationCallback = { factory -> factory.create(issueId) },
-    ),
+    viewModel: IssueDetailViewModel = koinViewModel(parameters = { parametersOf(issueId) }),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     BackHandler(enabled = state.statusChanged) {

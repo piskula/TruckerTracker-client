@@ -37,7 +37,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.momosi.trucktrack.core.issue.model.IssuePriority
@@ -55,13 +54,14 @@ import com.momosi.trucktrack.core.vehicle.model.VehicleType
 import com.momosi.trucktrack.feature.issues.impl.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 internal fun CreateIssueScreen(
     onBack: () -> Unit,
     onIssueCreate: (Long) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
-    viewModel: CreateIssueViewModel = hiltViewModel(),
+    viewModel: CreateIssueViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

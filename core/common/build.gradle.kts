@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.trucktrack.library)
-    alias(libs.plugins.trucktrack.hilt)
+    alias(libs.plugins.trucktrack.koin)
 }
 
 android {
@@ -8,5 +8,5 @@ android {
 }
 
 dependencies {
-    implementation(libs.timber)
+    implementation(libs.kermit)
 }

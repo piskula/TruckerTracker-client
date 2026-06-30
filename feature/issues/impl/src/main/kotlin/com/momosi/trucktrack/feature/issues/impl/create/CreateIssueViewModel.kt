@@ -10,10 +10,7 @@ import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.vehicle.VehicleRepository
 import com.momosi.trucktrack.core.vehicle.model.Vehicle
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,12 +21,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 import kotlin.io.path.createTempFile
 
-@HiltViewModel
-class CreateIssueViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+class CreateIssueViewModel(
+    private val context: Context,
     private val vehicleRepository: VehicleRepository,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,

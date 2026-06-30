@@ -9,11 +9,8 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class AuthApi @Inject constructor() {
+class AuthApi {
 
     private val client: HttpClient by lazy {
         HttpClient(OkHttp) {
@@ -28,6 +25,5 @@ class AuthApi @Inject constructor() {
         }
     }
 
-    suspend fun getRealm(): RealmDto =
-        client.get("./").body()
+    suspend fun getRealm(): RealmDto = client.get("./").body()
 }

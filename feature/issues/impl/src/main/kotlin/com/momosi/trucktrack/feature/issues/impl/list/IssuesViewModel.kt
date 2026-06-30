@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +17,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class IssuesViewModel @Inject constructor(private val userRepository: UserRepository, private val issueRepository: IssueRepository) : ViewModel() {
+class IssuesViewModel(private val userRepository: UserRepository, private val issueRepository: IssueRepository) : ViewModel() {
 
     private val initialFilter: IssueFilter = when {
         userRepository.user.value?.isDualRole == true -> IssueFilter.DualRole.All
