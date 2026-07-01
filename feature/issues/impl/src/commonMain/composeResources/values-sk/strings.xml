@@ -5,7 +5,7 @@
     <string name="my_issues_retry">Skúsiť znova</string>
     <string name="my_issues_empty">Nenašli sa žiadne hlásenia</string>
     <string name="my_issues_filter_my_open">Moje otvorené</string>
-    <string name="my_issues_filter_my_closed">Uzatvorené</string>
+    <string name="my_issues_filter_my_closed">Moje uzatvorené</string>
     <string name="my_issues_filter_all">Všetky</string>
     <string name="my_issues_filter_my_issues">Moje hlásenia</string>
     <string name="my_issues_filter_open">Otvorené</string>
