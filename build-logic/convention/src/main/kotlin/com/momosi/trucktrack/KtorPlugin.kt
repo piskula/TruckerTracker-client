@@ -1,6 +1,8 @@
 package com.momosi.trucktrack
 
+import com.momosi.trucktrack.utils.androidMainDependencies
 import com.momosi.trucktrack.utils.commonMainDependencies
+import com.momosi.trucktrack.utils.iosMainDependencies
 import com.momosi.trucktrack.utils.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -15,6 +17,12 @@ class KtorPlugin : Plugin<Project> {
             implementation(libs.findLibrary("ktor-client-auth").get())
             implementation(libs.findLibrary("ktor-client-logging").get())
             implementation(libs.findLibrary("ktor-serialization-kotlinx-json").get())
+        }
+        androidMainDependencies {
+            implementation(libs.findLibrary("ktor-client-okhttp").get())
+        }
+        iosMainDependencies {
+            implementation(libs.findLibrary("ktor-client-darwin").get())
         }
     }
 }

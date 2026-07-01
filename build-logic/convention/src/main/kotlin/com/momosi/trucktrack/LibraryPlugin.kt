@@ -20,6 +20,12 @@ class LibraryPlugin : Plugin<Project> {
 
         extensions.configure<KotlinMultiplatformExtension> {
             jvmToolchain(21)
+
+            applyDefaultHierarchyTemplate()
+
+            iosArm64()
+            iosSimulatorArm64()
+
             targets.withType<KotlinMultiplatformAndroidLibraryTarget> {
                 compileSdk = CompileSdk
                 minSdk = MinSdk

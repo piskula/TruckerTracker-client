@@ -20,11 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CreateIssueViewModel(
-    private val vehicleRepository: VehicleRepository,
-    private val issueRepository: IssueRepository,
-    private val issueAttachmentRepository: IssueAttachmentRepository,
-) : ViewModel() {
+class CreateIssueViewModel(private val vehicleRepository: VehicleRepository, private val issueRepository: IssueRepository, private val issueAttachmentRepository: IssueAttachmentRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(CreateIssueState())
     val state: StateFlow<CreateIssueState> = _state.stateIn(

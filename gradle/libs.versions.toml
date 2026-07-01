@@ -68,6 +68,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
@@ -111,5 +112,5 @@ trucktrack-ktor = { id = "trucktrack.ktor" }
 
 [bundles]
 navigation3 = ["androidx-navigation3-runtime", "androidx-navigation3-ui", "androidx-lifecycle-viewmodel-navigation3"]
-ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-content-negotiation", "ktor-client-auth", "ktor-client-logging", "ktor-serialization-kotlinx-json"]
-koin = ["koin-core", "koin-android", "koin-androidx-compose"]
+ktor = ["ktor-client-core", "ktor-client-content-negotiation", "ktor-client-auth", "ktor-client-logging", "ktor-serialization-kotlinx-json"]
+koin = ["koin-core", "koin-compose-viewmodel"]

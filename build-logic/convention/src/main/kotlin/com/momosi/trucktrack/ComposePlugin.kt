@@ -1,5 +1,6 @@
 package com.momosi.trucktrack
 
+import com.momosi.trucktrack.utils.androidMainDependencies
 import com.momosi.trucktrack.utils.commonMainDependencies
 import com.momosi.trucktrack.utils.libs
 import org.gradle.api.Plugin
