@@ -3,13 +3,13 @@ package com.momosi.trucktrack.feature.issues.impl.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.core.common.formatter.DateFormatter
-import com.momosi.trucktrack.core.common.io.PhotoReader
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
+import io.github.vinceglb.filekit.core.PlatformFile
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 
 class IssueDetailViewModel(
     private val issueId: Long,
-    private val photoReader: PhotoReader,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
     private val userRepository: UserRepository,
@@ -42,7 +41,7 @@ class IssueDetailViewModel(
     fun onAction(action: IssueDetailAction) {
         when (action) {
             is IssueDetailAction.UpdateComment -> _state.update { it.copy(commentText = action.text) }
-            is IssueDetailAction.UploadPhoto -> uploadPhoto(action.uri)
+            is IssueDetailAction.UploadPhoto -> uploadPhoto(action.file)
             is IssueDetailAction.SendComment -> sendComment()
             is IssueDetailAction.Retry -> loadIssueDetail()
             is IssueDetailAction.StartWorking -> startWorking()
@@ -210,22 +209,30 @@ class IssueDetailViewModel(
         }
     }
 
-    private fun uploadPhoto(uri: String) {
+    private fun uploadPhoto(file: PlatformFile) {
         if (_state.value.isUploadingPhoto) return
         _state.update { it.copy(isUploadingPhoto = true) }
         viewModelScope.launch {
-            val photoData = photoReader.read(uri)
-            if (photoData != null) {
-                issueAttachmentRepository.uploadPhoto(
-                    issueId = issueId,
-                    fileName = photoData.fileName,
-                    fileBytes = photoData.bytes,
-                    contentType = photoData.mimeType,
-                )
-            }
+            issueAttachmentRepository.uploadPhoto(
+                issueId = issueId,
+                fileName = file.name,
+                fileBytes = file.readBytes(),
+                contentType = mimeTypeFromFileName(file.name),
+            )
             _state.update { it.copy(isUploadingPhoto = false) }
             loadPhotos()
         }
+    }
+
+    private fun mimeTypeFromFileName(fileName: String): String = when (
+        fileName.substringAfterLast('.', "").lowercase()
+    ) {
+        "jpg", "jpeg" -> "image/jpeg"
+        "png" -> "image/png"
+        "gif" -> "image/gif"
+        "webp" -> "image/webp"
+        "heic", "heif" -> "image/heic"
+        else -> "image/jpeg"
     }
     private fun Issue.toUi() = IssueUi(
         id = id,

@@ -1,9 +1,6 @@
 package com.momosi.trucktrack.feature.issues.impl.detail
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -84,6 +81,9 @@ import com.momosi.trucktrack.feature.issues.impl.resources.issue_status_done
 import com.momosi.trucktrack.feature.issues.impl.resources.issue_status_in_progress
 import com.momosi.trucktrack.feature.issues.impl.resources.issue_status_open
 import com.momosi.trucktrack.feature.issues.impl.resources.my_issues_retry
+import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.PlatformFile
+import io.github.vinceglb.filekit.core.PickerType
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -124,7 +124,7 @@ private fun IssueDetailScreenContent(
     onStartWorking: () -> Unit,
     onResolveIssue: () -> Unit,
     onReassignToMe: () -> Unit,
-    onUploadPhoto: (String) -> Unit,
+    onUploadPhoto: (PlatformFile) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -213,13 +213,13 @@ private fun LoadedContent(
     onStartWorking: () -> Unit,
     onResolveIssue: () -> Unit,
     onReassignToMe: () -> Unit,
-    onUploadPhoto: (String) -> Unit,
+    onUploadPhoto: (PlatformFile) -> Unit,
     onPhotoClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> uri?.let { onUploadPhoto(it.toString()) } },
+    val photoPickerLauncher = rememberFilePickerLauncher(
+        type = PickerType.Image,
+        onResult = { file -> file?.let { onUploadPhoto(it) } },
     )
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -255,9 +255,7 @@ private fun LoadedContent(
                 photosContent = photosContent,
                 isUploading = isUploadingPhoto,
                 onPhotoClick = onPhotoClick,
-                onAddPhoto = {
-                    photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                },
+                onAddPhoto = { photoPickerLauncher.launch() },
             )
         }
 

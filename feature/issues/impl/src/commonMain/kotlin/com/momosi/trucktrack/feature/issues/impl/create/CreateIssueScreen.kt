@@ -1,8 +1,5 @@
 package com.momosi.trucktrack.feature.issues.impl.create
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.momosi.trucktrack.core.common.io.PhotoData
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.Icon
@@ -70,12 +68,16 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.PickerMode
+import io.github.vinceglb.filekit.core.PickerType
+import com.momosi.trucktrack.feature.issues.impl.navigation.PhotoSource
 
 @Composable
 internal fun CreateIssueScreen(
     onBack: () -> Unit,
     onIssueCreate: (Long) -> Unit,
-    onNavigateToFullScreenPhoto: (String) -> Unit,
+    onNavigateToFullScreenPhoto: (PhotoSource) -> Unit,
     viewModel: CreateIssueViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -102,12 +104,13 @@ private fun CreateIssueContent(
     state: CreateIssueState,
     onAction: (CreateIssueAction) -> Unit,
     onBack: () -> Unit,
-    onNavigateToFullScreenPhoto: (String) -> Unit,
+    onNavigateToFullScreenPhoto: (PhotoSource) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(),
-        onResult = { uris -> if (uris.isNotEmpty()) onAction(CreateIssueAction.AddPhotos(uris.map { it.toString() })) },
+    val photoPickerLauncher = rememberFilePickerLauncher(
+        type = PickerType.Image,
+        mode = PickerMode.Multiple(),
+        onResult = { files -> if (!files.isNullOrEmpty()) onAction(CreateIssueAction.AddPhotos(files)) },
     )
 
     Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background)) {
@@ -154,18 +157,14 @@ private fun CreateIssueContent(
 
             Card(title = stringResource(Res.string.create_issue_photos)) {
                 PhotoUploadArea(
-                    onClick = {
-                        photoPickerLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                        )
-                    },
+                    onClick = { photoPickerLauncher.launch() },
                 )
-                if (state.photoUris.isNotEmpty()) {
+                if (state.photos.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(10.dp))
                     PhotoPreviews(
-                        uris = state.photoUris,
+                        photos = state.photos,
                         onRemove = { onAction(CreateIssueAction.RemovePhoto(it)) },
-                        onPhotoClick = { uri -> onNavigateToFullScreenPhoto(uri) },
+                        onPhotoClick = { onNavigateToFullScreenPhoto(PhotoSource.Bytes(it.bytes)) },
                     )
                 }
             }
@@ -447,9 +446,9 @@ private fun PhotoUploadArea(onClick: () -> Unit, modifier: Modifier = Modifier) 
 
 @Composable
 private fun PhotoPreviews(
-    uris: ImmutableList<String>,
+    photos: ImmutableList<PhotoData>,
     onRemove: (String) -> Unit,
-    onPhotoClick: (String) -> Unit,
+    onPhotoClick: (PhotoData) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyRow(
@@ -457,17 +456,17 @@ private fun PhotoPreviews(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(0.dp),
     ) {
-        items(count = uris.size, key = { uris[it] }) { index ->
-            val uri = uris[index]
+        items(count = photos.size, key = { photos[it].fileName }) { index ->
+            val photo = photos[index]
             Box(modifier = Modifier.size(72.dp)) {
                 AsyncImage(
-                    model = uri,
+                    model = photo.bytes,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(72.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { onPhotoClick(uri) },
+                        .clickable { onPhotoClick(photo) },
                 )
                 Box(
                     modifier = Modifier
@@ -475,7 +474,7 @@ private fun PhotoPreviews(
                         .padding(2.dp)
                         .size(18.dp)
                         .background(AppTheme.colors.onSurface.copy(alpha = 0.55f), CircleShape)
-                        .clickable { onRemove(uri) },
+                        .clickable { onRemove(photo.fileName) },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(

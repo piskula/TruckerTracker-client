@@ -30,7 +30,9 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
                 navigator.goBack()
                 navigator.navigate(IssueDetailNavKey(issueId))
             },
-            onNavigateToFullScreenPhoto = { uri -> navigator.navigate(FullScreenPhotoNavKey(uri)) },
+            onNavigateToFullScreenPhoto = { source ->
+                navigator.navigate(FullScreenPhotoNavKey(source))
+            },
         )
     }
     entry<IssueDetailNavKey> { key ->
@@ -40,12 +42,14 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
                 resultStore[IssueStatusChangedKey] = shouldReload
                 navigator.goBack()
             },
-            onNavigateToFullScreenPhoto = { url -> navigator.navigate(FullScreenPhotoNavKey(url)) },
+            onNavigateToFullScreenPhoto = { url ->
+                navigator.navigate(FullScreenPhotoNavKey(PhotoSource.Url(url)))
+            },
         )
     }
     entry<FullScreenPhotoNavKey> { key ->
         FullScreenPhotoScreen(
-            photoUri = key.photoUri,
+            source = key.source,
             onBack = navigator::goBack,
         )
     }

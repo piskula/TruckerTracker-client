@@ -16,15 +16,19 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.momosi.trucktrack.core.uilibrary.components.Icon
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
+import com.momosi.trucktrack.feature.issues.impl.navigation.PhotoSource
 
 @Composable
 internal fun FullScreenPhotoScreen(
-    photoUri: String,
+    source: PhotoSource,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     FullScreenPhoto(
-        model = photoUri,
+        model = when (source) {
+            is PhotoSource.Url -> source.url
+            is PhotoSource.Bytes -> source.bytes
+        },
         onDismiss = onBack,
         modifier = modifier,
     )
