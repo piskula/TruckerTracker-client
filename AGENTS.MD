@@ -224,15 +224,15 @@ The project has completed its **Kotlin Multiplatform** migration. All modules us
 
 ### Agent Skills
 
-Reusable step-by-step workflows are in `agents/skills/`. Use them for recurring tasks:
+Reusable step-by-step workflows are in `.claude/skills/`. Use them for recurring tasks:
 
 | Skill | When to use |
 |-------|-------------|
-| [`create-feature-module/SKILL.md`](agents/skills/create-feature-module/SKILL.md) | Scaffolding a new `feature/*/api` + `feature/*/impl` pair |
-| [`add-screen-to-feature/SKILL.md`](agents/skills/add-screen-to-feature/SKILL.md) | Adding a new screen (ViewModel + Composable + State/Action/Event) |
-| [`add-repository/SKILL.md`](agents/skills/add-repository/SKILL.md) | Adding a repository/manager to a `core/*` module |
+| [`create-feature-module/SKILL.md`](.claude/skills/create-feature-module/SKILL.md) | Scaffolding a new `feature/*/api` + `feature/*/impl` pair |
+| [`add-screen-to-feature/SKILL.md`](.claude/skills/add-screen-to-feature/SKILL.md) | Adding a new screen (ViewModel + Composable + State/Action/Event) |
+| [`add-repository/SKILL.md`](.claude/skills/add-repository/SKILL.md) | Adding a repository/manager to a `core/*` module |
 
-### What Lives in `commonMain` vs `androidMain`
+### What Lives in `commonMain` vs k`androidMain`
 
 | `commonMain` (shared) | `androidMain` (Android-only) |
 |------------------------|------------------------------|

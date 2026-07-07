@@ -10,9 +10,9 @@ Before writing any code, scan this table. If the task matches a trigger, **read 
 
 | Task type | Skill file |
 |-----------|-----------|
-| Creating a new feature (new `feature/*/api` + `feature/*/impl` pair) | [`agents/skills/create-feature-module/SKILL.md`](../agents/skills/create-feature-module/SKILL.md) |
-| Adding a new screen to an existing feature | [`agents/skills/add-screen-to-feature/SKILL.md`](../agents/skills/add-screen-to-feature/SKILL.md) |
-| Adding a repository or manager to a `core/*` module | [`agents/skills/add-repository/SKILL.md`](../agents/skills/add-repository/SKILL.md) |
+| Creating a new feature (new `feature/*/api` + `feature/*/impl` pair) | [`.claude/skills/create-feature-module/SKILL.md`](../.claude/skills/create-feature-module/SKILL.md) |
+| Adding a new screen to an existing feature | [`.claude/skills/add-screen-to-feature/SKILL.md`](../.claude/skills/add-screen-to-feature/SKILL.md) |
+| Adding a repository or manager to a `core/*` module | [`.claude/skills/add-repository/SKILL.md`](../.claude/skills/add-repository/SKILL.md) |
 
 > Each skill contains **Triggers** (when to use it), **Prerequisites**, **Steps**, and **Verification** checklists.
 > Always complete the Verification checklist before considering a skill done.
