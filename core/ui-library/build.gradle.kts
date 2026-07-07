@@ -19,5 +19,8 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(projects.core.common)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+        }
     }
 }

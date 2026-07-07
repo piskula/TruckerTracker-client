@@ -1,6 +1,6 @@
 # KMP iOS Readiness Analysis
 
-> Generated: 2026-07-01 · Updated: 2026-07-01
+> Generated: 2026-07-01 · Updated: 2026-07-07
 
 This document tracks what must still be resolved before the iOS target is fully functional.
 Items that have already been fixed are not listed here.
@@ -16,30 +16,18 @@ Items that have already been fixed are not listed here.
 - `koin-compose-viewmodel` moved to `commonMain` (KMP-compatible)
 - `actual fun httpClientEngineFactory()` — iOS impl returns `Darwin` engine
 - `actual fun createPlatformDateFormatter()` — iOS impl uses `NSDateFormatter`
+- `androidx.paging` (3.5.0) verified iOS-compatible — no library swap needed (2026-07-07)
+- `androidx.navigation3:navigation3-ui` swapped for the JetBrains multiplatform build; `core:navigation` now compiles clean for iOS (2026-07-07)
+- Android-only `androidx.compose.ui.tooling.preview.Preview` swapped for the multiplatform `org.jetbrains.compose.ui.tooling.preview.Preview` across 20 files in `core:ui-library` and 3 feature `impl` modules (2026-07-07)
+- `androidx.activity.compose.BackHandler` (Android-only) replaced with an `expect`/`actual` `BackHandler` in `core:ui-library`, Android delegating to the real one, iOS a no-op (2026-07-07)
+- `org.jetbrains.kotlin.plugin.serialization` now applied in `FeatureImplPlugin.kt` — `@Serializable` `NavKey`s defined in `impl` modules (not just `api`) now actually generate a `.serializer()` (2026-07-07)
+- **Result: every feature module (`feature:issues:impl`, `feature:sign-in:impl`, `feature:profile:impl`) and every `core` module now compiles clean for `iosArm64`/`iosSimulatorArm64`. Only `composeApp` itself remains blocked, by the two pre-existing items below (Koin `androidContext()` and missing iOS interface implementations) — unrelated to navigation, paging, or Preview.**
 
 ---
 
 ## Remaining Issues
 
-### 1 · `androidx.paging` KMP Artifact Verification
-
-**Severity:** 🔴 Blocker (if not KMP-compatible)
-
-`core:issue` and `feature:issues:impl` both declare `androidx.paging` in `commonMain`:
-
-| Module | Dependency |
-|--------|-----------|
-| `core:issue` | `libs.androidx.paging.common` in `commonMain` |
-| `feature:issues:impl` | `libs.androidx.paging.compose` in `commonMain` |
-
-`paging-common` has published KMP artifacts since 3.3.0 and should be fine at 3.5.0.
-`paging-compose` KMP support is less certain — verify it publishes `iosArm64` / `iosSimulatorArm64` variants.
-
-**Action:** Run `./gradlew :core:issue:compileKotlinIosArm64` and `:feature:issues:impl:compileKotlinIosArm64` once an iOS framework target is wired up. If resolution fails, migrate to [`app.cash.paging`](https://github.com/cashapp/multiplatform-paging) which is a drop-in KMP replacement.
-
----
-
-### 2 · Interface Implementations Missing for iOS (Koin-Wired)
+### 1 · Interface Implementations Missing for iOS (Koin-Wired)
 
 **Severity:** 🟡 High — Koin cannot satisfy these bindings on iOS without iOS implementations.
 
@@ -62,7 +50,7 @@ These interfaces have Android implementations in `androidMain` registered via Ko
 
 ---
 
-### 3 · Koin Initialization Uses `androidContext()`
+### 2 · Koin Initialization Uses `androidContext()`
 
 **Severity:** 🟡 High — `startKoin` will crash on iOS as-is.
 
@@ -87,7 +75,11 @@ Remove `androidContext()` from the shared call site — pass it only inside the 
 
 ---
 
-### 4 · iOS App Entry Point Does Not Exist
+Note: `AppModule.kt` in `composeApp` already fails to compile for iOS on exactly this — `commonModule`/`userModule` currently live entirely in `androidMain` (`core/common/.../di/CommonModule.kt`, `core/user/.../di/UserModule.kt`), not split as this doc originally assumed.
+
+---
+
+### 3 · iOS App Entry Point Does Not Exist
 
 **Severity:** 🟡 High — nothing can run on iOS without this.
 
@@ -114,7 +106,10 @@ struct iOSApp: App {
 
 ## Remaining Checklist
 
-- [ ] Verify `androidx.paging:paging-compose:3.5.0` publishes iOS artifacts (or migrate to `app.cash.paging`)
+- [x] Verify `androidx.paging` publishes iOS artifacts — confirmed 2026-07-07, see "What Already Works" below
+- [x] Replace `androidx.navigation3:navigation3-ui` with `org.jetbrains.androidx.navigation3:navigation3-ui` — done 2026-07-07, `core:navigation` compiles clean for iOS
+- [x] Fix Android-only `@Preview` import across `core:ui-library` and feature `impl` modules — done 2026-07-07
+- [x] Fix Android-only `BackHandler` in `IssueDetailScreen.kt` — done 2026-07-07, `core:ui-library.BackHandler` `expect`/`actual`
 - [ ] Replace `android.util.Base64` in `JwtParser` with `kotlin.io.encoding.Base64`
 - [ ] Implement iOS `UserStorage` — `NSUserDefaults` or Keychain
 - [ ] Implement iOS `ConnectivityManager` — `NWPathMonitor`
@@ -123,7 +118,7 @@ struct iOSApp: App {
 - [ ] Implement iOS `PhotoReader` — `PHPickerViewController` or abstract file picking
 - [ ] Split Koin initialization — `expect/actual platformModules()` pattern
 - [ ] Create `iosApp/` Xcode project with SwiftUI entry point
-- [ ] Run `./gradlew :composeApp:compileKotlinIosArm64` — verify shared code compiles clean
+- [ ] Run `./gradlew :composeApp:compileKotlinIosArm64` — currently fails only on items 1 and 2 above (Koin `androidContext()` + missing iOS interface impls)
 
 ---
 
@@ -135,9 +130,12 @@ struct iOSApp: App {
 - All screen Composables — Compose Multiplatform in `commonMain`
 - Ktor API clients and DTOs — engine abstracted via `expect/actual`
 - Navigation keys — `@Serializable` objects in `commonMain`
-- `core:ui-library` — theme, icons, components in `commonMain`
-- `core:navigation` — `Navigator`, `NavigationState` in `commonMain`
+- `core:ui-library` — theme, icons, components in `commonMain`; compiles clean for iOS
+- `core:navigation` (`Navigator`, `NavigationState`) — compiles clean for iOS after the `navigation3-ui` fix
 - Kermit logging via `Logger` — KMP-compatible
 - Coil 3 image loading — KMP-compatible
 - FileKit — KMP-compatible
 - Kotlinx Serialization, Coroutines, Collections Immutable — all KMP-compatible
+- **`androidx.paging` (3.5.0) — verified iOS-compatible (2026-07-07):** both `paging-common` and `paging-compose` publish real iOS klibs; `core:issue` and `feature:issues:impl` compile clean for iOS. No library swap needed — `app.cash.paging` (this doc's original fallback suggestion) is unnecessary and itself deprecated upstream in favor of the now-multiplatform `androidx.paging`.
+- **`androidx.navigation3:navigation3-ui` — fixed (2026-07-07):** Google's own artifact publishes no iOS variant at all (only `-android`); swapped to `org.jetbrains.androidx.navigation3:navigation3-ui:1.1.1` (a JetBrains multiplatform build depending on the same Google `navigation3-runtime`). This changed `core:navigation/NavigationState.kt`: the multiplatform build only exposes `rememberNavBackStack(SavedStateConfiguration, vararg keys)` — the reflection-based single-arg overload is JVM/Android-only. Added `composeApp/AppNavKeySerializers.kt` registering all `NavKey` subclasses via `polymorphic(NavKey::class)`.
+- **Every feature `impl` module (`feature:issues:impl`, `feature:sign-in:impl`, `feature:profile:impl`) compiles clean for iOS (2026-07-07)** after 3 fixes: the `navigation3-ui` swap above, the `@Preview` import fix, and the `BackHandler` `expect`/`actual`. `composeApp` itself is the only module still failing, and only on the two pre-existing items above.

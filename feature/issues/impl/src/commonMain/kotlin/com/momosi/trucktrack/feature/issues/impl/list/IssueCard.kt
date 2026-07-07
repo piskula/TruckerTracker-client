@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.momosi.trucktrack.core.common.formatter.DateFormatter
 import com.momosi.trucktrack.core.common.formatter.TimeAgo
@@ -47,6 +46,7 @@ import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_just_now
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_minutes
 import com.momosi.trucktrack.feature.issues.impl.resources.time_ago_yesterday
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.time.Clock
 import kotlin.time.Instant
 

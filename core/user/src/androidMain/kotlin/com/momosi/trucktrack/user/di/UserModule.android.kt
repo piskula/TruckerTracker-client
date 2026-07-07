@@ -12,10 +12,11 @@ import com.momosi.trucktrack.user.internal.USER_AUTH_STORAGE
 import com.momosi.trucktrack.user.internal.UserStorage
 import com.momosi.trucktrack.user.internal.UserStorageImpl
 import com.momosi.trucktrack.user.internal.api.AuthApi
+import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-val userModule = module {
+actual fun platformUserModule(): Module = module {
     single(named(USER_AUTH_STORAGE)) {
         get<Context>().getSharedPreferences(USER_AUTH_STORAGE, Context.MODE_PRIVATE)
     }

@@ -10,6 +10,7 @@ class FeatureImplPlugin : Plugin<Project> {
             apply("trucktrack.library")
             apply("trucktrack.koin")
             apply("trucktrack.compose")
+            apply("org.jetbrains.kotlin.plugin.serialization")
         }
 
         commonMainDependencies {

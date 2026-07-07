@@ -35,7 +35,10 @@ fun TruckTrackApp(modifier: Modifier = Modifier, viewModel: TruckTrackViewModel 
         }
     }
 
-    val navigationState = rememberNavigationState(startKey = startKey)
+    val navigationState = rememberNavigationState(
+        startKey = startKey,
+        savedStateConfiguration = appSavedStateConfiguration,
+    )
     val navigator = remember { Navigator(navigationState) }
     val resultStore = rememberResultStore()
 
