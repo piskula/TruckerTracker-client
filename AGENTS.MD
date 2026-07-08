@@ -20,7 +20,7 @@ Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
 
 * **`app:android`** — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`. Contains only Android entrypoints (`Application`, `Activity`). Depends on `app:shared`.
 * **`app:shared`** — Shared KMP app module. `TruckTrackApp` (root Composable), `TruckTrackViewModel`, `AppModule` (Koin wiring), `AppInitializer` (`startKoin`). Depends on all `core` and `feature` modules. Source in `src/commonMain/kotlin/`.
-* **`app:ios`** — (reserved, not yet created) iOS entry point. A separate Xcode/SwiftUI project consuming `app:shared`'s Kotlin/Native framework, not a Gradle module. See `docs/KMP_IOS_READINESS.md`.
+* **`app:ios`** — SwiftUI iOS entry point at `app/ios/iosApp.xcodeproj`. A separate Xcode project consuming `app:shared`'s Kotlin/Native `Shared.framework` via direct integration (Gradle's `embedAndSignAppleFrameworkForXcode`), not a Gradle module — not listed in `settings.gradle.kts`. See `docs/KMP_IOS_READINESS.md`.
 * **`feature`** (multiple modules) — UI screens and logic for each product feature. Always split into:
   * `api` — navigation keys only (`@Serializable` `NavKey` objects). Source in `src/commonMain/kotlin/`.
   * `impl` — ViewModel, screen Composables, state, actions, events. Source in `src/commonMain/kotlin/`.
@@ -217,7 +217,7 @@ Use these in module `build.gradle.kts` files:
 
 ## KMP Architecture
 
-The project has completed its **Kotlin Multiplatform** migration. All modules use KMP source sets. A full migration history is at `docs/KMP_MIGRATION_ANALYSIS.md`.
+The project has completed its **Kotlin Multiplatform** migration. All modules use KMP source sets. See `README.md` for the tech stack decisions, and `docs/KMP_IOS_READINESS.md` for known iOS-specific limitations and how to resolve them.
 
 ### Core Principle
 
