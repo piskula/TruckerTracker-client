@@ -1,7 +1,6 @@
 package com.momosi.trucktrack.core.common.di
 
 import android.content.Context
-import com.momosi.trucktrack.core.common.lifecycle.CurrentActivityHelper
 import com.momosi.trucktrack.core.common.network.ConnectivityManager
 import com.momosi.trucktrack.core.common.network.ConnectivityManagerImpl
 import org.koin.core.module.Module
@@ -10,5 +9,4 @@ import org.koin.dsl.module
 actual fun platformCommonModule(): Module = module {
     single { get<Context>().getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager }
     single<ConnectivityManager> { ConnectivityManagerImpl(get()) }
-    single { CurrentActivityHelper(get()) }
 }

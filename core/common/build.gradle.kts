@@ -12,8 +12,5 @@ kotlin {
             implementation(libs.kermit)
             implementation(libs.kotlinx.datetime)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-        }
     }
 }

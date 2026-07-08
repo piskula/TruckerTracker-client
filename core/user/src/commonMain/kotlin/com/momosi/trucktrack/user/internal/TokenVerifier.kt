@@ -3,14 +3,15 @@ package com.momosi.trucktrack.user.internal
 import com.momosi.trucktrack.core.common.coroutines.DispatcherProvider
 import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.user.internal.api.AuthApi
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
+import kotlinx.coroutines.withContext
+import org.publicvalue.multiplatform.oidc.types.Jwt
+import kotlin.io.encoding.Base64
 
 data class TokenVerificationException(override val message: String? = null, override val cause: Throwable? = null) : RuntimeException(message, cause)
 
-class TokenVerifier(private val jwtParser: JwtParser, private val userStorage: UserStorage, private val authApi: AuthApi, private val dispatcherProvider: DispatcherProvider) {
+class TokenVerifier(private val userStorage: UserStorage, private val authApi: AuthApi, private val dispatcherProvider: DispatcherProvider) {
 
-    internal suspend fun verifyToken(accessToken: String, refreshPublicKey: Boolean = false): Result<Jws<Claims>> = with(dispatcherProvider.io()) {
+    internal suspend fun verifyAndParse(accessToken: String, refreshPublicKey: Boolean = false): Result<Jwt> = withContext(dispatcherProvider.io()) {
         val currentPublicKey = userStorage.serverPublicKey
         val publicKey = if (refreshPublicKey || currentPublicKey == null) {
             runCatching {
@@ -24,20 +25,35 @@ class TokenVerifier(private val jwtParser: JwtParser, private val userStorage: U
             currentPublicKey
         }
 
-        return if (publicKey == null) {
+        if (publicKey == null) {
             Result.failure(TokenVerificationException("Public key for token verification is not available"))
         } else {
             runCatching {
-                jwtParser.verifyAndGetClaims(accessToken, publicKey)
+                verifySignature(accessToken, publicKey)
             }.recoverWith {
                 if (!refreshPublicKey) {
-                    verifyToken(accessToken, refreshPublicKey = true)
+                    verifyAndParse(accessToken, refreshPublicKey = true)
                 } else {
                     Result.failure(TokenVerificationException(cause = it))
                 }
             }
         }
     }
+}
+
+private val base64Url = Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT)
+
+private fun verifySignature(compactJwt: String, publicKeyPem: String): Jwt {
+    val jwt = Jwt.parse(compactJwt)
+    val signatureB64 = jwt.signature ?: throw TokenVerificationException("Token has no signature")
+    val signedData = compactJwt.substringBeforeLast('.').encodeToByteArray()
+    val signatureBytes = base64Url.decode(signatureB64)
+    val publicKeyDer = Base64.decode(publicKeyPem)
+
+    if (!verifyRs256(signedData = signedData, signature = signatureBytes, publicKeyDer = publicKeyDer)) {
+        throw TokenVerificationException("Invalid token signature")
+    }
+    return jwt
 }
 
 inline fun <T> Result<T>.recoverWith(transform: (Throwable) -> Result<T>): Result<T> = fold(

@@ -11,6 +11,7 @@ internal fun Project.configureKotlin() {
                 "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-opt-in=kotlinx.coroutines.FlowPreview",
                 "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
+                "-Xexplicit-backing-fields"
             )
         }
     }

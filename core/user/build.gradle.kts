@@ -11,13 +11,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.common)
-        }
-        androidMain.dependencies {
-            implementation(libs.appauth)
-            implementation(libs.jjwt.api)
-            runtimeOnly(libs.jjwt.impl)
-            runtimeOnly(libs.jjwt.gson)
-            implementation(libs.androidx.activity.compose)
+            implementation(libs.oidc.core)
+            api(libs.oidc.appsupport)
         }
     }
 }

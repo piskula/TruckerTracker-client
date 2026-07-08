@@ -18,7 +18,7 @@ android {
         versionCode = 1
         versionName = "dev"
 
-        manifestPlaceholders["appAuthRedirectScheme"] = "com.momosi.trucktrack"
+        manifestPlaceholders["oidcRedirectScheme"] = "com.momosi.trucktrack"
     }
 
     buildTypes {
@@ -56,6 +56,7 @@ dependencies {
     implementation(projects.app.shared)
     implementation(projects.core.common)
     implementation(projects.core.network)
+    implementation(projects.core.user)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.coil.compose)

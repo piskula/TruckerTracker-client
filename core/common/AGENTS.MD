@@ -1,14 +1,13 @@
 # core:common
 
-Base dependency for all other modules. Contains shared utilities with no business logic. KMP module with `commonMain` and `androidMain` source sets.
+Base dependency for all other modules. Contains shared utilities with no business logic. KMP module with `commonMain`, `androidMain`, and `iosMain` source sets.
 
 ## Public API
 
 | Symbol | Description |
 |--------|-------------|
 | `DispatcherProvider` | Coroutine dispatcher abstraction (`main`, `io`, `default`). Inject instead of hardcoding `Dispatchers.*`. |
-| `ConnectivityManager` | Interface in `commonMain`. `ConnectivityManagerImpl` is the Android impl in `androidMain`. Use the interface everywhere. |
-| `CurrentActivityHelper` | Provides the current `Activity` — used by `core:user` for OAuth browser launch. Android-only (`androidMain`). |
+| `ConnectivityManager` | Interface in `commonMain`. `ConnectivityManagerImpl` — Android impl (`android.net.ConnectivityManager`) in `androidMain`, iOS impl (`NWPathMonitor`) in `iosMain`. Use the interface everywhere. |
 | `Logger` | Kermit wrapper. Always use this, never call Kermit directly. |
 | `Page<T>` | Generic pagination model returned by all paginated repository calls. |
 
@@ -24,8 +23,10 @@ commonMain/
   di/CommonModule.kt               ← Koin bindings (common part)
 androidMain/
   network/ConnectivityManagerImpl.kt
-  lifecycle/CurrentActivityHelper.kt
-  di/AndroidCommonModule.kt        ← Koin bindings needing androidContext()
+  di/CommonModule.android.kt       ← Koin bindings needing androidContext()
+iosMain/
+  network/ConnectivityManagerImpl.kt ← NWPathMonitor-backed
+  di/CommonModule.ios.kt
 ```
 
 ## Depends On

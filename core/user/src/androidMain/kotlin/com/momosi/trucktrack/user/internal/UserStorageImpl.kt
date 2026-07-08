@@ -2,33 +2,27 @@ package com.momosi.trucktrack.user.internal
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.momosi.trucktrack.user.model.StoredTokens
 import com.momosi.trucktrack.user.model.User
 import com.momosi.trucktrack.user.model.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import net.openid.appauth.AuthState
+import kotlinx.serialization.json.Json
 
-const val USER_AUTH_STORAGE = "user_auth_storage"
-
-private const val AUTH_STATE = "auth_state"
+private const val TOKENS = "tokens"
 private const val SERVER_PUBLIC_KEY = "server_public_key"
 private const val USER_ID = "user_id"
 private const val USER_NAME = "user_name"
 private const val USER_EMAIL = "user_email"
 private const val USER_ROLES = "user_roles"
 
-interface UserStorage {
-    var authState: AuthState
-    var serverPublicKey: String?
-    var user: User?
-    val userFlow: StateFlow<User?>
-}
-
 class UserStorageImpl(private val authStorage: SharedPreferences) : UserStorage {
 
-    override var authState: AuthState
-        set(value) = authStorage.edit { putString(AUTH_STATE, value.jsonSerializeString()) }
-        get() = authStorage.getString(AUTH_STATE, null)?.let { AuthState.jsonDeserialize(it) } ?: AuthState()
+    override var tokens: StoredTokens?
+        set(value) = authStorage.edit {
+            if (value != null) putString(TOKENS, Json.encodeToString(value)) else remove(TOKENS)
+        }
+        get() = authStorage.getString(TOKENS, null)?.let { runCatching { Json.decodeFromString<StoredTokens>(it) }.getOrNull() }
 
     override var serverPublicKey: String?
         set(value) = authStorage.edit { putString(SERVER_PUBLIC_KEY, value) }
