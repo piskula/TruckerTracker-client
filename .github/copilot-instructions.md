@@ -13,6 +13,7 @@ Before writing any code, scan this table. If the task matches a trigger, **read 
 | Creating a new feature (new `feature/*/api` + `feature/*/impl` pair) | [`.claude/skills/create-feature-module/SKILL.md`](../.claude/skills/create-feature-module/SKILL.md) |
 | Adding a new screen to an existing feature | [`.claude/skills/add-screen-to-feature/SKILL.md`](../.claude/skills/add-screen-to-feature/SKILL.md) |
 | Adding a repository or manager to a `core/*` module | [`.claude/skills/add-repository/SKILL.md`](../.claude/skills/add-repository/SKILL.md) |
+| Running Spotless or fixing `spotlessCheck`/ktlint violations | [`.claude/skills/fix-spotless-issues/SKILL.md`](../.claude/skills/fix-spotless-issues/SKILL.md) |
 
 > Each skill contains **Triggers** (when to use it), **Prerequisites**, **Steps**, and **Verification** checklists.
 > Always complete the Verification checklist before considering a skill done.

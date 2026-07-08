@@ -232,6 +232,7 @@ Reusable step-by-step workflows are in `.claude/skills/`. Use them for recurring
 | [`create-feature-module/SKILL.md`](.claude/skills/create-feature-module/SKILL.md) | Scaffolding a new `feature/*/api` + `feature/*/impl` pair |
 | [`add-screen-to-feature/SKILL.md`](.claude/skills/add-screen-to-feature/SKILL.md) | Adding a new screen (ViewModel + Composable + State/Action/Event) |
 | [`add-repository/SKILL.md`](.claude/skills/add-repository/SKILL.md) | Adding a repository/manager to a `core/*` module |
+| [`fix-spotless-issues/SKILL.md`](.claude/skills/fix-spotless-issues/SKILL.md) | Running Spotless or fixing `spotlessCheck`/ktlint violations |
 
 ### What Lives in `commonMain` vs k`androidMain`
 
