@@ -103,3 +103,9 @@ lint/tmp/
 app/app-release.apk
 *google-services.json
 /.kotlin/metadata/kotlinTransformedMetadataLibraries
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/

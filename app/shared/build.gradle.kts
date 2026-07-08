@@ -12,6 +12,20 @@ kotlin {
     android {
         namespace = "com.momosi.trucktrack.app"
     }
+
+    iosArm64 {
+        binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
+    iosSimulatorArm64 {
+        binaries.framework {
+            baseName = "Shared"
+            isStatic = true
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(projects.core.common)
