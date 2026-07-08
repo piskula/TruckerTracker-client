@@ -1,6 +1,6 @@
 # KMP iOS Readiness Analysis
 
-> Generated: 2026-07-01 · Updated: 2026-07-07 (multiple passes)
+> Generated: 2026-07-01 · Updated: 2026-07-08 (multiple passes)
 
 This document tracks what must still be resolved before the iOS target is fully functional.
 Items that have already been fixed are not listed here.
@@ -37,7 +37,7 @@ These interfaces have Android implementations in `androidMain` registered via Ko
 
 | Interface | Android impl | iOS replacement |
 |-----------|-------------|-----------------|
-| `ConnectivityManager` (`core:common`) | `ConnectivityManagerImpl` — Android `ConnectivityManager` | `NWPathMonitor` (Network.framework) |
+| `ConnectivityManager` (`core:common`) | `ConnectivityManagerImpl` — Android `ConnectivityManager` | ✅ Done (2026-07-08) — `NWPathMonitor` (Network.framework) |
 | `CurrentActivityHelper` (`core:common`) | `Application.ActivityLifecycleCallbacks` | Not applicable as-is — `AuthManagerImpl` uses it purely to get a presentation anchor for the OAuth browser intent; the iOS OAuth rewrite (below) needs a UIWindow-based equivalent instead, not a direct port |
 | `AuthManager` (`core:user`) | `AuthManagerImpl` — AppAuth (`net.openid:appauth`) | `ASWebAuthenticationSession` (AuthenticationServices.framework) |
 | `UserStorage` (`core:user`) | `UserStorageImpl` — `SharedPreferences` | Interface currently exposes `net.openid.appauth.AuthState` directly (`var authState: AuthState`) — Android-only AppAuth type. Needs a platform-neutral token model before an iOS impl (`NSUserDefaults`/Keychain) is even possible |
@@ -87,7 +87,7 @@ struct iOSApp: App {
 - [x] Remove dead `PhotoReader`/`PhotoReaderImpl` — done 2026-07-07 (was unused; not a real iOS gap)
 - [x] Run `./gradlew :app:shared:compileKotlinIosArm64` — passes as of 2026-07-07 (compile-clean only, see note above — not yet functional on iOS)
 - [ ] Redesign `UserStorage` interface to drop the `AuthState` (AppAuth) leak, then implement iOS `UserStorage` — `NSUserDefaults` or Keychain
-- [ ] Implement iOS `ConnectivityManager` — `NWPathMonitor`
+- [x] Implement iOS `ConnectivityManager` — `NWPathMonitor` — done 2026-07-08
 - [ ] Implement `JwtParser` RSA-SHA256 verification via `expect`/`actual` (jjwt is JVM-only)
 - [ ] Implement iOS `AuthManager` / `OpenIdManager` — `ASWebAuthenticationSession`; replace `CurrentActivityHelper` with a UIWindow-based presentation anchor for iOS
 - [ ] Create `app/ios/` Xcode project with SwiftUI entry point
@@ -113,3 +113,4 @@ struct iOSApp: App {
 - **Every feature `impl` module (`feature:issues:impl`, `feature:sign-in:impl`, `feature:profile:impl`) compiles clean for iOS (2026-07-07)** after 3 fixes: the `navigation3-ui` swap above, the `@Preview` import fix, and the `BackHandler` `expect`/`actual`.
 - **`app:shared` compiles clean for iOS too (2026-07-07)**, via `expect fun platformCommonModule()`/`platformUserModule(): Module` in `core:common`/`core:user` (Android `actual` = full existing bindings, iOS `actual` = empty module for now). `initKoin()` in `app/shared/AppInitializer.kt` was already correctly designed — `androidContext()` is passed in via a caller-supplied `platformConfig` lambda from `app:android`, not hardcoded in shared code, so nothing needed to change there.
 - Full Android build (`:app:android:assembleDebug`) verified unaffected by all of the above changes.
+- **iOS `ConnectivityManager` — implemented (2026-07-08):** `core/common/src/iosMain/.../network/ConnectivityManagerImpl.kt` uses `NWPathMonitor` (`platform.Network` cinterop, ships with the Kotlin/Native distribution — no Xcode invocation needed at compile time). Wifi/cellular detection via `nw_path_uses_interface_type`; `isNetworkConnectionMetered` maps to `nw_path_is_expensive` (the standard iOS proxy for "metered", covering cellular + Personal Hotspot). Wired into `platformCommonModule()` in `CommonModule.ios.kt`. Verified with `./gradlew :core:common:compileKotlinIosArm64 :core:common:compileKotlinIosSimulatorArm64 :core:common:compileAndroidMain` — all three clean, no warnings.
