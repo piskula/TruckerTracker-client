@@ -17,7 +17,7 @@ Load this skill when the task matches **any** of these:
 ## Prerequisites
 
 - `settings.gradle.kts` is accessible — the new module paths must be added there
-- `composeApp/build.gradle.kts` and `composeApp/src/commonMain/kotlin/.../app/di/AppModule.kt` are accessible for wiring
+- `app/shared/build.gradle.kts` and `app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt` are accessible for wiring
 
 ## Steps
 
@@ -140,16 +140,16 @@ Add to the `include(...)` block:
 ":feature:<name>:impl",
 ```
 
-### 9. Wire into `composeApp`
+### 9. Wire into `app:shared`
 
-In `composeApp/build.gradle.kts`, add to `commonMain.dependencies`:
+In `app/shared/build.gradle.kts`, add to `commonMain.dependencies`:
 ```kotlin
 implementation(projects.feature.<name>.impl)
 ```
 
-In `composeApp/src/commonMain/kotlin/.../app/di/AppModule.kt`, add `<name>Module` to the modules list.
+In `app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt`, add `<name>Module` to the modules list.
 
-In `composeApp/src/commonMain/kotlin/.../app/TruckTrackApp.kt`, call `<name>Entries(navigator)` inside the `entryProvider` block.
+In `app/shared/src/commonMain/kotlin/.../app/TruckTrackApp.kt`, call `<name>Entries(navigator)` inside the `entryProvider` block.
 
 ### 10. Create module AGENTS.MD files
 
@@ -161,7 +161,7 @@ Document the nav keys, screens, and dependencies. See existing modules for examp
 - [ ] `feature/<name>/api/` contains `build.gradle.kts` and one `*NavKey.kt` in `src/commonMain/kotlin/`
 - [ ] `feature/<name>/impl/` contains `build.gradle.kts`, at least one screen package, an `EntryProvider`, and a Koin module — all in `src/commonMain/kotlin/`
 - [ ] Both module paths appear in `settings.gradle.kts`
-- [ ] `composeApp/build.gradle.kts` references `projects.feature.<name>.impl`
+- [ ] `app/shared/build.gradle.kts` references `projects.feature.<name>.impl`
 - [ ] `AppModule.kt` includes the new Koin module
 - [ ] `TruckTrackApp.kt` calls the new `<name>Entries(navigator)`
 - [ ] `./gradlew :feature:<name>:impl:assembleDebug` passes

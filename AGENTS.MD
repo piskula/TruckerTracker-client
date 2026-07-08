@@ -18,8 +18,9 @@ Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
 
 ### Modules
 
-* **`androidApp`** — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`. Contains only Android entrypoints (`Application`, `Activity`). Depends on `composeApp`.
-* **`composeApp`** — Shared KMP app module. `TruckTrackApp` (root Composable), `TruckTrackViewModel`, `AppModule` (Koin wiring), `AppInitializer` (`startKoin`). Depends on all `core` and `feature` modules. Source in `src/commonMain/kotlin/`.
+* **`app:android`** — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`. Contains only Android entrypoints (`Application`, `Activity`). Depends on `app:shared`.
+* **`app:shared`** — Shared KMP app module. `TruckTrackApp` (root Composable), `TruckTrackViewModel`, `AppModule` (Koin wiring), `AppInitializer` (`startKoin`). Depends on all `core` and `feature` modules. Source in `src/commonMain/kotlin/`.
+* **`app:ios`** — (reserved, not yet created) iOS entry point. A separate Xcode/SwiftUI project consuming `app:shared`'s Kotlin/Native framework, not a Gradle module. See `docs/KMP_IOS_READINESS.md`.
 * **`feature`** (multiple modules) — UI screens and logic for each product feature. Always split into:
   * `api` — navigation keys only (`@Serializable` `NavKey` objects). Source in `src/commonMain/kotlin/`.
   * `impl` — ViewModel, screen Composables, state, actions, events. Source in `src/commonMain/kotlin/`.
@@ -38,8 +39,8 @@ Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
 * `feature/*/api` — depends only on `:core:navigation`. Contains only `NavKey` objects. No business logic.
 * `feature/*/impl` — depends on its own `api` module + any `core` modules needed. No cross-feature dependencies.
 * `core` modules — may depend on other `core` modules in a directed acyclic graph. Never depend on `feature` modules.
-* `composeApp` — depends on all `feature/*/impl` and all `core` modules. The shared wiring point.
-* `androidApp` — depends on `composeApp`, `core:common`, `core:network`. Thin Android shell only.
+* `app:shared` — depends on all `feature/*/impl` and all `core` modules. The shared wiring point.
+* `app:android` — depends on `app:shared`, `core:common`, `core:network`. Thin Android shell only.
 
 ### Package Structure
 
@@ -125,7 +126,7 @@ One package per feature screen. Keep related files together:
 ### UI Library
 
 * All reusable Compose components must live in `:core:ui-library`.
-* Feature and `composeApp` modules must **not** import `androidx.compose.material3` directly. Use only `androidx.compose.foundation`, `androidx.compose.ui`, and components from `:core:ui-library`.
+* Feature and `app:shared` modules must **not** import `androidx.compose.material3` directly. Use only `androidx.compose.foundation`, `androidx.compose.ui`, and components from `:core:ui-library`.
 * Theme access via `AppTheme` (colors, typography, shapes) provided exclusively by `:core:ui-library`.
 
 ### Compose Stability

@@ -166,7 +166,7 @@ val <module>Module = module {
 
 ### 8. Register in `AppModule` (new Koin module files only)
 
-If this is a new `val xxxModule`, add it to `composeApp/src/commonMain/kotlin/.../app/di/AppModule.kt`.
+If this is a new `val xxxModule`, add it to `app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt`.
 If adding to an existing module file, no app-level change is needed.
 
 ### 9. Update `core/<module>/AGENTS.MD`

@@ -20,8 +20,8 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "TruckTrack"
 include(
-    ":androidApp",
-    ":composeApp",
+    ":app:android",
+    ":app:shared",
     ":core:common",
     ":core:ui-library",
     ":core:navigation",

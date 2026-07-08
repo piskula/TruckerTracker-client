@@ -28,7 +28,7 @@ commonMain/
 ## Usage Pattern
 
 ```kotlin
-// In composeApp's TruckTrackApp
+// In app:shared's TruckTrackApp
 val navState = rememberNavigationState(startKey = SignInNavKey)
 val navigator = remember { Navigator(navState) }
 

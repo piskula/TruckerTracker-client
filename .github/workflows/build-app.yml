@@ -28,10 +28,15 @@ jobs:
                 run: chmod +x gradlew
 
             -   name: Build Debug APK
-                run: ./gradlew :androidApp:assembleDebug
+                run: ./gradlew :app:android:assembleDebug
 
             -   name: Rename APK
-                run: mv androidApp/build/outputs/apk/debug/androidApp-debug.apk androidApp/build/outputs/apk/debug/truck-track.apk
+                run: mv app/android/build/outputs/apk/debug/android-debug.apk app/android/build/outputs/apk/debug/truck-track.apk
+
+            -   name: Delete previous latest release
+                run: gh release delete latest --yes --cleanup-tag || true
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             -   name: Publish latest pre-release
                 uses: softprops/action-gh-release@v2
@@ -39,6 +44,6 @@ jobs:
                     tag_name: latest
                     name: Latest Debug Build
                     prerelease: true
-                    files: androidApp/build/outputs/apk/debug/truck-track.apk
+                    files: app/android/build/outputs/apk/debug/truck-track.apk
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

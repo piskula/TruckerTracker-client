@@ -64,8 +64,10 @@ gradle/libs.versions.toml All dependency versions and bundles — always add lib
 settings.gradle.kts       Module include list — add new modules here
 gradle.properties         JVM heap (4g), parallel, config-cache, caching enabled
 
-androidApp/               Thin Android shell: Application, Activity
-composeApp/               Shared KMP app: root Composable, Koin wiring, AppInitializer
+app/
+  android/                Thin Android shell: Application, Activity
+  shared/                 Shared KMP app: root Composable, Koin wiring, AppInitializer
+  ios/                    (reserved) iOS Xcode/SwiftUI entry point — not a Gradle module
 core/
   common/                 Logger (Kermit), DispatcherProvider, ConnectivityManager, Page<T>
   network/                Ktor HttpClient setup, PageDto, PageDtoMapper
@@ -92,13 +94,13 @@ All modules use KMP source sets (`src/commonMain/kotlin/`, `src/androidMain/kotl
 - `feature/*/api` → only `:core:navigation`
 - `feature/*/impl` → own `api` + any `core/*`
 - `core/*` → other `core/*` (DAG only, never `feature`)
-- `composeApp` → all `core/*` + all `feature/*/impl`
-- `androidApp` → `composeApp` + `core:common` + `core:network`
+- `app:shared` → all `core/*` + all `feature/*/impl`
+- `app:android` → `app:shared` + `core:common` + `core:network`
 
 ### Adding a new module — required steps
 1. Create `build.gradle.kts` with a `trucktrack.*` convention plugin
 2. Add `":module:path"` to `settings.gradle.kts` include block
-3. Register Koin module in `composeApp`'s `AppModule` if needed
+3. Register Koin module in `app:shared`'s `AppModule` if needed
 
 ### Convention plugins (in `build.gradle.kts`)
 | Plugin | Use for |
@@ -117,7 +119,7 @@ All modules use KMP source sets (`src/commonMain/kotlin/`, `src/androidMain/kotl
 - Compose `@Preview` functions must not use past-tense names (`onXxxClicked` → `onXxx`)
 
 ### Critical patterns
-- **Never import `androidx.compose.material3` in feature or composeApp modules** — use `:core:ui-library` components only
+- **Never import `androidx.compose.material3` in feature or app:shared modules** — use `:core:ui-library` components only
 - **Never throw across public interfaces** — return `Result<T>`, `T?`, or `List<T>`
 - **State data classes must be `@Immutable`** — use `ImmutableList` / `persistentListOf` for list fields
 - **ViewModels use Koin** — declare with `viewModel { }` in Koin modules, inject via `koinViewModel()` in Composables

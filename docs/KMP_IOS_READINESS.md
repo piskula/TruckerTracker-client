@@ -1,6 +1,6 @@
 # KMP iOS Readiness Analysis
 
-> Generated: 2026-07-01 · Updated: 2026-07-07
+> Generated: 2026-07-01 · Updated: 2026-07-07 (multiple passes)
 
 This document tracks what must still be resolved before the iOS target is fully functional.
 Items that have already been fixed are not listed here.
@@ -21,7 +21,9 @@ Items that have already been fixed are not listed here.
 - Android-only `androidx.compose.ui.tooling.preview.Preview` swapped for the multiplatform `org.jetbrains.compose.ui.tooling.preview.Preview` across 20 files in `core:ui-library` and 3 feature `impl` modules (2026-07-07)
 - `androidx.activity.compose.BackHandler` (Android-only) replaced with an `expect`/`actual` `BackHandler` in `core:ui-library`, Android delegating to the real one, iOS a no-op (2026-07-07)
 - `org.jetbrains.kotlin.plugin.serialization` now applied in `FeatureImplPlugin.kt` — `@Serializable` `NavKey`s defined in `impl` modules (not just `api`) now actually generate a `.serializer()` (2026-07-07)
-- **Result: every feature module (`feature:issues:impl`, `feature:sign-in:impl`, `feature:profile:impl`) and every `core` module now compiles clean for `iosArm64`/`iosSimulatorArm64`. Only `composeApp` itself remains blocked, by the two pre-existing items below (Koin `androidContext()` and missing iOS interface implementations) — unrelated to navigation, paging, or Preview.**
+- `PhotoReader`/`PhotoReaderImpl` (`core:common`) deleted — turned out to be dead code, never bound in Koin and never called anywhere; actual photo reading already goes through FileKit's `PlatformFile.readBytes()` directly. `PhotoData` (the data class, genuinely used) kept and moved to `PhotoData.kt` (2026-07-07)
+- Koin `commonModule`/`userModule` split via `expect fun platformCommonModule(): Module` / `expect fun platformUserModule(): Module` — `core:common` and `core:user` each now have a pure `commonMain` module plus a per-platform `actual`. Android's `actual` carries the exact previous bindings (`ConnectivityManager`, `CurrentActivityHelper`, the whole auth stack); iOS's `actual` is an empty module for now, since none of those interfaces have iOS implementations yet (2026-07-07)
+- **Result: `app:shared` itself now also compiles clean for `iosArm64`/`iosSimulatorArm64`, along with every feature module and every `core` module. This is compile-clean only — the iOS module list is missing bindings for `ConnectivityManager`, `AuthManager`, `UserRepository`, etc. (empty `platformCommonModule()`/`platformUserModule()`), and there's still no `app/ios/` entry point to actually run it (item 2 below). Getting the app running on iOS still needs items 1 and 2.**
 
 ---
 
@@ -36,56 +38,27 @@ These interfaces have Android implementations in `androidMain` registered via Ko
 | Interface | Android impl | iOS replacement |
 |-----------|-------------|-----------------|
 | `ConnectivityManager` (`core:common`) | `ConnectivityManagerImpl` — Android `ConnectivityManager` | `NWPathMonitor` (Network.framework) |
-| `PhotoReader` (`core:common`) | `PhotoReaderImpl` — `android.content.Context` + `android.net.Uri` | `NSFileManager` / `PHPickerViewController` |
-| `CurrentActivityHelper` (`core:common`) | `Application.ActivityLifecycleCallbacks` | Not applicable — hide behind `expect/actual` with iOS no-op or remove from shared interface |
+| `CurrentActivityHelper` (`core:common`) | `Application.ActivityLifecycleCallbacks` | Not applicable as-is — `AuthManagerImpl` uses it purely to get a presentation anchor for the OAuth browser intent; the iOS OAuth rewrite (below) needs a UIWindow-based equivalent instead, not a direct port |
 | `AuthManager` (`core:user`) | `AuthManagerImpl` — AppAuth (`net.openid:appauth`) | `ASWebAuthenticationSession` (AuthenticationServices.framework) |
-| `UserStorage` (`core:user`) | `UserStorageImpl` — `SharedPreferences` | `NSUserDefaults` or iOS Keychain |
-| JWT parsing (`core:user`) | `JwtParser` — `android.util.Base64` | Replace with `kotlin.io.encoding.Base64` (stdlib, KMP-compatible) — quickest fix |
+| `UserStorage` (`core:user`) | `UserStorageImpl` — `SharedPreferences` | Interface currently exposes `net.openid.appauth.AuthState` directly (`var authState: AuthState`) — Android-only AppAuth type. Needs a platform-neutral token model before an iOS impl (`NSUserDefaults`/Keychain) is even possible |
+| JWT verification (`core:user`) | `JwtParser` — RSA-SHA256 signature verification via `io.jsonwebtoken` (jjwt) | jjwt is JVM-only, no KMP port. Not just a `Base64` swap (that part's a one-liner) — needs a real `expect`/`actual` crypto implementation |
 | `OpenIdManager` (`core:user`) | Android `Activity`, `PendingIntent`, `Intent` | Full reimplementation with `ASWebAuthenticationSession` |
 
 **Estimated effort:**
-- **Low:** `JwtParser` — swap `android.util.Base64` for `kotlin.io.encoding.Base64`
-- **Medium:** `UserStorage` (`NSUserDefaults`), `ConnectivityManager` (`NWPathMonitor`), `CurrentActivityHelper` (no-op)
-- **High:** `AuthManager` / `OpenIdManager` — entire OAuth browser flow needs reimplementation
+- **Medium:** `ConnectivityManager` (`NWPathMonitor`)
+- **High:** `UserStorage` interface redesign (drop the `AuthState` leak) + iOS impl; `JwtParser` crypto (`expect`/`actual` RSA-SHA256 verify); `AuthManager`/`OpenIdManager`/`CurrentActivityHelper` — entire OAuth browser flow needs reimplementation on `ASWebAuthenticationSession`, untestable here without an iOS simulator
+
+`PhotoReader` removed from this table — see "What Was Already Fixed" above (it was dead code, not a real gap).
 
 ---
 
-### 2 · Koin Initialization Uses `androidContext()`
-
-**Severity:** 🟡 High — `startKoin` will crash on iOS as-is.
-
-`androidApp/.../TruckTrack.kt` calls `androidContext(this)` inside `startKoin { }`.
-`core/common/src/androidMain/.../CommonModule.kt` and `core/user/src/androidMain/.../UserModule.kt` use `get<Context>()`.
-
-**Fix:** Introduce `expect/actual` for platform Koin modules:
-
-```kotlin
-// commonMain
-expect fun platformModules(): List<Module>
-
-// androidMain
-actual fun platformModules() = listOf(commonAndroidModule, userAndroidModule)
-
-// iosMain
-actual fun platformModules() = listOf(commonIosModule, userIosModule)
-```
-
-Call `startKoin { modules(sharedModules + platformModules()) }` from `AppInitializer` in `commonMain`.
-Remove `androidContext()` from the shared call site — pass it only inside the Android-specific module.
-
----
-
-Note: `AppModule.kt` in `composeApp` already fails to compile for iOS on exactly this — `commonModule`/`userModule` currently live entirely in `androidMain` (`core/common/.../di/CommonModule.kt`, `core/user/.../di/UserModule.kt`), not split as this doc originally assumed.
-
----
-
-### 3 · iOS App Entry Point Does Not Exist
+### 2 · iOS App Entry Point Does Not Exist
 
 **Severity:** 🟡 High — nothing can run on iOS without this.
 
-`androidApp/` is the Android shell. There is no `iosApp/` equivalent.
+`app/android/` is the Android shell. There is no `app/ios/` equivalent.
 
-**Fix:** Create an `iosApp/` Xcode project with a SwiftUI `App` entry point that calls into `composeApp` via the Compose Multiplatform iOS integration:
+**Fix:** Create an `app/ios/` Xcode project with a SwiftUI `App` entry point that calls into `app:shared` via the Compose Multiplatform iOS integration:
 
 ```swift
 import ComposeApp
@@ -100,7 +73,7 @@ struct iOSApp: App {
 }
 ```
 
-`ContentView` wraps `TruckTrackApp` exposed as a Kotlin/Native framework from `composeApp`.
+`ContentView` wraps `TruckTrackApp` exposed as a Kotlin/Native framework from `app:shared`.
 
 ---
 
@@ -110,15 +83,14 @@ struct iOSApp: App {
 - [x] Replace `androidx.navigation3:navigation3-ui` with `org.jetbrains.androidx.navigation3:navigation3-ui` — done 2026-07-07, `core:navigation` compiles clean for iOS
 - [x] Fix Android-only `@Preview` import across `core:ui-library` and feature `impl` modules — done 2026-07-07
 - [x] Fix Android-only `BackHandler` in `IssueDetailScreen.kt` — done 2026-07-07, `core:ui-library.BackHandler` `expect`/`actual`
-- [ ] Replace `android.util.Base64` in `JwtParser` with `kotlin.io.encoding.Base64`
-- [ ] Implement iOS `UserStorage` — `NSUserDefaults` or Keychain
+- [x] Split Koin initialization — `expect fun platformCommonModule()`/`platformUserModule(): Module` pattern — done 2026-07-07 (iOS actuals are empty modules for now, see item 1)
+- [x] Remove dead `PhotoReader`/`PhotoReaderImpl` — done 2026-07-07 (was unused; not a real iOS gap)
+- [x] Run `./gradlew :app:shared:compileKotlinIosArm64` — passes as of 2026-07-07 (compile-clean only, see note above — not yet functional on iOS)
+- [ ] Redesign `UserStorage` interface to drop the `AuthState` (AppAuth) leak, then implement iOS `UserStorage` — `NSUserDefaults` or Keychain
 - [ ] Implement iOS `ConnectivityManager` — `NWPathMonitor`
-- [ ] Handle `CurrentActivityHelper` on iOS — no-op `expect/actual` or remove from shared interface
-- [ ] Implement iOS `AuthManager` / `OpenIdManager` — `ASWebAuthenticationSession`
-- [ ] Implement iOS `PhotoReader` — `PHPickerViewController` or abstract file picking
-- [ ] Split Koin initialization — `expect/actual platformModules()` pattern
-- [ ] Create `iosApp/` Xcode project with SwiftUI entry point
-- [ ] Run `./gradlew :composeApp:compileKotlinIosArm64` — currently fails only on items 1 and 2 above (Koin `androidContext()` + missing iOS interface impls)
+- [ ] Implement `JwtParser` RSA-SHA256 verification via `expect`/`actual` (jjwt is JVM-only)
+- [ ] Implement iOS `AuthManager` / `OpenIdManager` — `ASWebAuthenticationSession`; replace `CurrentActivityHelper` with a UIWindow-based presentation anchor for iOS
+- [ ] Create `app/ios/` Xcode project with SwiftUI entry point
 
 ---
 
@@ -137,5 +109,7 @@ struct iOSApp: App {
 - FileKit — KMP-compatible
 - Kotlinx Serialization, Coroutines, Collections Immutable — all KMP-compatible
 - **`androidx.paging` (3.5.0) — verified iOS-compatible (2026-07-07):** both `paging-common` and `paging-compose` publish real iOS klibs; `core:issue` and `feature:issues:impl` compile clean for iOS. No library swap needed — `app.cash.paging` (this doc's original fallback suggestion) is unnecessary and itself deprecated upstream in favor of the now-multiplatform `androidx.paging`.
-- **`androidx.navigation3:navigation3-ui` — fixed (2026-07-07):** Google's own artifact publishes no iOS variant at all (only `-android`); swapped to `org.jetbrains.androidx.navigation3:navigation3-ui:1.1.1` (a JetBrains multiplatform build depending on the same Google `navigation3-runtime`). This changed `core:navigation/NavigationState.kt`: the multiplatform build only exposes `rememberNavBackStack(SavedStateConfiguration, vararg keys)` — the reflection-based single-arg overload is JVM/Android-only. Added `composeApp/AppNavKeySerializers.kt` registering all `NavKey` subclasses via `polymorphic(NavKey::class)`.
-- **Every feature `impl` module (`feature:issues:impl`, `feature:sign-in:impl`, `feature:profile:impl`) compiles clean for iOS (2026-07-07)** after 3 fixes: the `navigation3-ui` swap above, the `@Preview` import fix, and the `BackHandler` `expect`/`actual`. `composeApp` itself is the only module still failing, and only on the two pre-existing items above.
+- **`androidx.navigation3:navigation3-ui` — fixed (2026-07-07):** Google's own artifact publishes no iOS variant at all (only `-android`); swapped to `org.jetbrains.androidx.navigation3:navigation3-ui:1.1.1` (a JetBrains multiplatform build depending on the same Google `navigation3-runtime`). This changed `core:navigation/NavigationState.kt`: the multiplatform build only exposes `rememberNavBackStack(SavedStateConfiguration, vararg keys)` — the reflection-based single-arg overload is JVM/Android-only. Added `app/shared/AppNavKeySerializers.kt` registering all `NavKey` subclasses via `polymorphic(NavKey::class)`.
+- **Every feature `impl` module (`feature:issues:impl`, `feature:sign-in:impl`, `feature:profile:impl`) compiles clean for iOS (2026-07-07)** after 3 fixes: the `navigation3-ui` swap above, the `@Preview` import fix, and the `BackHandler` `expect`/`actual`.
+- **`app:shared` compiles clean for iOS too (2026-07-07)**, via `expect fun platformCommonModule()`/`platformUserModule(): Module` in `core:common`/`core:user` (Android `actual` = full existing bindings, iOS `actual` = empty module for now). `initKoin()` in `app/shared/AppInitializer.kt` was already correctly designed — `androidContext()` is passed in via a caller-supplied `platformConfig` lambda from `app:android`, not hardcoded in shared code, so nothing needed to change there.
+- Full Android build (`:app:android:assembleDebug`) verified unaffected by all of the above changes.

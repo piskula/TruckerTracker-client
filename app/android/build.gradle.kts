@@ -53,7 +53,7 @@ kotlin {
 }
 
 dependencies {
-    implementation(projects.composeApp)
+    implementation(projects.app.shared)
     implementation(projects.core.common)
     implementation(projects.core.network)
 

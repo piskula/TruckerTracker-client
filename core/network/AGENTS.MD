@@ -6,7 +6,7 @@ Provides the shared HTTP client (Ktor) and pagination DTO infrastructure used by
 
 | Symbol | Description |
 |--------|-------------|
-| `NetworkModule` | Koin module that provides the configured `HttpClient`. Registered in `composeApp`'s `AppModule`. |
+| `NetworkModule` | Koin module that provides the configured `HttpClient`. Registered in `app:shared`'s `AppModule`. |
 | `PageDto<T>` | Kotlinx Serialization DTO for paginated API responses. |
 | `PageDtoMapper` | Maps `PageDto<T>` → `Page<T>` (domain model from `core:common`). |
 
