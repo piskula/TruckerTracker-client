@@ -52,7 +52,7 @@ private fun NetworkCapabilities.isOnlyVpn(): Boolean = hasTransport(NetworkCapab
     !hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) &&
     !hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) &&
     !hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE) &&
-    (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) !hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN) else true) &&
+    (!hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN)) &&
     (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) !hasTransport(NetworkCapabilities.TRANSPORT_USB) else true) &&
     (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 7) !hasTransport(NetworkCapabilities.TRANSPORT_THREAD) else true) &&
     (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 12) !hasTransport(NetworkCapabilities.TRANSPORT_SATELLITE) else true)
