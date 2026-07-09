@@ -98,13 +98,14 @@ lint/tmp/
 /build
 /captures
 /keystore.properties
+/keystore/
 /pictures
 app/app-release.apk
 *google-services.json
 /.kotlin/metadata/kotlinTransformedMetadataLibraries
 
 # Xcode
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
-*.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/xcuserdata/
+**/*.xcworkspace/xcuserdata/
 DerivedData/
