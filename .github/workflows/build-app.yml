@@ -8,8 +8,6 @@ on:
 jobs:
     build-android:
         runs-on: ubuntu-latest
-        permissions:
-            contents: write
 
         steps:
             -   name: Checkout Repository
@@ -33,30 +31,19 @@ jobs:
             -   name: Rename APK
                 run: mv app/android/build/outputs/apk/debug/android-debug.apk app/android/build/outputs/apk/debug/truck-track.apk
 
-            -   name: Delete previous latest release
-                run: gh release delete latest --yes --cleanup-tag || true
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            -   name: Publish latest pre-release
-                uses: softprops/action-gh-release@v2
+            -   name: Upload APK artifact
+                uses: actions/upload-artifact@v4
                 with:
-                    tag_name: latest
-                    name: Latest Debug Build
-                    prerelease: true
-                    files: app/android/build/outputs/apk/debug/truck-track.apk
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    name: android-debug-apk
+                    path: app/android/build/outputs/apk/debug/truck-track.apk
+                    retention-days: 7
 
     build-ios:
         # No signing certificate/provisioning profile is configured yet, so this builds an
         # unsigned iOS Simulator app rather than a real, device-installable .ipa. A true .ipa
         # needs a distribution/ad-hoc certificate + provisioning profile imported into the
         # runner's keychain before `xcodebuild archive` + `-exportArchive` can produce one.
-        needs: build-android
         runs-on: macos-15
-        permissions:
-            contents: write
 
         steps:
             -   name: Checkout Repository
@@ -96,12 +83,59 @@ jobs:
                     cd build-ios/Build/Products/Debug-iphonesimulator
                     zip -r truck-track-ios-simulator.zip iosApp.app
 
-            -   name: Publish latest pre-release
-                uses: softprops/action-gh-release@v2
+            -   name: Upload Simulator app artifact
+                uses: actions/upload-artifact@v4
                 with:
-                    tag_name: latest
-                    name: Latest Debug Build
-                    prerelease: true
-                    files: build-ios/Build/Products/Debug-iphonesimulator/truck-track-ios-simulator.zip
+                    name: ios-simulator-app
+                    path: build-ios/Build/Products/Debug-iphonesimulator/truck-track-ios-simulator.zip
+                    retention-days: 7
+
+    publish-release:
+        needs: [ build-android, build-ios ]
+        if: always() && (needs.build-android.result == 'success' || needs.build-ios.result == 'success')
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            -   name: Download Android artifact
+                uses: actions/download-artifact@v4
+                continue-on-error: true
+                with:
+                    name: android-debug-apk
+                    path: artifacts
+
+            -   name: Download iOS artifact
+                uses: actions/download-artifact@v4
+                continue-on-error: true
+                with:
+                    name: ios-simulator-app
+                    path: artifacts
+
+            -   name: Collect available assets
+                id: assets
+                run: |
+                    FILES=()
+                    [ -f artifacts/truck-track.apk ] && FILES+=("artifacts/truck-track.apk")
+                    [ -f artifacts/truck-track-ios-simulator.zip ] && FILES+=("artifacts/truck-track-ios-simulator.zip")
+
+                    if [ ${#FILES[@]} -eq 0 ]; then
+                        echo "No build artifacts available to publish" >&2
+                        exit 1
+                    fi
+
+                    echo "files=${FILES[*]}" >> "$GITHUB_OUTPUT"
+
+            -   name: Delete previous latest release
+                run: gh release delete latest --yes --cleanup-tag || true
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Publish latest pre-release
+                run: |
+                    gh release create latest ${{ steps.assets.outputs.files }} \
+                        --title "Latest Debug Build" \
+                        --prerelease \
+                        --notes "Automated debug build from main (${{ github.sha }})"
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
