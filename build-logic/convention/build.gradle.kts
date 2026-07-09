@@ -45,5 +45,9 @@ gradlePlugin {
             id = "trucktrack.ktor"
             implementationClass = "com.momosi.trucktrack.KtorPlugin"
         }
+        register("trucktrack.android.signing") {
+            id = "trucktrack.android.signing"
+            implementationClass = "com.momosi.trucktrack.AndroidSigningPlugin"
+        }
     }
 }

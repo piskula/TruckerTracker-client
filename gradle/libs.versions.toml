@@ -107,6 +107,7 @@ trucktrack-koin = { id = "trucktrack.koin" }
 trucktrack-spotless = { id = "trucktrack.spotless" }
 trucktrack-compose = { id = "trucktrack.compose" }
 trucktrack-ktor = { id = "trucktrack.ktor" }
+trucktrack-android-signing = { id = "trucktrack.android.signing" }
 
 [bundles]
 navigation3 = ["androidx-navigation3-runtime", "androidx-navigation3-ui", "androidx-lifecycle-viewmodel-navigation3"]

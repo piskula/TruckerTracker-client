@@ -12,3 +12,5 @@ val Project.spotless: SpotlessExtension
 
 val Project.libs
     get(): VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+fun Project.stringProperty(name: String): String? = findProperty(name) as String?

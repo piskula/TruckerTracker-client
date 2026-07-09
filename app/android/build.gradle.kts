@@ -1,6 +1,9 @@
-﻿plugins {
+﻿import com.momosi.trucktrack.utils.stringProperty
+
+plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.trucktrack.spotless)
+    alias(libs.plugins.trucktrack.android.signing)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
 }
@@ -15,8 +18,8 @@ android {
         minSdk = 28
         proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
 
-        versionCode = 1
-        versionName = "dev"
+        versionCode = stringProperty("appVersionCode")?.toIntOrNull() ?: 1
+        versionName = stringProperty("appVersionName") ?: "dev"
 
         manifestPlaceholders["oidcRedirectScheme"] = "com.momosi.trucktrack"
     }
