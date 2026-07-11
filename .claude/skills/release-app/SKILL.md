@@ -1,6 +1,6 @@
 ---
 name: release-app
-description: Use when cutting a signed Android release build or explaining how to release the app. Triggered by phrases like "release the app", "cut a release", "release android", "publish a new version", "tag a release", "how do I release".
+description: Use when cutting a signed Android release build or explaining how to release the app. Triggered by phrases like "release the app", "cut a release", "release android", "publish a new version", "tag a release", "how do I release", "release next patch", "release next minor", "release next major", "bump the version".
 ---
 
 # Skill: Cut a Signed Android Release
@@ -10,6 +10,7 @@ description: Use when cutting a signed Android release build or explaining how t
 ## Triggers
 
 - "release the app", "cut a release", "release version X.Y.Z"
+- "release next patch" / "release next minor" / "release next major", "bump the version"
 - "how do I publish a new Android build"
 - Debugging a failed `release-app.yml` run (pair with the `analyze-ci-failure` skill)
 
@@ -29,6 +30,30 @@ That's the entire release process. Pushing the tag triggers `release-android`, w
 5. Publishes both as a GitHub Release titled after the tag via `gh release create "$GITHUB_REF_NAME" ...`.
 
 Verified end to end against tag `v0.0.1`: release assets were `truck-track-0.0.1.apk` / `truck-track-0.0.1.aab`, and `aapt dump badging` on the APK confirmed `versionCode='1' versionName='0.0.1'` (`0*10000 + 0*100 + 1 = 1`) — the version flows through correctly from tag → Gradle → manifest → filename.
+
+## Releasing the next patch / minor / major
+
+There is **no** version state anywhere in the repo — no `version.properties`, no manifest entry — the only source of truth is the highest existing `vMAJOR.MINOR.PATCH` git tag. "Release next patch/minor/major" means: find that tag, bump the requested segment, tag, push. Compute it yourself with git, don't guess or hand-type the next number:
+
+```bash
+git fetch --tags --quiet
+LATEST=$(git tag --list 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+LATEST=${LATEST:-v0.0.0}   # no release yet -> next patch/minor/major starts from 0.0.0
+IFS='.' read -r MAJOR MINOR PATCH <<< "${LATEST#v}"
+
+# pick exactly one, matching what was asked for:
+PATCH=$((PATCH + 1))                              # next patch
+# MINOR=$((MINOR + 1)); PATCH=0                    # next minor
+# MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0            # next major
+
+NEXT="v${MAJOR}.${MINOR}.${PATCH}"
+echo "Latest: $LATEST -> Next: $NEXT"
+
+git tag "$NEXT"
+git push origin "$NEXT"
+```
+
+`sort -V` (version sort) is what makes this correct across width changes, e.g. `v1.9.0` sorting before `v1.10.0`. The `grep -E` filter matters too — it excludes any non-release tags so an unrelated tag can't be mistaken for the latest version. Reject the bump before tagging if the resulting `MINOR`/`PATCH` would hit the `< 100` cap (see Tag rules below) — that can only happen on `next minor` when `MINOR` is 98/99, or already at 99 for `next patch`.
 
 ## Required secrets
 
