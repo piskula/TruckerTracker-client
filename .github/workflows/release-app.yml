@@ -75,14 +75,14 @@ jobs:
 
             -   name: Rename outputs
                 run: |
-                    mv app/android/build/outputs/apk/release/android-release.apk app/android/build/outputs/apk/release/truck-track.apk
-                    mv app/android/build/outputs/bundle/release/android-release.aab app/android/build/outputs/bundle/release/truck-track.aab
+                    mv app/android/build/outputs/apk/release/android-release.apk "app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk"
+                    mv app/android/build/outputs/bundle/release/android-release.aab "app/android/build/outputs/bundle/release/truck-track-${{ steps.version.outputs.name }}.aab"
 
             -   name: Publish Release
                 run: |
                     gh release create "${GITHUB_REF_NAME}" \
-                        app/android/build/outputs/apk/release/truck-track.apk \
-                        app/android/build/outputs/bundle/release/truck-track.aab \
+                        "app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk" \
+                        "app/android/build/outputs/bundle/release/truck-track-${{ steps.version.outputs.name }}.aab" \
                         --title "${GITHUB_REF_NAME}" \
                         --notes "Release build ${{ steps.version.outputs.name }} (${{ github.sha }})"
                 env:
