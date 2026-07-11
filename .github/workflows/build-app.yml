@@ -156,11 +156,10 @@ jobs:
                     PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
                     mkdir -p "$PROFILE_DIR"
                     security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
-                    echo "DEBUG cms exit: $?"
-                    head -c 300 "$RUNNER_TEMP/profile.plist"
+                    echo "DEBUG cms exit: $?, decoded plist byte count: $(wc -c < "$RUNNER_TEMP/profile.plist")"
                     PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" "$RUNNER_TEMP/profile.plist")
                     PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print Name" "$RUNNER_TEMP/profile.plist")
-                    echo "DEBUG PROFILE_UUID=$PROFILE_UUID PROFILE_NAME=$PROFILE_NAME"
+                    echo "DEBUG PlistBuddy read exit: $?, PROFILE_UUID is empty: $([ -z "$PROFILE_UUID" ] && echo yes || echo no)"
                     cp "$PROFILE_PATH" "$PROFILE_DIR/$PROFILE_UUID.mobileprovision"
                     set -e
 
