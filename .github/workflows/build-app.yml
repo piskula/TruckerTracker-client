@@ -134,34 +134,18 @@ jobs:
                     echo "$IOS_CERT_B64" | base64 -D -o "$CERT_PATH"
                     echo "$IOS_PROFILE_B64" | base64 -D -o "$PROFILE_PATH"
 
-                    echo "DEBUG cert/profile byte counts and file types:"
-                    wc -c "$CERT_PATH" "$PROFILE_PATH"
-                    file "$CERT_PATH" "$PROFILE_PATH"
-                    echo "DEBUG IOS_CERT_B64 length: ${#IOS_CERT_B64}, IOS_PROFILE_B64 length: ${#IOS_PROFILE_B64}"
-
-                    set +e
                     security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-                    echo "DEBUG create-keychain exit: $?"
                     security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-                    echo "DEBUG set-keychain-settings exit: $?"
                     security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-                    echo "DEBUG unlock-keychain exit: $?"
                     security import "$CERT_PATH" -P "$IOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
-                    echo "DEBUG import exit: $?"
                     security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" > /dev/null
-                    echo "DEBUG set-key-partition-list exit: $?"
                     security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
-                    echo "DEBUG list-keychains exit: $?"
 
                     PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
                     mkdir -p "$PROFILE_DIR"
-                    security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
-                    echo "DEBUG cms exit: $?, decoded plist byte count: $(wc -c < "$RUNNER_TEMP/profile.plist")"
-                    PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" "$RUNNER_TEMP/profile.plist")
-                    PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print Name" "$RUNNER_TEMP/profile.plist")
-                    echo "DEBUG PlistBuddy read exit: $?, PROFILE_UUID is empty: $([ -z "$PROFILE_UUID" ] && echo yes || echo no)"
+                    PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+                    PROFILE_NAME=$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
                     cp "$PROFILE_PATH" "$PROFILE_DIR/$PROFILE_UUID.mobileprovision"
-                    set -e
 
                     echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
                     echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
