@@ -154,3 +154,26 @@ jobs:
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     GH_REPO: ${{ github.repository }}
+
+            -   name: Write Firebase release notes
+                if: hashFiles('artifacts/truck-track.apk') != ''
+                env:
+                    COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+                run: |
+                    {
+                        echo "$COMMIT_MESSAGE"
+                        echo ""
+                        echo "Commit: ${{ github.sha }}"
+                        echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    } > release-notes.txt
+
+            -   name: Distribute Android APK to Firebase App Distribution
+                if: hashFiles('artifacts/truck-track.apk') != ''
+                run: |
+                    npx firebase-tools@latest appdistribution:distribute artifacts/truck-track.apk \
+                        --app "$FIREBASE_APP_ID" \
+                        --groups "internal-testers" \
+                        --release-notes-file release-notes.txt
+                env:
+                    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                    FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
