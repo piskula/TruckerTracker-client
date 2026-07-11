@@ -235,6 +235,7 @@ Reusable step-by-step workflows are in `.claude/skills/`. Use them for recurring
 | [`fix-spotless-issues/SKILL.md`](.claude/skills/fix-spotless-issues/SKILL.md) | Running Spotless or fixing `spotlessCheck`/ktlint violations |
 | [`analyze-ci-failure/SKILL.md`](.claude/skills/analyze-ci-failure/SKILL.md) | Checking a GitHub Actions build/run status or diagnosing why one failed |
 | [`release-app/SKILL.md`](.claude/skills/release-app/SKILL.md) | Cutting a signed Android release build (tagging, versioning, publishing) |
+| [`setup-local-tools/SKILL.md`](.claude/skills/setup-local-tools/SKILL.md) | Onboarding a new machine — checking/installing JDK, Android SDK, Xcode, `gh`, Docker, Node, `firebase-tools`, and MCP auth |
 
 ### What Lives in `commonMain` vs k`androidMain`
 
