@@ -12,6 +12,18 @@ TruckTrack is a **Kotlin Multiplatform** multi-module application for fleet mana
 
 ---
 
+## Security — This Repository Is Public
+
+`piskula/TruckerTracker-client` is a **public** GitHub repository. Commits, file contents, and GitHub Actions logs are visible to anyone on the internet, not just collaborators — treat every commit and every workflow run as world-readable before it happens, not after.
+
+* **Never commit secret values** — passwords, private keys, certificates, API tokens, `.p12`/`.mobileprovision`/`.keystore` files, or any credential material. Only secret *names* belong in tracked files (e.g. `${{ secrets.FOO }}` in a workflow, or `` `FOO_SECRET` `` in docs) — never the value.
+* **Never log secret values or content derived from them** in CI. This includes not just the literal secret string (GitHub auto-masks exact matches, but that's a narrow safety net) but also anything decoded/derived from it — a decoded certificate, a decoded provisioning profile's fields, a device UDID, a tester's name. Debug output should be limited to byte counts, file types, variable *lengths*, and exit codes — never `cat`/`head`/dump actual decoded content.
+* **Don't hardcode environment-specific identifiers** (Team IDs, Firebase project/app IDs, specific tester or profile names) into committed skills, docs, or code comments, even if they aren't technically secret — this repo's git history is permanent and public. Prefer lookup commands (`gh secret list`, `firebase apps:list`, portal links) so agents/humans fetch current values instead of reading them off a public page.
+* Before running any command that could touch git history (rebase, filter-branch, force-push) to redact something, remember the exposure already happened the moment it was pushed — rewriting history helps going forward but does not undo it. Flag any accidental exposure to the user immediately rather than quietly fixing it in a follow-up commit.
+* If unsure whether something is sensitive, treat it as sensitive — ask before logging/committing it, don't decide unilaterally that "no one important will see it."
+
+---
+
 ## Project Structure
 
 Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
