@@ -6,6 +6,26 @@
 Fleet management app for drivers and mechanics — report and track issues, manage vehicles, sign in
 via OAuth/OIDC. Kotlin Multiplatform, targeting Android and iOS from one shared codebase.
 
+## Contents
+
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Continuous integration](#continuous-integration)
+- [Project structure](#project-structure)
+- [Testing](#testing)
+- [Releasing](#releasing)
+- [Contributing](#contributing)
+- [Docs](#docs)
+
+## Features
+
+- **Sign in** — OAuth/OIDC authentication via AppAuth.
+- **Issues** — drivers and mechanics report, view, and track vehicle issues by status and priority.
+- **Profile** — user account details.
+- **Vehicles** — vehicle records backing issue tracking (domain layer today; no dedicated screen
+  yet).
+
 ## Tech stack
 
 | Concern | Choice |
@@ -19,6 +39,54 @@ via OAuth/OIDC. Kotlin Multiplatform, targeting Android and iOS from one shared 
 | Serialization | Kotlinx Serialization |
 | Auth / OIDC | [kotlin-multiplatform-oidc](https://github.com/kalinjul/kotlin-multiplatform-oidc) |
 
+## Getting started
+
+### Prerequisites
+
+| Tool | Needed for | Check | Auth |
+|---|---|---|---|
+| JDK 21 | Gradle toolchain (`jvmToolchain(21)`, all modules) | `java -version` | — |
+| Android SDK (cmdline-tools, platform 37, build-tools) | `./gradlew :app:android:assembleDebug`, Android Studio | Android SDK path env var set (`ANDROID_HOME`) | — |
+| Xcode 15+ + command line tools (**macOS only**) | Building `app:ios` | `xcode-select -p` | — |
+| [`gh`](https://cli.github.com/) (GitHub CLI) | Agents inspecting CI runs/PRs/releases (`analyze-ci-failure`, `release-app` skills) | `gh auth status` | `gh auth login` |
+| Node.js 20+ (current LTS) | Runs the Firebase MCP server via `npx` | `node --version` | — |
+| [`firebase-tools`](https://firebase.google.com/docs/cli) | Firebase App Distribution setup, Crashlytics analysis, and the underlying tool the Firebase MCP server wraps | `firebase --version` | `firebase login` |
+
+Run the **`setup-local-tools`** skill (`.claude/skills/setup-local-tools/SKILL.md`) to check which
+of these are present/authenticated on your machine and get exact install commands for anything
+missing.
+
+### Build & run
+
+**Android** — `./gradlew :app:android:assembleDebug`, or open the project in Android Studio and
+run the `app:android` configuration.
+
+**iOS** — open `app/ios/iosApp.xcodeproj` in Xcode (15+) and run.
+
+## Continuous integration
+
+Two GitHub Actions workflows run remotely — nothing to install locally to trigger them. `gh run
+list` / `gh run view` (see the `analyze-ci-failure` skill) are the fastest way to inspect a run
+without leaving the terminal.
+
+### On every push to `main` (`build-app.yml`)
+
+- **`build-android`** — assembles a debug APK.
+- **`build-ios`** — builds an unsigned iOS Simulator app (no distribution certificate configured
+  yet, see `docs/KMP_IOS_READINESS.md`).
+- **`publish-release`** — replaces the assets on the repo's `latest` pre-release with whichever of
+  the two builds succeeded (publishes a partial release rather than blocking on both).
+- **`distribute-android`** — pushes the debug APK to the `internal-testers` group in Firebase App
+  Distribution.
+- Skipped entirely for doc-only changes (`paths-ignore`: `**/*.md`, `.claude/**`, `docs/**`).
+
+### On pushing a version tag (`release-app.yml`)
+
+- **`release-android`** — builds a signed release APK/AAB, publishes them as a GitHub Release
+  named after the tag, and distributes the APK to the `release` group in Firebase App
+  Distribution.
+- See [Releasing](#releasing) for the tag format and required secrets.
+
 ## Project structure
 
 Multi-module KMP project — `app:*` (platform shells + shared app wiring), `core:*` (domain logic,
@@ -26,7 +94,8 @@ infra), `feature:*/api` + `feature:*/impl` (product features). See **`AGENTS.MD`
 module map, dependency rules, and coding conventions — that's the canonical reference for
 contributing here (including for AI coding agents).
 
-### Module dependencies
+<details>
+<summary>Module dependency graph</summary>
 
 ```mermaid
 graph TD
@@ -105,39 +174,16 @@ dependencies" rule — worth a look before adding new ones. `core` modules form 
 `core:common` (everything depends on it, directly or transitively; nothing depends back), and
 `core:navigation` has no internal dependencies at all.
 
-## Building & running
+</details>
 
-**Android** — `./gradlew :app:android:assembleDebug`, or open the project in Android Studio and
-run the `app:android` configuration.
+## Testing
 
-**iOS** — open `app/ios/iosApp.xcodeproj` in Xcode (15+) and run. See
-**`docs/KMP_IOS_READINESS.md`** for current known iOS limitations before relying on a build —
-notably, sign-in has not yet been verified end-to-end on a device or simulator.
+No automated tests exist yet. When adding them, follow the conventions in `AGENTS.MD`:
 
-CI builds both on every push to `main` (`.github/workflows/build-app.yml`) and publishes a debug
-APK and an unsigned iOS Simulator build to the repo's `latest` pre-release.
-
-## Environment setup
-
-What a machine needs to build the app and to let an AI coding agent (Claude Code, etc.) work in
-this repo at full capability:
-
-| Tool | Needed for | Check | Auth |
-|---|---|---|---|
-| JDK 21 | Gradle toolchain (`jvmToolchain(21)`, all modules) | `java -version` | — |
-| Android SDK (cmdline-tools, platform 37, build-tools) | `./gradlew :app:android:assembleDebug`, Android Studio | Android SDK path env var set (`ANDROID_HOME`) | — |
-| Xcode 15+ + command line tools (**macOS only**) | Building `app:ios` | `xcode-select -p` | — |
-| [`gh`](https://cli.github.com/) (GitHub CLI) | Agents inspecting CI runs/PRs/releases (`analyze-ci-failure`, `release-app` skills) | `gh auth status` | `gh auth login` |
-| Docker | Runs the GitHub MCP server declared in `.mcp.json` | `docker info` | — |
-| Node.js 20+ (current LTS) | Runs the Firebase MCP server via `npx` | `node --version` | — |
-| [`firebase-tools`](https://firebase.google.com/docs/cli) | Agents/humans inspecting or managing the Firebase project (Firestore, Auth, Remote Config, Crashlytics, …) | `firebase --version` | `firebase login` |
-
-Both MCP servers (GitHub and Firebase) are declared in `.mcp.json`, checked into the repo — no
-per-machine MCP config needed beyond having Docker/Node available and being authenticated.
-
-Run the **`setup-local-tools`** skill (`.claude/skills/setup-local-tools/SKILL.md`) to check which
-of these are present/authenticated on your machine and get exact install commands for anything
-missing.
+- **MockK** for mocking, **Turbine** for `Flow` testing, **kotlinx-coroutines-test** (`runTest`)
+  for coroutines.
+- Shared tests go in `src/commonTest/kotlin/`, Android-specific tests in
+  `src/androidTest/kotlin/`, mirroring the main source package.
 
 ## Releasing
 
@@ -159,10 +205,19 @@ git push origin v1.2.3
 - iOS has no equivalent signed release pipeline yet — no distribution certificate/provisioning
   profile is configured (see `docs/KMP_IOS_READINESS.md`).
 
+## Contributing
+
+- **`AGENTS.MD`** is the canonical reference for architecture (MVVM), module rules, and coding
+  conventions — read it before making structural changes.
+- Run `./gradlew spotlessApply` to auto-format before committing (ktlint + compose-rules-ktlint).
+- `.claude/skills/` has reusable step-by-step workflows for common tasks (scaffolding a feature
+  module, adding a screen, adding a repository, fixing Spotless violations, diagnosing CI
+  failures, cutting a release, onboarding a new machine).
+
 ## Docs
 
 - **`AGENTS.MD`** — module structure, dependency rules, architecture (MVVM), coding conventions.
 - **`docs/KMP_IOS_READINESS.md`** — known iOS-specific limitations and how to resolve them.
 - **`docs/TODO.md`** — product feature backlog.
 - **`.claude/skills/`** — reusable agent workflows, including `setup-local-tools` for onboarding a
-  new machine (see [Environment setup](#environment-setup)).
+  new machine (see [Getting started](#getting-started)).
