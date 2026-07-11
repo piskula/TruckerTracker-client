@@ -1,7 +1,7 @@
 # TruckTrack
 
 [![Build Debug Apps](https://github.com/piskula/TruckerTracker-client/actions/workflows/build-app.yml/badge.svg)](https://github.com/piskula/TruckerTracker-client/actions/workflows/build-app.yml)
-[![Release Android App](https://github.com/piskula/TruckerTracker-client/actions/workflows/release-app.yml/badge.svg)](https://github.com/piskula/TruckerTracker-client/actions/workflows/release-app.yml)
+[![Release App](https://github.com/piskula/TruckerTracker-client/actions/workflows/release-app.yml/badge.svg)](https://github.com/piskula/TruckerTracker-client/actions/workflows/release-app.yml)
 
 Fleet management app for drivers and mechanics — report and track issues, manage vehicles, sign in
 via OAuth/OIDC. Kotlin Multiplatform, targeting Android and iOS from one shared codebase.
@@ -72,12 +72,15 @@ without leaving the terminal.
 ### On every push to `main` (`build-app.yml`)
 
 - **`build-android`** — assembles a debug APK.
-- **`build-ios`** — builds an unsigned iOS Simulator app (no distribution certificate configured
-  yet, see `docs/KMP_IOS_READINESS.md`).
-- **`publish-release`** — replaces the assets on the repo's `latest` pre-release with whichever of
-  the two builds succeeded (publishes a partial release rather than blocking on both).
+- **`build-ios`** — builds a signed, device-installable `.ipa` if the iOS signing secrets (see
+  [Releasing](#releasing)) are configured; otherwise falls back to an unsigned iOS Simulator app
+  (see `docs/KMP_IOS_READINESS.md`).
+- **`publish-release`** — replaces the assets on the repo's `latest` pre-release with whichever
+  build(s) succeeded (publishes a partial release rather than blocking on both).
 - **`distribute-android`** — pushes the debug APK to the `internal-testers` group in Firebase App
   Distribution.
+- **`distribute-ios`** — pushes the signed `.ipa` to the `internal-testers` group in Firebase App
+  Distribution. Skipped when the iOS signing secrets aren't configured.
 - Skipped entirely for doc-only changes (`paths-ignore`: `**/*.md`, `.claude/**`, `docs/**`).
 
 ### On pushing a version tag (`release-app.yml`)
@@ -85,6 +88,9 @@ without leaving the terminal.
 - **`release-android`** — builds a signed release APK/AAB, publishes them as a GitHub Release
   named after the tag, and distributes the APK to the `release` group in Firebase App
   Distribution.
+- **`release-ios`** — builds a signed `.ipa` (same tag-derived version), attaches it to the GitHub
+  Release, and distributes it to the `release` group in Firebase App Distribution. Skipped (with a
+  warning) when the iOS signing secrets aren't configured.
 - See [Releasing](#releasing) for the tag format and required secrets.
 
 ## Project structure
@@ -187,8 +193,8 @@ No automated tests exist yet. When adding them, follow the conventions in `AGENT
 
 ## Releasing
 
-A signed Android release (`.github/workflows/release-app.yml`) is cut by pushing a version tag —
-there's no separate version bump commit, the tag *is* the version:
+A signed release (`.github/workflows/release-app.yml`) is cut by pushing a version tag — there's
+no separate version bump commit, the tag *is* the version:
 
 ```bash
 git tag v1.2.3
@@ -197,13 +203,19 @@ git push origin v1.2.3
 
 - Tag must match `vMAJOR.MINOR.PATCH`, with `MINOR` and `PATCH` each under 100 (so
   `versionCode = MAJOR * 10000 + MINOR * 100 + PATCH` can't collide across versions).
-- Produces a signed `truck-track-<version>.apk` and `truck-track-<version>.aab`, both built with
-  `versionName`/`versionCode` embedded from the tag, published as a GitHub Release named after the
-  tag.
-- Requires four repo secrets already configured: `ANDROID_KEYSTORE_BASE64`,
+- **Android** — produces a signed `truck-track-<version>.apk` and `truck-track-<version>.aab`,
+  both built with `versionName`/`versionCode` embedded from the tag, published as a GitHub Release
+  named after the tag. Requires four repo secrets: `ANDROID_KEYSTORE_BASE64`,
   `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
-- iOS has no equivalent signed release pipeline yet — no distribution certificate/provisioning
-  profile is configured (see `docs/KMP_IOS_READINESS.md`).
+- **iOS** — produces a signed `truck-track-<version>.ipa` (same `MARKETING_VERSION`/
+  `CURRENT_PROJECT_VERSION` derived from the tag), attached to the same GitHub Release. Requires
+  five repo secrets: `IOS_TEAM_ID`, `IOS_DISTRIBUTION_CERTIFICATE_BASE64`,
+  `IOS_DISTRIBUTION_CERTIFICATE_PASSWORD`, `IOS_PROVISIONING_PROFILE_BASE64`,
+  `FIREBASE_IOS_APP_ID`. Until an Apple Developer account and ad-hoc provisioning profile exist,
+  this step is skipped with a warning rather than failing the release (see
+  `docs/KMP_IOS_READINESS.md`).
+- Both platforms' builds are also distributed to their `release` group in Firebase App
+  Distribution.
 
 ## Contributing
 

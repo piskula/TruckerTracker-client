@@ -43,18 +43,25 @@ longer publish `iosX64` artifacts at all (an industry-wide drop of Intel-simulat
 connected via USB, or building/running from an Apple Silicon Mac. CI (`macos-15` runners, see
 item 4) is unaffected since GitHub's macOS runners are Apple Silicon.
 
-### 4 · CI produces an unsigned Simulator build, not an installable `.ipa`
+### 4 · CI is code-complete for signed builds but has no certificate/profile to sign with yet
 
-The `build-ios` job in `.github/workflows/build-app.yml` builds for `iphonesimulator` with
-`CODE_SIGNING_ALLOWED=NO` and publishes a zipped `.app` — it only runs in Simulator, not on a real
-device, and can't go through TestFlight or ad-hoc distribution. No Apple Developer signing
-certificate or provisioning profile is configured yet.
+`build-ios` (`.github/workflows/build-app.yml`) and `release-ios` (`.github/workflows/release-app.yml`)
+both know how to import an ad-hoc distribution certificate + provisioning profile into a temporary
+CI keychain and run `xcodebuild archive` + `-exportArchive` to produce a real, device-installable
+`.ipa`, distributed via Firebase App Distribution (`internal-testers` group on every push,
+`release` group on a version tag). But no Apple Developer account, certificate, or provisioning
+profile exist yet, so both jobs currently take their fallback path: `build-ios` builds today's
+unsigned Simulator app instead (CI stays green), and `release-ios` skips its signing steps
+entirely with a warning.
 
-**How to resolve:** obtain a distribution or ad-hoc `.p12` certificate and a matching
-`.mobileprovision` profile, add them to GitHub Secrets (base64-encoded), add a step to import them
-into a temporary CI keychain, then replace the `build` action with `xcodebuild archive` +
-`-exportArchive` (with an `exportOptions.plist` specifying the method and team ID) to produce a
-real signed `.ipa`.
+**How to resolve:** once an Apple Developer Program membership, an "Apple Distribution"
+certificate (`.p12`), and an ad-hoc provisioning profile for `com.momosi.trucktrack` exist, add
+five GitHub Secrets — `IOS_TEAM_ID`, `IOS_DISTRIBUTION_CERTIFICATE_BASE64`,
+`IOS_DISTRIBUTION_CERTIFICATE_PASSWORD`, `IOS_PROVISIONING_PROFILE_BASE64`,
+`FIREBASE_IOS_APP_ID` (the iOS app's Firebase App ID, registered in the same Firebase project as
+Android) — and both workflows switch to the real signed path automatically, no code changes
+needed. Ad-hoc distribution caps at 100 registered devices/year, and every new tester's iPhone
+UDID has to be registered with Apple and baked into a regenerated provisioning profile.
 
 ### 5 · JWT verification uses Keycloak's legacy `{realm}` endpoint instead of standard JWKS
 

@@ -46,11 +46,12 @@ jobs:
                     retention-days: 7
 
     build-ios:
-        # No signing certificate/provisioning profile is configured yet, so this builds an
-        # unsigned iOS Simulator app rather than a real, device-installable .ipa. A true .ipa
-        # needs a distribution/ad-hoc certificate + provisioning profile imported into the
-        # runner's keychain before `xcodebuild archive` + `-exportArchive` can produce one.
+        # Builds a real signed .ipa once the iOS signing secrets below are all configured; until
+        # then it falls back to today's unsigned iOS Simulator build so CI keeps passing. No code
+        # changes are needed to flip over — just add the secrets. See docs/KMP_IOS_READINESS.md.
         runs-on: macos-15
+        outputs:
+            signed: ${{ steps.check-secrets.outputs.configured }}
 
         steps:
             -   name: Checkout Repository
@@ -75,7 +76,23 @@ jobs:
                 with:
                     xcode-version: latest-stable
 
-            -   name: Build iOS Simulator app
+            -   name: Check iOS signing secrets are configured
+                id: check-secrets
+                run: |
+                    if [ -n "$IOS_TEAM_ID" ] && [ -n "$IOS_CERT_B64" ] && [ -n "$IOS_CERT_PASSWORD" ] && [ -n "$IOS_PROFILE_B64" ]; then
+                        echo "configured=true" >> "$GITHUB_OUTPUT"
+                    else
+                        echo "::warning::iOS signing secrets are not configured yet — building an unsigned Simulator app instead of a signed .ipa. See docs/KMP_IOS_READINESS.md."
+                        echo "configured=false" >> "$GITHUB_OUTPUT"
+                    fi
+                env:
+                    IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+                    IOS_CERT_B64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+                    IOS_CERT_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+                    IOS_PROFILE_B64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+
+            -   name: Build iOS Simulator app (unsigned fallback)
+                if: steps.check-secrets.outputs.configured != 'true'
                 run: |
                     xcodebuild \
                         -project app/ios/iosApp.xcodeproj \
@@ -88,16 +105,113 @@ jobs:
                         build
 
             -   name: Zip Simulator app
+                if: steps.check-secrets.outputs.configured != 'true'
                 run: |
                     cd build-ios/Build/Products/Debug-iphonesimulator
                     zip -r truck-track-ios-simulator.zip iosApp.app
 
             -   name: Upload Simulator app artifact
+                if: steps.check-secrets.outputs.configured != 'true'
                 uses: actions/upload-artifact@v4
                 with:
                     name: ios-simulator-app
                     path: build-ios/Build/Products/Debug-iphonesimulator/truck-track-ios-simulator.zip
                     retention-days: 7
+
+            -   name: Import signing certificate and provisioning profile
+                if: steps.check-secrets.outputs.configured == 'true'
+                env:
+                    IOS_CERT_B64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+                    IOS_CERT_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+                    IOS_PROFILE_B64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+                run: |
+                    KEYCHAIN_PATH="$RUNNER_TEMP/ios-signing.keychain-db"
+                    KEYCHAIN_PASSWORD=$(uuidgen)
+                    CERT_PATH="$RUNNER_TEMP/distribution.p12"
+                    PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
+
+                    echo "$IOS_CERT_B64" | base64 --decode -o "$CERT_PATH"
+                    echo "$IOS_PROFILE_B64" | base64 --decode -o "$PROFILE_PATH"
+
+                    security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+                    security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+                    security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+                    security import "$CERT_PATH" -P "$IOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+                    security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" > /dev/null
+                    security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
+
+                    PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+                    mkdir -p "$PROFILE_DIR"
+                    PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+                    PROFILE_NAME=$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+                    cp "$PROFILE_PATH" "$PROFILE_DIR/$PROFILE_UUID.mobileprovision"
+
+                    echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+                    echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
+
+            -   name: Generate export options plist
+                if: steps.check-secrets.outputs.configured == 'true'
+                env:
+                    IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+                run: |
+                    cat > "$RUNNER_TEMP/exportOptions.plist" <<PLIST
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                    <plist version="1.0">
+                    <dict>
+                        <key>method</key>
+                        <string>ad-hoc</string>
+                        <key>teamID</key>
+                        <string>$IOS_TEAM_ID</string>
+                        <key>signingStyle</key>
+                        <string>manual</string>
+                        <key>provisioningProfiles</key>
+                        <dict>
+                            <key>com.momosi.trucktrack</key>
+                            <string>$PROFILE_NAME</string>
+                        </dict>
+                    </dict>
+                    </plist>
+                    PLIST
+
+            -   name: Archive signed iOS app
+                if: steps.check-secrets.outputs.configured == 'true'
+                env:
+                    IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+                run: |
+                    xcodebuild archive \
+                        -project app/ios/iosApp.xcodeproj \
+                        -scheme iosApp \
+                        -sdk iphoneos \
+                        -configuration Debug \
+                        -archivePath "$RUNNER_TEMP/iosApp.xcarchive" \
+                        -destination 'generic/platform=iOS' \
+                        CODE_SIGN_STYLE=Manual \
+                        CODE_SIGN_IDENTITY="Apple Distribution" \
+                        DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
+                        PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
+                        CURRENT_PROJECT_VERSION="${{ github.run_number }}"
+
+            -   name: Export signed .ipa
+                if: steps.check-secrets.outputs.configured == 'true'
+                run: |
+                    xcodebuild -exportArchive \
+                        -archivePath "$RUNNER_TEMP/iosApp.xcarchive" \
+                        -exportPath "$RUNNER_TEMP/export" \
+                        -exportOptionsPlist "$RUNNER_TEMP/exportOptions.plist"
+                    mv "$RUNNER_TEMP/export/iosApp.ipa" "$RUNNER_TEMP/truck-track.ipa"
+
+            -   name: Upload signed .ipa artifact
+                if: steps.check-secrets.outputs.configured == 'true'
+                uses: actions/upload-artifact@v4
+                with:
+                    name: ios-ipa
+                    path: ${{ runner.temp }}/truck-track.ipa
+                    retention-days: 7
+
+            -   name: Clean up signing keychain
+                if: always() && steps.check-secrets.outputs.configured == 'true'
+                run: security delete-keychain "$KEYCHAIN_PATH" || true
 
     publish-release:
         needs: [ build-android, build-ios ]
@@ -114,11 +228,18 @@ jobs:
                     name: android-debug-apk
                     path: artifacts
 
-            -   name: Download iOS artifact
+            -   name: Download iOS Simulator artifact
                 uses: actions/download-artifact@v4
                 continue-on-error: true
                 with:
                     name: ios-simulator-app
+                    path: artifacts
+
+            -   name: Download iOS .ipa artifact
+                uses: actions/download-artifact@v4
+                continue-on-error: true
+                with:
+                    name: ios-ipa
                     path: artifacts
 
             -   name: Collect available assets
@@ -127,6 +248,7 @@ jobs:
                     FILES=()
                     [ -f artifacts/truck-track.apk ] && FILES+=("artifacts/truck-track.apk")
                     [ -f artifacts/truck-track-ios-simulator.zip ] && FILES+=("artifacts/truck-track-ios-simulator.zip")
+                    [ -f artifacts/truck-track.ipa ] && FILES+=("artifacts/truck-track.ipa")
 
                     if [ ${#FILES[@]} -eq 0 ]; then
                         echo "::error::Both Android and iOS builds failed (or produced no artifact) — nothing to publish"
@@ -186,3 +308,36 @@ jobs:
                 env:
                     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
                     FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+
+    distribute-ios:
+        needs: [ build-ios ]
+        if: needs.build-ios.outputs.signed == 'true'
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Download iOS .ipa artifact
+                uses: actions/download-artifact@v4
+                with:
+                    name: ios-ipa
+                    path: artifacts
+
+            -   name: Write Firebase release notes
+                env:
+                    COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+                run: |
+                    {
+                        echo "$COMMIT_MESSAGE"
+                        echo ""
+                        echo "Commit: ${{ github.sha }}"
+                        echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    } > release-notes.txt
+
+            -   name: Distribute iOS .ipa to Firebase App Distribution
+                run: |
+                    npx firebase-tools@latest appdistribution:distribute artifacts/truck-track.ipa \
+                        --app "$FIREBASE_IOS_APP_ID" \
+                        --groups "internal-testers" \
+                        --release-notes-file release-notes.txt
+                env:
+                    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                    FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
