@@ -92,7 +92,7 @@ jobs:
 
     publish-release:
         needs: [ build-android, build-ios ]
-        if: always() && (needs.build-android.result == 'success' || needs.build-ios.result == 'success')
+        if: always()
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -120,8 +120,12 @@ jobs:
                     [ -f artifacts/truck-track-ios-simulator.zip ] && FILES+=("artifacts/truck-track-ios-simulator.zip")
 
                     if [ ${#FILES[@]} -eq 0 ]; then
-                        echo "No build artifacts available to publish" >&2
+                        echo "::error::Both Android and iOS builds failed (or produced no artifact) — nothing to publish"
                         exit 1
+                    fi
+
+                    if [ ${#FILES[@]} -lt 2 ]; then
+                        echo "::warning::Publishing a partial release — only ${#FILES[@]} of 2 build artifact(s) are available"
                     fi
 
                     echo "files=${FILES[*]}" >> "$GITHUB_OUTPUT"
@@ -130,6 +134,7 @@ jobs:
                 run: gh release delete latest --yes --cleanup-tag || true
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    GH_REPO: ${{ github.repository }}
 
             -   name: Publish latest pre-release
                 run: |
@@ -139,3 +144,4 @@ jobs:
                         --notes "Automated debug build from main (${{ github.sha }})"
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    GH_REPO: ${{ github.repository }}
