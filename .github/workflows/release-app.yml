@@ -14,6 +14,8 @@ jobs:
         steps:
             -   name: Checkout Repository
                 uses: actions/checkout@v4
+                with:
+                    fetch-depth: 0
 
             -   name: Parse version from tag
                 id: version
@@ -89,3 +91,34 @@ jobs:
                         --notes "Release build ${{ steps.version.outputs.name }} (${{ github.sha }})"
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Generate changelog since previous release
+                run: |
+                    PREVIOUS_TAG=$(git tag --list 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | grep -B1 -x "${GITHUB_REF_NAME}" | head -1)
+                    if [ "$PREVIOUS_TAG" = "${GITHUB_REF_NAME}" ]; then
+                        PREVIOUS_TAG=""
+                    fi
+
+                    {
+                        if [ -n "$PREVIOUS_TAG" ]; then
+                            echo "Changes since $PREVIOUS_TAG:"
+                            git log --pretty=format:"- %s" "${PREVIOUS_TAG}..${GITHUB_REF_NAME}"
+                        else
+                            echo "Initial release."
+                            git log --pretty=format:"- %s" "${GITHUB_REF_NAME}"
+                        fi
+                        echo ""
+                        echo ""
+                        echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    } > release-notes.txt
+
+            -   name: Distribute release APK to Firebase App Distribution
+                run: |
+                    npx firebase-tools@latest appdistribution:distribute \
+                        "app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk" \
+                        --app "$FIREBASE_APP_ID" \
+                        --groups "release" \
+                        --release-notes-file release-notes.txt
+                env:
+                    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                    FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
