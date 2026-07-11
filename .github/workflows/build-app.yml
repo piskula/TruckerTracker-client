@@ -134,6 +134,11 @@ jobs:
                     echo "$IOS_CERT_B64" | base64 -D -o "$CERT_PATH"
                     echo "$IOS_PROFILE_B64" | base64 -D -o "$PROFILE_PATH"
 
+                    echo "DEBUG cert/profile byte counts and file types:"
+                    wc -c "$CERT_PATH" "$PROFILE_PATH"
+                    file "$CERT_PATH" "$PROFILE_PATH"
+                    echo "DEBUG IOS_CERT_B64 length: ${#IOS_CERT_B64}, IOS_PROFILE_B64 length: ${#IOS_PROFILE_B64}"
+
                     security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
                     security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
                     security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
