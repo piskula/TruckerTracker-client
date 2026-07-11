@@ -7,13 +7,16 @@ description: Use when adding/removing an iOS tester device, regenerating the ad-
 
 > `build-ios` (`.github/workflows/build-app.yml`) and `release-ios` (`.github/workflows/release-app.yml`) sign a real `.ipa` using an Apple Distribution certificate + ad-hoc provisioning profile, stored as five GitHub Secrets. This skill covers the two operations that come up again: adding a tester's device, and renewing the certificate. Read `docs/KMP_IOS_READINESS.md` item 4 for the broader picture.
 
-## Current known values (reference — verify against the portal if this looks stale)
+## Looking up current values
 
-- Apple Team ID: `REDACTED-TEAM-ID`
-- Bundle ID: `com.momosi.trucktrack`
-- Firebase project: `trucktrack-cf134`, iOS App ID: `1:958983287857:ios:770b3359a865dc10775110`
-- Certificate expires: **2027-07-11** — after that, the cert must be renewed (see below), not just the profile.
-- Current ad-hoc profile (`REDACTED-PROFILE-NAME`) covers exactly **one** device. Ad-hoc profiles cap at 100 devices/year total; every device added means editing the profile and re-downloading it.
+This file intentionally does **not** hardcode the Apple Team ID, Firebase App ID, or provisioning profile name — this repo is public, and those specifics belong in the agent's private memory or the Apple/Firebase consoles, not in a committed file anyone can read. To find them:
+
+- Team ID / cert expiry: Apple Developer portal → Account → Membership; or `security find-certificate` on a machine with the cert imported.
+- Firebase iOS App ID: `firebase apps:list --project <project-id>` (bundle ID is `com.momosi.trucktrack`, fixed and non-sensitive — it's embedded in the shipped app anyway).
+- Which/how many devices the current ad-hoc profile covers: Apple Developer portal → Profiles → open the profile, or decode it locally (`security cms -D -i profile.mobileprovision`, never in CI logs — see "Public repo" section below).
+- Existing secret names (not values): `gh secret list --repo piskula/TruckerTracker-client`.
+
+Ad-hoc profiles cap at 100 devices/year total; every device added means editing the profile and re-downloading it.
 
 ## The 5 secrets involved
 
@@ -32,10 +35,10 @@ Adding a tester only touches the last one. You do **not** need to regenerate the
 1. Get the tester's iPhone UDID. On Windows: connect the iPhone via USB, open iTunes, go to the device summary page, click the serial number once (cycles to show the UDID), right-click → Copy. On a Mac: Xcode → Window → Devices and Simulators.
 2. Apple Developer portal → **Certificates, Identifiers & Profiles → Devices → +** → register the UDID.
 3. **Profiles** → find the existing ad-hoc profile (or create a new one: **+** → **Ad Hoc** → App ID `com.momosi.trucktrack` → the Apple Distribution cert → select **all** devices that should be covered, including the new one) → download the `.mobileprovision`.
-4. Also invite the tester's email to both Firebase App Distribution tester groups (`internal-testers`, `release` — these are project-level, shared across Android/iOS):
+4. Also invite the tester's email to both Firebase App Distribution tester groups (`internal-testers`, `release` — these are project-level, shared across Android/iOS). Find the Firebase project ID with `firebase projects:list` if you don't have it handy:
    ```bash
-   firebase appdistribution:testers:add <email> --group-alias internal-testers --project trucktrack-cf134
-   firebase appdistribution:testers:add <email> --group-alias release --project trucktrack-cf134
+   firebase appdistribution:testers:add <email> --group-alias internal-testers --project <firebase-project-id>
+   firebase appdistribution:testers:add <email> --group-alias release --project <firebase-project-id>
    ```
 5. Base64-encode and update the secret — **see "Uploading secrets safely" below, this step has bitten us twice.**
 
