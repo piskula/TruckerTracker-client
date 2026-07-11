@@ -196,8 +196,9 @@ jobs:
 
                     PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
                     mkdir -p "$PROFILE_DIR"
-                    PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
-                    PROFILE_NAME=$(security cms -D -i "$PROFILE_PATH" | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+                    security cms -D -i "$PROFILE_PATH" > "$RUNNER_TEMP/profile.plist"
+                    PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" "$RUNNER_TEMP/profile.plist")
+                    PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print Name" "$RUNNER_TEMP/profile.plist")
                     cp "$PROFILE_PATH" "$PROFILE_DIR/$PROFILE_UUID.mobileprovision"
 
                     echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
