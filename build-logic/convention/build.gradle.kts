@@ -49,5 +49,9 @@ gradlePlugin {
             id = "trucktrack.android.signing"
             implementationClass = "com.momosi.trucktrack.AndroidSigningPlugin"
         }
+        register("trucktrack.firebase") {
+            id = "trucktrack.firebase"
+            implementationClass = "com.momosi.trucktrack.FirebasePlugin"
+        }
     }
 }

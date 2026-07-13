@@ -1,6 +1,7 @@
 package com.momosi.trucktrack.app
 
 import com.momosi.trucktrack.app.di.allModules
+import com.momosi.trucktrack.core.common.crashreporting.CrashReporting
 import com.momosi.trucktrack.core.common.logger.Logger
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -14,4 +15,5 @@ fun initKoin(platformConfig: KoinApplication.() -> Unit = {}) {
 
 fun initApp(isDebug: Boolean) {
     Logger.init(logToConsole = isDebug)
+    CrashReporting.init()
 }

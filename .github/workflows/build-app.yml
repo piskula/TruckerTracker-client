@@ -33,6 +33,15 @@ jobs:
             -   name: Grant execute permission for gradlew
                 run: chmod +x gradlew
 
+            -   name: Fetch Firebase Android config
+                run: |
+                    npx firebase-tools@latest apps:sdkconfig ANDROID "$FIREBASE_APP_ID" \
+                        --project trucktrack-cf134 \
+                        -o app/android/google-services.json
+                env:
+                    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                    FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+
             -   name: Build Debug APK
                 run: ./gradlew :app:android:assembleDebug
 
@@ -77,6 +86,27 @@ jobs:
                 with:
                     xcode-version: latest-stable
 
+            -   name: Fetch Firebase iOS config
+                run: |
+                    npx firebase-tools@latest apps:sdkconfig IOS "$FIREBASE_IOS_APP_ID" \
+                        --project trucktrack-cf134 \
+                        -o app/ios/iosApp/GoogleService-Info.plist
+                env:
+                    FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                    FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
+
+            -   name: Cache CocoaPods
+                uses: actions/cache@v4
+                with:
+                    path: |
+                        app/ios/Pods
+                        ~/Library/Caches/CocoaPods
+                    key: cocoapods-${{ hashFiles('app/ios/Podfile') }}
+
+            -   name: Install CocoaPods dependencies
+                working-directory: app/ios
+                run: pod install
+
             -   name: Check iOS signing secrets are configured
                 id: check-secrets
                 run: |
@@ -96,7 +126,7 @@ jobs:
                 if: steps.check-secrets.outputs.configured != 'true'
                 run: |
                     xcodebuild \
-                        -project app/ios/iosApp.xcodeproj \
+                        -workspace app/ios/iosApp.xcworkspace \
                         -scheme iosApp \
                         -sdk iphonesimulator \
                         -configuration Debug \
@@ -182,7 +212,7 @@ jobs:
                     IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
                 run: |
                     xcodebuild archive \
-                        -project app/ios/iosApp.xcodeproj \
+                        -workspace app/ios/iosApp.xcworkspace \
                         -scheme iosApp \
                         -sdk iphoneos \
                         -configuration Debug \
@@ -202,6 +232,14 @@ jobs:
                         -exportPath "$RUNNER_TEMP/export" \
                         -exportOptionsPlist "$RUNNER_TEMP/exportOptions.plist"
                     mv "$RUNNER_TEMP/export/iosApp.ipa" "$RUNNER_TEMP/truck-track.ipa"
+
+            -   name: Upload debug symbols to Crashlytics
+                if: steps.check-secrets.outputs.configured == 'true'
+                run: |
+                    app/ios/Pods/FirebaseCrashlytics/upload-symbols \
+                        -gsp app/ios/iosApp/GoogleService-Info.plist \
+                        -p ios \
+                        "$RUNNER_TEMP/iosApp.xcarchive/dSYMs"
 
             -   name: Upload signed .ipa artifact
                 if: steps.check-secrets.outputs.configured == 'true'

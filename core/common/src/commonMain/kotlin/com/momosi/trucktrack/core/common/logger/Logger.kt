@@ -1,12 +1,17 @@
-﻿package com.momosi.trucktrack.core.common.logger
+package com.momosi.trucktrack.core.common.logger
 
+import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
+import co.touchlab.kermit.platformLogWriter
 import co.touchlab.kermit.Logger as KermitLogger
 
 object Logger {
     fun init(logToConsole: Boolean) {
-        KermitLogger.setMinSeverity(if (logToConsole) Severity.Verbose else Severity.Warn)
+        KermitLogger.setMinSeverity(Severity.Verbose)
+        if (logToConsole) KermitLogger.addLogWriter(platformLogWriter())
     }
+
+    fun addWriter(writer: LogWriter) = KermitLogger.addLogWriter(writer)
 
     fun v(tag: String, message: String) = KermitLogger.v(message, tag = tag)
 

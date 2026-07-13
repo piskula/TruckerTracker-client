@@ -36,6 +36,7 @@ via OAuth/OIDC. Kotlin Multiplatform, targeting Android and iOS from one shared 
 | DI | Koin |
 | HTTP | Ktor Client |
 | Logging | Kermit |
+| Crash reporting | Firebase Crashlytics via [`dev.gitlive:firebase-crashlytics`](https://github.com/GitLiveApp/firebase-kotlin-sdk) |
 | Serialization | Kotlinx Serialization |
 | Auth / OIDC | [kotlin-multiplatform-oidc](https://github.com/kalinjul/kotlin-multiplatform-oidc) |
 
@@ -48,6 +49,7 @@ via OAuth/OIDC. Kotlin Multiplatform, targeting Android and iOS from one shared 
 | JDK 21 | Gradle toolchain (`jvmToolchain(21)`, all modules) | `java -version` | — |
 | Android SDK (cmdline-tools, platform 37, build-tools) | `./gradlew :app:android:assembleDebug`, Android Studio | Android SDK path env var set (`ANDROID_HOME`) | — |
 | Xcode 15+ + command line tools (**macOS only**) | Building `app:ios` | `xcode-select -p` | — |
+| CocoaPods (**macOS only**) | Linking Firebase into `app:ios` (`app/ios/Podfile`) | `pod --version` | — |
 | [`gh`](https://cli.github.com/) (GitHub CLI) | Agents inspecting CI runs/PRs/releases (`analyze-ci-failure`, `release-app` skills) | `gh auth status` | `gh auth login` |
 | Node.js 20+ (current LTS) | Runs the Firebase MCP server via `npx` | `node --version` | — |
 | [`firebase-tools`](https://firebase.google.com/docs/cli) | Firebase App Distribution setup, Crashlytics analysis, and the underlying tool the Firebase MCP server wraps | `firebase --version` | `firebase login` |
@@ -58,10 +60,15 @@ missing.
 
 ### Build & run
 
+Both platforms need a local Firebase config file first — neither is committed (see
+`.claude/skills/setup-local-tools/SKILL.md`, "Firebase config files for local builds", for how to
+get them): `app/android/google-services.json` and `app/ios/iosApp/GoogleService-Info.plist`.
+
 **Android** — `./gradlew :app:android:assembleDebug`, or open the project in Android Studio and
 run the `app:android` configuration.
 
-**iOS** — open `app/ios/iosApp.xcodeproj` in Xcode (15+) and run.
+**iOS** — run `pod install` in `app/ios` (generates `iosApp.xcworkspace`), then open
+`app/ios/iosApp.xcworkspace` (not the `.xcodeproj`) in Xcode (15+) and run.
 
 ## Continuous integration
 

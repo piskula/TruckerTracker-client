@@ -121,6 +121,29 @@ xcode-select -p               # macOS only — points at an installed Xcode
 - [ ] A fresh Claude Code session shows the `firebase` MCP server in its tool list
       (MCP servers load at session start — restart the session after finishing setup)
 
+## Step 3 — Firebase config files for local builds
+
+`app/android/google-services.json` and `app/ios/iosApp/GoogleService-Info.plist` are required for
+Crashlytics (and Firebase generally) to compile/link, but neither is committed — both are
+gitignored and fetched fresh in CI on every build via `firebase apps:sdkconfig` (see the "Fetch
+Firebase Android config" / "Fetch Firebase iOS config" steps in `.github/workflows/build-app.yml`
+and `release-app.yml`). A fresh local checkout has neither file, so local builds need one of:
+
+- **Firebase Console** (no CLI needed): `console.firebase.google.com` → `trucktrack-cf134` → ⚙️
+  Project settings → General → "Your apps" → download `google-services.json` /
+  `GoogleService-Info.plist` for the respective app → place at the paths above.
+- **`firebase-tools` CLI** (once logged in per Step 1):
+  ```bash
+  firebase apps:list --project trucktrack-cf134   # get the ANDROID/IOS app IDs
+  firebase apps:sdkconfig ANDROID <ANDROID_APP_ID> --project trucktrack-cf134 -o app/android/google-services.json
+  firebase apps:sdkconfig IOS <IOS_APP_ID> --project trucktrack-cf134 -o app/ios/iosApp/GoogleService-Info.plist
+  ```
+
+This is a one-time step per machine — the files don't change unless the Firebase project
+reconfigures. iOS additionally needs `pod install` run from `app/ios` (CocoaPods) before opening
+`iosApp.xcworkspace` — see the `manage-ios-signing` skill and `docs/KMP_IOS_READINESS.md` for the
+rest of the iOS build setup.
+
 ## Gotchas worth knowing
 
 | Gotcha | Why it happens |

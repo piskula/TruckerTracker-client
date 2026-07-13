@@ -31,6 +31,12 @@ spotless = "8.8.0"
 compose-rules-ktlint = "0.6.2"
 paging = "3.5.0"
 
+# Firebase
+google-services = "4.5.0"
+firebase-crashlytics-gradle = "3.0.7"
+firebase-kotlin-sdk = "2.4.0"
+firebase-bom = "34.15.0"
+
 [libraries]
 # AndroidX Core
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -84,6 +90,11 @@ oidc-core = { module = "io.github.kalinjul.kotlin.multiplatform:oidc-core", vers
 oidc-appsupport = { module = "io.github.kalinjul.kotlin.multiplatform:oidc-appsupport", version.ref = "oidc" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 
+# Firebase
+firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase-kotlin-sdk" }
+firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebase-kotlin-sdk" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+
 # Build-logic
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -108,6 +119,9 @@ trucktrack-spotless = { id = "trucktrack.spotless" }
 trucktrack-compose = { id = "trucktrack.compose" }
 trucktrack-ktor = { id = "trucktrack.ktor" }
 trucktrack-android-signing = { id = "trucktrack.android.signing" }
+trucktrack-firebase = { id = "trucktrack.firebase" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }
 
 [bundles]
 navigation3 = ["androidx-navigation3-runtime", "androidx-navigation3-ui", "androidx-lifecycle-viewmodel-navigation3"]
