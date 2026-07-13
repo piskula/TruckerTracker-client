@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.app
 
+import coil3.SingletonImageLoader
 import com.momosi.trucktrack.app.di.allModules
 import com.momosi.trucktrack.core.common.crashreporting.CrashReporting
 import com.momosi.trucktrack.core.common.logger.Logger
@@ -16,4 +17,5 @@ fun initKoin(platformConfig: KoinApplication.() -> Unit = {}) {
 fun initApp(isDebug: Boolean) {
     Logger.init(logToConsole = isDebug)
     CrashReporting.init()
+    SingletonImageLoader.setSafe(AppImageLoaderFactory())
 }

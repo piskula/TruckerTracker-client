@@ -65,7 +65,6 @@ dependencies {
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.coil.compose)
-    implementation(libs.coil.network.ktor)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 }
