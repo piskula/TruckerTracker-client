@@ -2,13 +2,35 @@
 
 ## Project Overview
 
-TruckTrack is a **Kotlin Multiplatform** multi-module application for fleet management. Follow these project-specific standards:
+TruckTrack is a monorepo for a fleet-management product: a **Kotlin Multiplatform** client app and a **Spring Boot** backend, sharing a contract module of DTOs. Follow these project-specific standards:
 
-* **Language** — Kotlin 2.x for all development.
+* **Language** — Kotlin 2.x for all development, client and server.
 * **UI** — Compose Multiplatform (`org.jetbrains.compose`) only. Never use XML layouts.
-* **Dependency Injection** — Koin. KMP-compatible, no annotation processing required.
-* **Libraries** — Use entries from `gradle/libs.versions.toml`. Do not add new libraries without checking KMP compatibility first.
-* **Concurrency** — Kotlin coroutines and Flows exclusively. No RxJava, no callbacks.
+* **Dependency Injection** — Koin (client). KMP-compatible, no annotation processing required.
+* **Libraries** — Use entries from `gradle/libs.versions.toml`. Do not add new libraries without checking KMP compatibility first (for client/`shared` code).
+* **Concurrency** — Kotlin coroutines and Flows exclusively on the client. No RxJava, no callbacks.
+
+### Repository Layout
+
+Three independent Gradle builds, orchestrated from the repo root as a **composite build**:
+
+```
+/
+  settings.gradle.kts   ← thin orchestrator: includeBuild("app"), includeBuild("server"), includeBuild("shared")
+  gradle/libs.versions.toml   ← single version catalog, shared by all three builds via an explicit file reference
+  app/       ← Kotlin Multiplatform client (own settings.gradle.kts, own build-logic/)
+  server/    ← Spring Boot backend (own settings.gradle.kts, plain Kotlin/JVM)
+  shared/    ← KMP contract module: DTOs used by both app/ and server/ (own settings.gradle.kts)
+```
+
+Each of `app/`, `server/`, `shared/` is a **fully self-contained Gradle build** (own `gradlew`, own `settings.gradle.kts`) — not a subproject of one giant build. This is deliberate, not incidental: mixing the client's `kotlin.multiplatform` plugin and the server's plain `kotlin.jvm` plugin in one shared build classpath (e.g. via a single `build-logic` included build serving both) triggers a reproducible Kotlin 2.4.0 / Gradle 9.6.0 crash (`NoClassDefFoundError: GradleBuildTimeMetric` in Kotlin's classpath-entry-snapshot transform) — reproduced in isolation outside this repo. Keeping the three builds structurally separate, connected only by Gradle's composite-build dependency substitution (matching `com.momosi.trucktrack:shared` coordinates to the real `:shared` project), avoids it entirely.
+
+Practical implications:
+- **Building everything**: `./gradlew :app:app:android:assembleDebug :server:module-server:bootJar` from the repo root drives both builds via composite task routing.
+- **Working on just the client**: `cd app && ./gradlew ...` — a fully independent build, doesn't need `server/` or the root at all. Same for `cd server && ./gradlew ...`.
+- **Opening in an IDE**: open the repo root for the full linked composite workspace, or open `app/` (or `server/`) alone for a faster, decoupled single-purpose workspace.
+- **Adding a dependency on `shared`**: declare it as a regular external coordinate — `implementation("com.momosi.trucktrack:shared")` (or `api(...)` if the type appears in the consuming module's own public API) — never `project(":shared")`, since `shared` is a different Gradle build.
+- **`shared`'s own convention**: pure Kotlin + `kotlinx.serialization` only. No Ktor, no Koin, no Spring, no Android/iOS-only APIs. It has no `build-logic` of its own — plugins are applied directly via `alias(libs.plugins.kotlin.multiplatform)`/`alias(libs.plugins.kotlin.serialization)` in its `build.gradle.kts`. Changes there affect both `app/` and `server/` — check both consumers before merging.
 
 ---
 
@@ -24,33 +46,37 @@ TruckTrack is a **Kotlin Multiplatform** multi-module application for fleet mana
 
 ---
 
-## Project Structure
+## Project Structure — `app/` (KMP Client)
 
-Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
+Multi-module KMP architecture, its own Gradle build rooted at `app/`. Root package: `com.momosi.trucktrack`.
 
 ### Modules
 
-* **`app:android`** — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`. Contains only Android entrypoints (`Application`, `Activity`). Depends on `app:shared`.
-* **`app:shared`** — Shared KMP app module. `TruckTrackApp` (root Composable), `TruckTrackViewModel`, `AppModule` (Koin wiring), `AppInitializer` (`startKoin`). Depends on all `core` and `feature` modules. Source in `src/commonMain/kotlin/`.
-* **`app:ios`** — SwiftUI iOS entry point at `app/ios/iosApp.xcodeproj`. A separate Xcode project consuming `app:shared`'s Kotlin/Native `Shared.framework` via direct integration (Gradle's `embedAndSignAppleFrameworkForXcode`), not a Gradle module — not listed in `settings.gradle.kts`. See `docs/KMP_IOS_READINESS.md`.
-* **`feature`** (multiple modules) — UI screens and logic for each product feature. Always split into:
+Physical paths below are relative to `app/`; Gradle module paths (e.g. `:app:android`) are relative to `app/`'s own `settings.gradle.kts`, and get an extra `:app:` prefix (`:app:app:android`) only when addressed from the *repo* root via the composite build.
+
+* **`app/android`** (Gradle path `:app:android`) — Thin Android shell. `TruckTrackApplication`, `TruckTrackActivity`. Contains only Android entrypoints (`Application`, `Activity`). Depends on `app/shared`.
+* **`app/shared`** (Gradle path `:app:shared`) — Shared KMP app module. `TruckTrackApp` (root Composable), `TruckTrackViewModel`, `AppModule` (Koin wiring), `AppInitializer` (`startKoin`). Depends on all `core` and `feature` modules. Source in `src/commonMain/kotlin/`.
+* **`app/ios`** — SwiftUI iOS entry point at `app/app/ios/iosApp.xcodeproj`. A separate Xcode project consuming `app:shared`'s Kotlin/Native `Shared.framework` via direct integration (Gradle's `embedAndSignAppleFrameworkForXcode`, invoked from the repo root as `:app:app:shared:embedAndSignAppleFrameworkForXcode`), not a Gradle module itself. See `docs/KMP_IOS_READINESS.md`.
+* **`feature`** (multiple modules, at `app/feature/*`) — UI screens and logic for each product feature. Always split into:
   * `api` — navigation keys only (`@Serializable` `NavKey` objects). Source in `src/commonMain/kotlin/`.
   * `impl` — ViewModel, screen Composables, state, actions, events. Source in `src/commonMain/kotlin/`.
   * Current features: `sign-in`, `issues`, `profile`.
-* **`core`** (multiple modules) — Shared domain logic, utilities, and infrastructure:
+* **`core`** (multiple modules, at `app/core/*`) — Shared domain logic, utilities, and infrastructure:
   * `common` — `DispatcherProvider`, `ConnectivityManager`, `CurrentActivityHelper`, `Logger` (Kermit wrapper), `Page<T>` model. Pure Kotlin in `commonMain`; Android impls in `androidMain`.
-  * `network` — `NetworkModule` (Ktor client setup), `PageDto`, `PageDtoMapper`. Fully in `commonMain`.
+  * `network` — `NetworkModule` (Ktor client setup). Fully in `commonMain`.
   * `user` — `AuthManager`, `UserRepository`, OAuth/OIDC via AppAuth, JWT parsing, `UserStorage`. Interfaces in `commonMain`; AppAuth/storage impls in `androidMain`.
   * `issue` — `Issue`, `IssueStatus`, `IssuePriority`, `Account` models; `IssueRepository`. Fully in `commonMain`.
   * `vehicle` — `Vehicle`, `VehicleType` models; `VehicleRepository`. Fully in `commonMain`.
   * `navigation` — `NavigationState`, `Navigator` wrapping Navigation 3. Fully in `commonMain`.
   * `ui-library` — `TruckTrackTheme`, `AppTheme`, `TruckTrackIcons`, all reusable Compose Multiplatform components. Components in `commonMain`; `@Preview` functions in `androidMain`.
 
+Network DTOs (`IssueDto`, `VehicleDto`, `PageDto`, etc.) no longer live in `core/network`/`core/issue`/`core/vehicle` — they come from the separate `:shared` build (see "Repository Layout" above). `core/*` modules that talk to the API depend on it via `implementation("com.momosi.trucktrack:shared")`.
+
 ### Module Dependency Rules
 
 * `feature/*/api` — depends only on `:core:navigation`. Contains only `NavKey` objects. No business logic.
 * `feature/*/impl` — depends on its own `api` module + any `core` modules needed. No cross-feature dependencies.
-* `core` modules — may depend on other `core` modules in a directed acyclic graph. Never depend on `feature` modules.
+* `core` modules — may depend on other `core` modules in a directed acyclic graph, plus `com.momosi.trucktrack:shared` for DTOs. Never depend on `feature` modules.
 * `app:shared` — depends on all `feature/*/impl` and all `core` modules. The shared wiring point.
 * `app:android` — depends on `app:shared`, `core:common`, `core:network`. Thin Android shell only.
 
@@ -61,6 +87,13 @@ Multi-module KMP architecture. Root package: `com.momosi.trucktrack`.
 * Core: `com.momosi.trucktrack.core.<name>`
 * App: `com.momosi.trucktrack.app` (shared Composable entry, DI wiring)
 * Android shell: `com.momosi.trucktrack` (Application, Activity)
+* Shared contract (separate build): `com.momosi.trucktrack.shared.<name>`
+
+## Project Structure — `server/` (Backend) and `shared/` (Contract)
+
+* **`server/module-api`** — Spring MVC contract interfaces only (`@Tag`, `@Operation`, `@GetMapping`, etc.), importing DTOs from `com.momosi.trucktrack:shared`. No DTOs of its own. See `server/module-api/CLAUDE.md`.
+* **`server/module-server`** — Spring Boot 4 implementation: controllers, JPA entities/repositories, use cases. Implements `module-api`'s interfaces, mapping domain models to/from `shared`'s DTOs. Includes `config/JacksonConfig.kt`, which bridges `kotlin.time.Instant` and `kotlin.uuid.Uuid` (the types `shared`'s DTOs use) to/from JSON the same plain-string way `kotlinx.serialization` already represents them on the client — the wire format is unaffected. See `server/module-server/CLAUDE.md`.
+* **`shared`** — pure KMP module (`commonMain` + `jvm()`/`androidTarget()`/iOS targets), `kotlinx.serialization`-annotated DTOs and enums (`IssueDto`, `VehicleDto`, `PageDto`, `AccountDto`, status/priority/type enums, etc.), package `com.momosi.trucktrack.shared.*`. No framework dependencies (no Ktor, Koin, Spring, Spring MVC annotations) — it must stay usable from both a Spring Boot JVM process and a KMP client.
 
 ### Source Set Structure (KMP)
 
@@ -167,7 +200,7 @@ One package per feature screen. Keep related files together:
 * HTTP client: **Ktor Client** (`io.ktor:ktor-client-*`). Configured in `core:network`. KMP-compatible.
 * Engine: `ktor-client-okhttp` on Android (swap to `ktor-client-darwin` on iOS).
 * Serialization: **Kotlinx Serialization JSON** via `ktor-client-content-negotiation` + `ktor-serialization-kotlinx-json`.
-* All API interfaces/clients live in the relevant `core` module (e.g., `core:issue`, `core:user`).
+* All API interfaces/clients live in the relevant `core` module (e.g., `core:issue`, `core:user`), and request/response types come from `com.momosi.trucktrack:shared` (the `:shared` build) — not module-local DTOs.
 * Base URL: `https://tt.momosi.org/`.
 * Authentication: inject a bearer token via Ktor's `Auth` plugin, wired to `AuthManager`.
 * To use Ktor in a module: apply `trucktrack.ktor` plugin or add `implementation(libs.bundles.ktor)` to `commonMain` dependencies.

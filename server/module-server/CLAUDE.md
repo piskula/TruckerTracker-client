@@ -102,23 +102,25 @@ Controllers live inside their domain package (`<domain>/controller/`). There is 
 
 **`util/PaginationExtensions.kt`** — shared pagination helpers used by all controllers:
 ```kotlin
-inline fun <T : Any, U> Page<T>.toDto(transform: (T) -> U): PageDTO<U>
+inline fun <T : Any, U> Page<T>.toDto(transform: (T) -> U): PageDto<U>
 
-fun PageableDTO.toModel(): Pageable   // converts API DTO → Spring Pageable
+fun PageableDto.toModel(): Pageable   // converts shared DTO → Spring Pageable
 
 fun String?.toSortModel(): Sort       // parses "property,direction;property2,direction2"
                                       // multiple columns separated by ";"
 ```
-Controllers import `toDto` and `toModel` from this file — do not re-implement them locally.
+`PageDto`/`PageableDto` come from `com.momosi.trucktrack.shared.common` (the separate `:shared` build), not from module-api. Controllers import `toDto` and `toModel` from this file — do not re-implement them locally.
 
 ## Controller Conventions
 
-- Controllers map between module-api DTO enums and server-side enums via `.name` / `valueOf`:
+- Controllers map between `shared`'s DTO enums and server-side enums via `.name` / `valueOf`:
   - DTO → server: `ServerEnum.valueOf(dto.name)`
-  - server → DTO: `EnumDTO.valueOf(serverEnum.name)`
-- Private mapping functions (`toDTO()`, `toModel()`) are file-level extension functions at the bottom of the controller file.
-- Use `pageable.toModel()` (from `util/PaginationExtensions.kt`) to convert `PageableDTO` to Spring `Pageable`.
-- Use `.toDto { it.toDTO() }` (from `util/PaginationExtensions.kt`) to map `Page<Model>` to `PageDTO<DTO>`.
+  - server → DTO: `EnumDto.valueOf(serverEnum.name)`
+- Private mapping functions (`toDto()`, `toModel()`) are file-level extension functions, typically in a sibling `<Domain>Mapper.kt` file.
+- Use `pageable.toModel()` (from `util/PaginationExtensions.kt`) to convert `PageableDto` to Spring `Pageable`.
+- Use `.toDto { it.toDto() }` (from `util/PaginationExtensions.kt`) to map `Page<Model>` to `PageDto<Dto>`.
+- Timestamps: domain models use `OffsetDateTime`; `shared`'s DTOs use `kotlin.time.Instant`. Convert with `.toInstant().toKotlinInstant()` (model → DTO) — the `toKotlinInstant()` extension is `kotlin.time.toKotlinInstant()` from the Kotlin stdlib, not `kotlinx.datetime`.
+- UUIDs: domain models use `java.util.UUID`; `shared`'s DTOs use `kotlin.uuid.Uuid`. Convert with `.toKotlinUuid()` / `.toJavaUuid()` (`kotlin.uuid.*`, `@OptIn(ExperimentalUuidApi::class)`).
 
 ## Jackson 3.x / Spring Boot 4.x — Kotlin Data Class Deserialization
 
