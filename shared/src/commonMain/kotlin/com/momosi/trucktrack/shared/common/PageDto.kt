@@ -1,6 +1,9 @@
-package sk.momosilabs.truckTrack.api.common
+package com.momosi.trucktrack.shared.common
 
-data class PageDTO<T>(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class PageDto<T>(
     val totalElements: Long,
     val totalPages: Int,
     val number: Int,

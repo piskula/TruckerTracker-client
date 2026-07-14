@@ -1,13 +1,13 @@
 package sk.momosilabs.truckTrack.issueAttachment.controller
 
+import com.momosi.trucktrack.shared.common.PageDto
+import com.momosi.trucktrack.shared.common.PageableDto
+import com.momosi.trucktrack.shared.issue.IssueAttachmentDto
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import sk.momosilabs.truckTrack.api.common.PageDTO
-import sk.momosilabs.truckTrack.api.common.PageableDTO
 import sk.momosilabs.truckTrack.api.issue.IssueAttachmentApi
-import sk.momosilabs.truckTrack.api.issue.dto.IssueAttachmentDTO
 import sk.momosilabs.truckTrack.file.model.mapResponseEntity
 import sk.momosilabs.truckTrack.issueAttachment.service.getPhoto.GetPhotoUseCase
 import sk.momosilabs.truckTrack.issueAttachment.service.getPhotoList.GetPhotoListUseCase
@@ -22,11 +22,11 @@ class IssueAttachmentController(
     private val uploadPhoto: UploadPhotoUseCase,
 ) : IssueAttachmentApi {
 
-    override fun getPhotoList(issueId: Long, pageable: PageableDTO): PageDTO<IssueAttachmentDTO> =
-        getPhotoList.list(issueId, pageable.toModel()).toDto { it.toDTO() }
+    override fun getPhotoList(issueId: Long, pageable: PageableDto): PageDto<IssueAttachmentDto> =
+        getPhotoList.list(issueId, pageable.toModel()).toDto { it.toDto() }
 
-    override fun uploadPhoto(issueId: Long, file: MultipartFile): IssueAttachmentDTO =
-        uploadPhoto.upload(issueId = issueId, file = file.toModel()).toDTO()
+    override fun uploadPhoto(issueId: Long, file: MultipartFile): IssueAttachmentDto =
+        uploadPhoto.upload(issueId = issueId, file = file.toModel()).toDto()
 
     override fun downloadPhoto(issueId: Long, attachmentId: Long): ResponseEntity<ByteArrayResource> =
         getPhoto.get(attachmentId).mapResponseEntity()

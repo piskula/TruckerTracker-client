@@ -1,13 +1,13 @@
 package sk.momosilabs.truckTrack.issueManagement.controller
 
+import com.momosi.trucktrack.shared.common.PageDto
+import com.momosi.trucktrack.shared.common.PageableDto
+import com.momosi.trucktrack.shared.issue.IssueCreateDto
+import com.momosi.trucktrack.shared.issue.IssueDto
+import com.momosi.trucktrack.shared.issue.IssueFilterDto
+import com.momosi.trucktrack.shared.issue.IssueHistoryDto
 import org.springframework.web.bind.annotation.RestController
-import sk.momosilabs.truckTrack.api.common.PageDTO
-import sk.momosilabs.truckTrack.api.common.PageableDTO
 import sk.momosilabs.truckTrack.api.issue.IssueManagementApi
-import sk.momosilabs.truckTrack.api.issue.dto.IssueCreateDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDTO
 import sk.momosilabs.truckTrack.issueManagement.service.addComment.AddCommentUseCase
 import sk.momosilabs.truckTrack.issueManagement.service.assignToMe.AssignInProgressIssueToMeUseCase
 import sk.momosilabs.truckTrack.issueManagement.service.createIssue.CreateIssueCommand
@@ -33,16 +33,16 @@ class IssueManagementController(
 ) : IssueManagementApi {
 
     override fun getIssueList(
-        filter: IssueFilterDTO?,
-        pageable: PageableDTO
-    ): PageDTO<IssueDTO> =
+        filter: IssueFilterDto?,
+        pageable: PageableDto
+    ): PageDto<IssueDto> =
         getIssueList.get(filter?.toModel(), pageable.toModel())
-            .toDto { it.toDTO() }
+            .toDto { it.toDto() }
 
-    override fun getIssue(id: Long): IssueDTO =
-        getIssue.get(id).toDTO()
+    override fun getIssue(id: Long): IssueDto =
+        getIssue.get(id).toDto()
 
-    override fun createIssue(request: IssueCreateDTO): IssueDTO =
+    override fun createIssue(request: IssueCreateDto): IssueDto =
         createIssue.create(
             CreateIssueCommand(
                 vehicleId = request.vehicleId,
@@ -50,21 +50,21 @@ class IssueManagementController(
                 description = request.description,
                 priority = request.priority.toModel(),
             )
-        ).toDTO()
+        ).toDto()
 
-    override fun startIssue(id: Long): IssueDTO =
-        startIssue.start(id).toDTO()
+    override fun startIssue(id: Long): IssueDto =
+        startIssue.start(id).toDto()
 
-    override fun assignToMe(id: Long): IssueDTO =
-        assignInProgressIssueToMe.reassign(issueId = id).toDTO()
+    override fun assignToMe(id: Long): IssueDto =
+        assignInProgressIssueToMe.reassign(issueId = id).toDto()
 
-    override fun resolveIssue(id: Long): IssueDTO =
-        resolveIssue.resolve(id).toDTO()
+    override fun resolveIssue(id: Long): IssueDto =
+        resolveIssue.resolve(id).toDto()
 
-    override fun getIssueHistory(id: Long, pageable: PageableDTO): PageDTO<IssueHistoryDTO> =
-        getIssueHistory.get(id, pageable.toModel()).toDto { it.toDTO() }
+    override fun getIssueHistory(id: Long, pageable: PageableDto): PageDto<IssueHistoryDto> =
+        getIssueHistory.get(id, pageable.toModel()).toDto { it.toDto() }
 
-    override fun addComment(id: Long, text: String): IssueHistoryDTO =
-        addComment.addComment(issueId = id, comment = text).toDTO()
+    override fun addComment(id: Long, text: String): IssueHistoryDto =
+        addComment.addComment(issueId = id, comment = text).toDto()
 
 }

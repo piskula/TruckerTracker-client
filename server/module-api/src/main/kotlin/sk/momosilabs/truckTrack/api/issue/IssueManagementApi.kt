@@ -1,5 +1,11 @@
 package sk.momosilabs.truckTrack.api.issue
 
+import com.momosi.trucktrack.shared.common.PageDto
+import com.momosi.trucktrack.shared.common.PageableDto
+import com.momosi.trucktrack.shared.issue.IssueCreateDto
+import com.momosi.trucktrack.shared.issue.IssueDto
+import com.momosi.trucktrack.shared.issue.IssueFilterDto
+import com.momosi.trucktrack.shared.issue.IssueHistoryDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -7,12 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import sk.momosilabs.truckTrack.api.common.PageDTO
-import sk.momosilabs.truckTrack.api.common.PageableDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueCreateDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDTO
 
 @Tag(name = "Issues")
 interface IssueManagementApi {
@@ -24,38 +24,38 @@ interface IssueManagementApi {
     @Operation(summary = "Get issue list")
     @PostMapping(ENDPOINT)
     fun getIssueList(
-        @RequestBody(required = false) filter: IssueFilterDTO?,
-        @ParameterObject pageable: PageableDTO,
-    ): PageDTO<IssueDTO>
+        @RequestBody(required = false) filter: IssueFilterDto?,
+        @ParameterObject pageable: PageableDto,
+    ): PageDto<IssueDto>
 
     @Operation(summary = "Get issue by ID")
     @GetMapping("$ENDPOINT/byId/{id}")
-    fun getIssue(@PathVariable id: Long): IssueDTO
+    fun getIssue(@PathVariable id: Long): IssueDto
 
     @Operation(summary = "Create issue")
     @PostMapping("$ENDPOINT/create")
-    fun createIssue(@RequestBody request: IssueCreateDTO): IssueDTO
+    fun createIssue(@RequestBody request: IssueCreateDto): IssueDto
 
     @Operation(summary = "Start issue")
     @PostMapping("$ENDPOINT/{id}/start")
-    fun startIssue(@PathVariable id: Long): IssueDTO
+    fun startIssue(@PathVariable id: Long): IssueDto
 
     @Operation(summary = "Assign in-progress issue to me")
     @PostMapping("$ENDPOINT/{id}/assignTome")
-    fun assignToMe(@PathVariable id: Long): IssueDTO
+    fun assignToMe(@PathVariable id: Long): IssueDto
 
     @Operation(summary = "Resolve issue")
     @PostMapping("$ENDPOINT/{id}/resolve")
-    fun resolveIssue(@PathVariable id: Long): IssueDTO
+    fun resolveIssue(@PathVariable id: Long): IssueDto
 
     @Operation(summary = "Get issue history")
     @GetMapping("$ENDPOINT/{id}/history")
     fun getIssueHistory(
         @PathVariable id: Long,
-        @ParameterObject pageable: PageableDTO,
-    ): PageDTO<IssueHistoryDTO>
+        @ParameterObject pageable: PageableDto,
+    ): PageDto<IssueHistoryDto>
 
     @Operation(summary = "Add comment")
     @PostMapping("$ENDPOINT/{id}/comment")
-    fun addComment(@PathVariable id: Long, @RequestBody text: String): IssueHistoryDTO
+    fun addComment(@PathVariable id: Long, @RequestBody text: String): IssueHistoryDto
 }

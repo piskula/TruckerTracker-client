@@ -1,9 +1,9 @@
 package sk.momosilabs.truckTrack.vehicle.controller
 
+import com.momosi.trucktrack.shared.vehicle.VehicleDto
+import com.momosi.trucktrack.shared.vehicle.VehicleTypeDto
 import org.springframework.web.bind.annotation.RestController
 import sk.momosilabs.truckTrack.api.vehicle.VehicleApi
-import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleDTO
-import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleTypeDTO
 import sk.momosilabs.truckTrack.vehicle.model.VehicleModel
 import sk.momosilabs.truckTrack.vehicle.service.getVehicleList.GetVehicleListUseCase
 
@@ -12,14 +12,14 @@ class VehicleController(
     private val getVehicleList: GetVehicleListUseCase,
 ) : VehicleApi {
 
-    override fun getVehicleList(): List<VehicleDTO> =
-        getVehicleList.get().map { it.toDTO() }
+    override fun getVehicleList(): List<VehicleDto> =
+        getVehicleList.get().map { it.toDto() }
 }
 
-private fun VehicleModel.toDTO() = VehicleDTO(
+private fun VehicleModel.toDto() = VehicleDto(
     id = id,
     licensePlate = licensePlate,
     make = make,
     model = model,
-    type = VehicleTypeDTO.valueOf(type.name),
+    type = VehicleTypeDto.valueOf(type.name),
 )

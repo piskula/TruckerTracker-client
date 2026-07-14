@@ -1,10 +1,10 @@
 package com.momosi.trucktrack.core.issue.api
 
-import com.momosi.trucktrack.core.issue.dto.IssueCreateDto
-import com.momosi.trucktrack.core.issue.dto.IssueDto
-import com.momosi.trucktrack.core.issue.dto.IssueFilterDto
-import com.momosi.trucktrack.core.issue.dto.IssueHistoryDto
-import com.momosi.trucktrack.core.network.dto.PageDto
+import com.momosi.trucktrack.shared.common.PageDto
+import com.momosi.trucktrack.shared.issue.IssueCreateDto
+import com.momosi.trucktrack.shared.issue.IssueDto
+import com.momosi.trucktrack.shared.issue.IssueFilterDto
+import com.momosi.trucktrack.shared.issue.IssueHistoryDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

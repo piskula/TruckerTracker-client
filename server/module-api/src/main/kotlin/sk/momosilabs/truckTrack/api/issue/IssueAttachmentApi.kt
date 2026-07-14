@@ -1,5 +1,8 @@
 package sk.momosilabs.truckTrack.api.issue
 
+import com.momosi.trucktrack.shared.common.PageDto
+import com.momosi.trucktrack.shared.common.PageableDto
+import com.momosi.trucktrack.shared.issue.IssueAttachmentDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -11,9 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
-import sk.momosilabs.truckTrack.api.common.PageDTO
-import sk.momosilabs.truckTrack.api.common.PageableDTO
-import sk.momosilabs.truckTrack.api.issue.dto.IssueAttachmentDTO
 
 @Tag(name = "Issue Attachments")
 interface IssueAttachmentApi {
@@ -26,15 +26,15 @@ interface IssueAttachmentApi {
     @GetMapping(ENDPOINT)
     fun getPhotoList(
         @PathVariable issueId: Long,
-        @ParameterObject pageable: PageableDTO,
-    ): PageDTO<IssueAttachmentDTO>
+        @ParameterObject pageable: PageableDto,
+    ): PageDto<IssueAttachmentDto>
 
     @Operation(summary = "Upload photo")
     @PostMapping(ENDPOINT, consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadPhoto(
         @PathVariable issueId: Long,
         @RequestParam file: MultipartFile,
-    ): IssueAttachmentDTO
+    ): IssueAttachmentDto
 
     @Operation(summary = "Download photo")
     @GetMapping("$ENDPOINT/{attachmentId}", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE])

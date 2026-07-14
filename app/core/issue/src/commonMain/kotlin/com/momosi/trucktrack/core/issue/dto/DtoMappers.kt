@@ -9,10 +9,20 @@ import com.momosi.trucktrack.core.issue.model.IssueHistoryType
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.vehicle.dto.toVehicle
-import kotlin.time.Instant
+import com.momosi.trucktrack.shared.issue.AccountDto
+import com.momosi.trucktrack.shared.issue.IssueAttachmentDto
+import com.momosi.trucktrack.shared.issue.IssueCreateDto
+import com.momosi.trucktrack.shared.issue.IssueDto
+import com.momosi.trucktrack.shared.issue.IssueFilterDto
+import com.momosi.trucktrack.shared.issue.IssueHistoryDto
+import com.momosi.trucktrack.shared.issue.IssuePriorityDto
+import com.momosi.trucktrack.shared.issue.IssueStatusDto
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 internal fun AccountDto.toAccount(): Account = Account(
-    id = id,
+    id = id.toString(),
     username = username,
     firstName = firstName,
     lastName = lastName,
@@ -22,26 +32,27 @@ internal fun IssueDto.toIssue(): Issue = Issue(
     id = id,
     title = title,
     description = description,
-    status = IssueStatus.fromApiValue(status),
-    priority = IssuePriority.fromApiValue(priority),
-    vehicle = vehicle?.toVehicle(),
-    reportedBy = reportedBy?.toAccount(),
+    status = IssueStatus.fromApiValue(status.name),
+    priority = IssuePriority.fromApiValue(priority.name),
+    vehicle = vehicle.toVehicle(),
+    reportedBy = reportedBy.toAccount(),
     assignedTo = assignedTo?.toAccount(),
-    createdAt = createdAt.parseInstant(),
-    updatedAt = updatedAt.parseInstant(),
+    createdAt = createdAt,
+    updatedAt = updatedAt,
 )
 
 internal fun IssueCreate.toDto(): IssueCreateDto = IssueCreateDto(
     vehicleId = vehicleId,
     title = title,
     description = description,
-    priority = priority.toApiValue(),
+    priority = IssuePriorityDto.valueOf(priority.toApiValue()),
 )
 
+@OptIn(ExperimentalUuidApi::class)
 internal fun List<IssueStatus>.toFilterDto(vehicleIds: List<Long>, accountIds: List<String>): IssueFilterDto = IssueFilterDto(
-    statuses = map { it.toApiValue() },
+    statuses = map { IssueStatusDto.valueOf(it.toApiValue()) },
     vehicleIds = vehicleIds,
-    accountIds = accountIds,
+    accountIds = accountIds.map { Uuid.parse(it) },
 )
 
 internal fun IssueAttachmentDto.toIssueAttachment(): IssueAttachment = IssueAttachment(
@@ -49,20 +60,16 @@ internal fun IssueAttachmentDto.toIssueAttachment(): IssueAttachment = IssueAtta
     filename = filename,
     contentType = contentType,
     sizeBytes = sizeBytes,
-    uploadedBy = uploadedBy?.toAccount(),
-    uploadedAt = uploadedAt.parseInstant(),
+    uploadedBy = uploadedBy.toAccount(),
+    uploadedAt = uploadedAt,
 )
 
 internal fun IssueHistoryDto.toIssueHistory(): IssueHistory = IssueHistory(
-    id = id,
-    type = IssueHistoryType.fromApiValue(type),
-    performedBy = performedBy?.toAccount(),
-    createdAt = createdAt.parseInstant(),
-    statusFrom = statusFrom?.let { IssueStatus.fromApiValue(it) },
-    statusTo = statusTo?.let { IssueStatus.fromApiValue(it) },
+    id = id.toString(),
+    type = IssueHistoryType.fromApiValue(type.name),
+    performedBy = performedBy.toAccount(),
+    createdAt = createdAt,
+    statusFrom = statusFrom?.let { IssueStatus.fromApiValue(it.name) },
+    statusTo = statusTo?.let { IssueStatus.fromApiValue(it.name) },
     commentText = commentText,
 )
-
-private fun String.parseInstant(): Instant = runCatching {
-    Instant.parse(this)
-}.getOrDefault(Instant.fromEpochMilliseconds(0))

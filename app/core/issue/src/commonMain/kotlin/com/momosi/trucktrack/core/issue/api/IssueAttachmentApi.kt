@@ -1,7 +1,7 @@
 package com.momosi.trucktrack.core.issue.api
 
-import com.momosi.trucktrack.core.issue.dto.IssueAttachmentDto
-import com.momosi.trucktrack.core.network.dto.PageDto
+import com.momosi.trucktrack.shared.common.PageDto
+import com.momosi.trucktrack.shared.issue.IssueAttachmentDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.accept

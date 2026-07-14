@@ -1,9 +1,9 @@
 package sk.momosilabs.truckTrack.api.vehicle
 
+import com.momosi.trucktrack.shared.vehicle.VehicleDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
-import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleDTO
 
 @Tag(name = "Vehicles")
 interface VehicleApi {
@@ -14,5 +14,5 @@ interface VehicleApi {
 
     @Operation(summary = "Get vehicle list")
     @GetMapping(ENDPOINT)
-    fun getVehicleList(): List<VehicleDTO>
+    fun getVehicleList(): List<VehicleDto>
 }

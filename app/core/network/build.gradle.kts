@@ -10,6 +10,7 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
+            api("com.momosi.trucktrack:shared")
             implementation(projects.core.common)
             implementation(projects.core.user)
         }

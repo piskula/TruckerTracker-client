@@ -1,19 +1,16 @@
-rootProject.name = "server"
-
-include("module-api")
-include("module-server")
-
-includeBuild("../shared")
-
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         mavenCentral()
+        gradlePluginPortal()
+        google()
     }
 }
 
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
     repositories {
+        google()
         mavenCentral()
     }
 
@@ -23,3 +20,5 @@ dependencyResolutionManagement {
         }
     }
 }
+
+rootProject.name = "shared"

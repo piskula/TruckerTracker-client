@@ -1,5 +1,6 @@
 package sk.momosilabs.truckTrack.config
 
+import com.momosi.trucktrack.shared.common.ErrorDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -10,22 +11,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import org.springframework.web.util.WebUtils
-import sk.momosilabs.truckTrack.api.common.ErrorDTO
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @ControllerAdvice
 class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
     companion object {
         private val LOG = KotlinLogging.logger {}
-        private val internalServerErrorDto = ErrorDTO(
+        private val internalServerErrorDto = ErrorDto(
             userMessage = "Internal Server Error",
-            errorIdentifier = UUID.randomUUID(),
+            errorIdentifier = Uuid.random(),
         )
     }
 
     @ExceptionHandler(RuntimeException::class)
-    fun handleApplicationException(exception: RuntimeException, request: WebRequest): ResponseEntity<ErrorDTO> {
+    fun handleApplicationException(exception: RuntimeException, request: WebRequest): ResponseEntity<ErrorDto> {
         var httpStatus = if (exception is GlobalException) getHttpStatus(exception) else HttpStatus.INTERNAL_SERVER_ERROR
         if (exception is AuthorizationDeniedException) {
             httpStatus = HttpStatus.FORBIDDEN
@@ -48,12 +50,12 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             return exception.httpStatus
     }
 
-    private fun getErrorDto(exception: GlobalException): ErrorDTO {
+    private fun getErrorDto(exception: GlobalException): ErrorDto {
         val cause = exception.cause
         if (cause is GlobalException)
-            return ErrorDTO(cause.userMessage, UUID.randomUUID())
+            return ErrorDto(cause.userMessage, Uuid.random())
         else
-            return ErrorDTO(exception.userMessage, UUID.randomUUID())
+            return ErrorDto(exception.userMessage, Uuid.random())
     }
 
 }
