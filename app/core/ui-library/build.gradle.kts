@@ -17,7 +17,7 @@ kotlin {
             implementation(libs.kotlinx.collections.immutable)
             implementation(libs.coil.core)
             implementation(libs.coil.compose)
-            implementation(projects.core.common)
+            implementation(projects.app.core.common)
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)

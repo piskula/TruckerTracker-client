@@ -11,9 +11,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.core.common)
-            implementation(projects.core.network)
-            implementation(projects.core.vehicle)
+            implementation(projects.app.core.common)
+            implementation(projects.app.core.network)
+            implementation(projects.app.core.vehicle)
             implementation(libs.androidx.paging.common)
         }
     }

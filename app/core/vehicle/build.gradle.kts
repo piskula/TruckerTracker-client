@@ -6,12 +6,13 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.momosi.trucktrack.core.network"
+        namespace = "com.momosi.trucktrack.core.vehicle"
     }
+
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.core.common)
-            implementation(projects.core.user)
+            implementation(projects.app.core.common)
+            implementation(projects.app.core.network)
         }
     }
 }

@@ -13,12 +13,12 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            api(projects.feature.issues.api)
-            implementation(projects.feature.profile.api)
-            implementation(projects.core.common)
-            implementation(projects.core.user)
-            implementation(projects.core.issue)
-            implementation(projects.core.vehicle)
+            api(projects.app.feature.issues.api)
+            implementation(projects.app.feature.profile.api)
+            implementation(projects.app.core.common)
+            implementation(projects.app.core.user)
+            implementation(projects.app.core.issue)
+            implementation(projects.app.core.vehicle)
             implementation(libs.kotlinx.collections.immutable)
             implementation(libs.coil.compose)
             implementation(libs.filekit.compose)

@@ -3,7 +3,7 @@
 > Updated: 2026-07-08
 
 Every `core`/`feature` module and `app:shared` compile clean for `iosArm64` and
-`iosSimulatorArm64`, and `app/ios/iosApp.xcodeproj` builds up to (but not through) a final native
+`iosSimulatorArm64`, and `app/app/ios/iosApp.xcodeproj` builds up to (but not through) a final native
 link step on this machine — see below for why. This document tracks what's still genuinely
 unresolved, not a history of completed work.
 
@@ -23,14 +23,14 @@ manually walk through sign-in, token refresh, and sign-out at least once before 
 
 ### 2 · Building requires a newer Xcode than what's on this machine
 
-`app/ios`'s build fails at the final `ld` step with undefined iOS 17+ UIKit symbols
+`app/app/ios`'s build fails at the final `ld` step with undefined iOS 17+ UIKit symbols
 (`UITextLoupeSession`, `UITraitUserInterfaceStyle`, `UIViewLayoutRegion`, etc.) referenced by
 Compose Multiplatform 1.11.1's native UIKit-interop layer. This machine's Xcode (14.3.1) only
 ships the iOS 16.4 SDK, which predates those symbols. This is not a bug in the repo — the Gradle
 config, `project.pbxproj`, and Swift entry point are all confirmed correct; only the SDK is too old.
 
 **How to resolve:** install a current Xcode (15+; Kotlin 2.4.0 itself supports up to Xcode 26.4)
-on any machine that needs to build/run `app/ios` locally, then rebuild.
+on any machine that needs to build/run `app/app/ios` locally, then rebuild.
 
 ### 3 · This machine can't run the iOS Simulator locally (Intel Mac)
 

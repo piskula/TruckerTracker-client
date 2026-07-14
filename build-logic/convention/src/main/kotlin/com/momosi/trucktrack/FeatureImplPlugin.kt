@@ -14,8 +14,8 @@ class FeatureImplPlugin : Plugin<Project> {
         }
 
         commonMainDependencies {
-            implementation(project(":core:ui-library"))
-            implementation(project(":core:navigation"))
+            implementation(project(":app:core:ui-library"))
+            implementation(project(":app:core:navigation"))
         }
     }
 }

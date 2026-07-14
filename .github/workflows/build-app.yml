@@ -9,6 +9,7 @@ on:
             - '**/*.MD'
             - '.claude/**'
             - 'docs/**'
+            - 'server/**'
     workflow_dispatch:
 
 jobs:
@@ -37,22 +38,22 @@ jobs:
                 run: |
                     npx firebase-tools@latest apps:sdkconfig ANDROID "$FIREBASE_APP_ID" \
                         --project trucktrack-cf134 \
-                        -o app/android/google-services.json
+                        -o app/app/android/google-services.json
                 env:
                     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
                     FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 
             -   name: Build Debug APK
-                run: ./gradlew :app:android:assembleDebug
+                run: ./gradlew :app:app:android:assembleDebug
 
             -   name: Rename APK
-                run: mv app/android/build/outputs/apk/debug/android-debug.apk app/android/build/outputs/apk/debug/truck-track.apk
+                run: mv app/app/android/build/outputs/apk/debug/android-debug.apk app/app/android/build/outputs/apk/debug/truck-track.apk
 
             -   name: Upload APK artifact
                 uses: actions/upload-artifact@v4
                 with:
                     name: android-debug-apk
-                    path: app/android/build/outputs/apk/debug/truck-track.apk
+                    path: app/app/android/build/outputs/apk/debug/truck-track.apk
                     retention-days: 7
 
     build-ios:
@@ -90,7 +91,7 @@ jobs:
                 run: |
                     npx firebase-tools@latest apps:sdkconfig IOS "$FIREBASE_IOS_APP_ID" \
                         --project trucktrack-cf134 \
-                        -o app/ios/iosApp/GoogleService-Info.plist
+                        -o app/app/ios/iosApp/GoogleService-Info.plist
                 env:
                     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
                     FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
@@ -99,12 +100,12 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: |
-                        app/ios/Pods
+                        app/app/ios/Pods
                         ~/Library/Caches/CocoaPods
-                    key: cocoapods-${{ hashFiles('app/ios/Podfile') }}
+                    key: cocoapods-${{ hashFiles('app/app/ios/Podfile') }}
 
             -   name: Install CocoaPods dependencies
-                working-directory: app/ios
+                working-directory: app/app/ios
                 run: pod install
 
             -   name: Check iOS signing secrets are configured
@@ -126,7 +127,7 @@ jobs:
                 if: steps.check-secrets.outputs.configured != 'true'
                 run: |
                     xcodebuild \
-                        -workspace app/ios/iosApp.xcworkspace \
+                        -workspace app/app/ios/iosApp.xcworkspace \
                         -scheme iosApp \
                         -sdk iphonesimulator \
                         -configuration Debug \
@@ -212,7 +213,7 @@ jobs:
                     IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
                 run: |
                     xcodebuild archive \
-                        -workspace app/ios/iosApp.xcworkspace \
+                        -workspace app/app/ios/iosApp.xcworkspace \
                         -scheme iosApp \
                         -sdk iphoneos \
                         -configuration Debug \
@@ -236,8 +237,8 @@ jobs:
             -   name: Upload debug symbols to Crashlytics
                 if: steps.check-secrets.outputs.configured == 'true'
                 run: |
-                    app/ios/Pods/FirebaseCrashlytics/upload-symbols \
-                        -gsp app/ios/iosApp/GoogleService-Info.plist \
+                    app/app/ios/Pods/FirebaseCrashlytics/upload-symbols \
+                        -gsp app/app/ios/iosApp/GoogleService-Info.plist \
                         -p ios \
                         "$RUNNER_TEMP/iosApp.xcarchive/dSYMs"
 

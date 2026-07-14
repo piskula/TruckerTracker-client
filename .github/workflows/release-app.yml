@@ -62,7 +62,7 @@ jobs:
                 run: |
                     npx firebase-tools@latest apps:sdkconfig ANDROID "$FIREBASE_APP_ID" \
                         --project trucktrack-cf134 \
-                        -o app/android/google-services.json
+                        -o app/app/android/google-services.json
                 env:
                     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
                     FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
@@ -77,7 +77,7 @@ jobs:
 
             -   name: Build Release APK and AAB
                 run: |
-                    ./gradlew :app:android:assembleRelease :app:android:bundleRelease \
+                    ./gradlew :app:app:android:assembleRelease :app:app:android:bundleRelease \
                         -PappVersionName=${{ steps.version.outputs.name }} \
                         -PappVersionCode=${{ steps.version.outputs.code }} \
                         -PandroidKeystoreFile="$KEYSTORE_PATH" \
@@ -91,14 +91,14 @@ jobs:
 
             -   name: Rename outputs
                 run: |
-                    mv app/android/build/outputs/apk/release/android-release.apk "app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk"
-                    mv app/android/build/outputs/bundle/release/android-release.aab "app/android/build/outputs/bundle/release/truck-track-${{ steps.version.outputs.name }}.aab"
+                    mv app/app/android/build/outputs/apk/release/android-release.apk "app/app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk"
+                    mv app/app/android/build/outputs/bundle/release/android-release.aab "app/app/android/build/outputs/bundle/release/truck-track-${{ steps.version.outputs.name }}.aab"
 
             -   name: Publish Release
                 run: |
                     gh release create "${GITHUB_REF_NAME}" \
-                        "app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk" \
-                        "app/android/build/outputs/bundle/release/truck-track-${{ steps.version.outputs.name }}.aab" \
+                        "app/app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk" \
+                        "app/app/android/build/outputs/bundle/release/truck-track-${{ steps.version.outputs.name }}.aab" \
                         --title "${GITHUB_REF_NAME}" \
                         --notes "Release build ${{ steps.version.outputs.name }} (${{ github.sha }})"
                 env:
@@ -127,7 +127,7 @@ jobs:
             -   name: Distribute release APK to Firebase App Distribution
                 run: |
                     npx firebase-tools@latest appdistribution:distribute \
-                        "app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk" \
+                        "app/app/android/build/outputs/apk/release/truck-track-${{ steps.version.outputs.name }}.apk" \
                         --app "$FIREBASE_APP_ID" \
                         --groups "release" \
                         --release-notes-file release-notes.txt
@@ -170,7 +170,7 @@ jobs:
                 run: |
                     npx firebase-tools@latest apps:sdkconfig IOS "$FIREBASE_IOS_APP_ID" \
                         --project trucktrack-cf134 \
-                        -o app/ios/iosApp/GoogleService-Info.plist
+                        -o app/app/ios/iosApp/GoogleService-Info.plist
                 env:
                     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
                     FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
@@ -179,12 +179,12 @@ jobs:
                 uses: actions/cache@v4
                 with:
                     path: |
-                        app/ios/Pods
+                        app/app/ios/Pods
                         ~/Library/Caches/CocoaPods
-                    key: cocoapods-${{ hashFiles('app/ios/Podfile') }}
+                    key: cocoapods-${{ hashFiles('app/app/ios/Podfile') }}
 
             -   name: Install CocoaPods dependencies
-                working-directory: app/ios
+                working-directory: app/app/ios
                 run: pod install
 
             -   name: Check iOS signing secrets are configured
@@ -267,7 +267,7 @@ jobs:
                     VERSION_CODE: ${{ needs.release-android.outputs.version-code }}
                 run: |
                     xcodebuild archive \
-                        -workspace app/ios/iosApp.xcworkspace \
+                        -workspace app/app/ios/iosApp.xcworkspace \
                         -scheme iosApp \
                         -sdk iphoneos \
                         -configuration Release \
@@ -294,8 +294,8 @@ jobs:
             -   name: Upload debug symbols to Crashlytics
                 if: steps.check-secrets.outputs.configured == 'true'
                 run: |
-                    app/ios/Pods/FirebaseCrashlytics/upload-symbols \
-                        -gsp app/ios/iosApp/GoogleService-Info.plist \
+                    app/app/ios/Pods/FirebaseCrashlytics/upload-symbols \
+                        -gsp app/app/ios/iosApp/GoogleService-Info.plist \
                         -p ios \
                         "$RUNNER_TEMP/iosApp.xcarchive/dSYMs"
 
