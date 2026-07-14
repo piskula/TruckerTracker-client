@@ -58,10 +58,10 @@ kotlin {
 }
 
 dependencies {
-    implementation(projects.app.app.shared)
-    implementation(projects.app.core.common)
-    implementation(projects.app.core.network)
-    implementation(projects.app.core.user)
+    implementation(projects.app.shared)
+    implementation(projects.core.common)
+    implementation(projects.core.network)
+    implementation(projects.core.user)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.coil.compose)

@@ -10,7 +10,7 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.app.core.common)
+            implementation(projects.core.common)
             implementation(libs.oidc.core)
             api(libs.oidc.appsupport)
         }

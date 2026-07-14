@@ -37,6 +37,13 @@ firebase-crashlytics-gradle = "3.0.7"
 firebase-kotlin-sdk = "2.4.0"
 firebase-bom = "34.15.0"
 
+# Server (Spring Boot)
+springBoot = "4.0.6"
+springDependencyManagement = "1.1.7"
+springdocOpenapi = "2.7.0"
+minio = "8.5.17"
+kotlin-logging = "7.0.7"
+
 [libraries]
 # AndroidX Core
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -96,6 +103,20 @@ firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.re
 firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebase-kotlin-sdk" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 
+# Server (Spring Boot)
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+spring-boot-starter-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-liquibase = { module = "org.springframework.boot:spring-boot-starter-liquibase" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+postgresql = { module = "org.postgresql:postgresql" }
+minio = { module = "io.minio:minio", version.ref = "minio" }
+springdoc-openapi-webmvc-api = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api", version.ref = "springdocOpenapi" }
+springdoc-openapi-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdocOpenapi" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+
 # Build-logic
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -123,6 +144,11 @@ trucktrack-android-signing = { id = "trucktrack.android.signing" }
 trucktrack-firebase = { id = "trucktrack.firebase" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
 
 [bundles]
 navigation3 = ["androidx-navigation3-runtime", "androidx-navigation3-ui", "androidx-lifecycle-viewmodel-navigation3"]

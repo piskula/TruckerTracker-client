@@ -1,7 +1,29 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
+    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring) // all-open for @RestController, @Service, etc.
     alias(libs.plugins.kotlin.jpa)    // no-arg constructors for @Entity classes
     alias(libs.plugins.spring.boot)   // bootJar + bootRun tasks
+    alias(libs.plugins.spring.dependency.management)
+}
+
+repositories {
+    mavenCentral()
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-java-parameters")
+    }
+}
+
+configure<DependencyManagementExtension> {
+    imports {
+        mavenBom(SpringBootPlugin.BOM_COORDINATES)
+    }
 }
 
 dependencies {
