@@ -1,0 +1,789 @@
+openapi: 3.0.3
+info:
+  title: Transroute Tracker API
+  description: |
+    REST API for the Transroute Tracker fleet service management application.
+    Supports driver, mechanic, and admin roles.
+
+    ## Status transitions
+    - Driver creates issue → **OPEN**
+    - Mechanic picks it up (`POST /issues/{id}/start`) → **IN_PROGRESS**; mechanic is automatically set as `assignedTo`
+    - Driver or mechanic resolves it (`POST /issues/{id}/resolve`) → **DONE**
+
+    ## Mechanic scoping
+    `GET /issues` for a mechanic returns only issues relevant to them: their own IN_PROGRESS
+    issues and all unassigned OPEN issues. Filtering by `status` narrows within that scope.
+    The frontend groups the "All" tab into two sections ("Assigned to me" / "Available to pick up")
+    using the `status` and `assignedTo` fields on each item.
+
+    ## Auth
+    All endpoints require a Bearer JWT token from `POST /auth/login`, except login itself.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+  - url: https://api.transroute-tracker.com/v1
+    description: Production
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+    description: Authentication — shared across all roles
+  - name: Vehicles
+    description: Fleet vehicle lookup
+  - name: Issues
+    description: Service issue lifecycle
+  - name: Issue Photos
+    description: Photo attachments on issues
+  - name: Issue History
+    description: Status change timeline and comments
+
+paths:
+
+  # ── Auth ──────────────────────────────────────────────────────────────────
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate user and get JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: michael.schumacher
+              password: "secret"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Invalidate current session token
+      responses:
+        '204':
+          description: Logged out
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user profile
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Vehicles ──────────────────────────────────────────────────────────────
+
+  /vehicles:
+    get:
+      tags: [Vehicles]
+      summary: List vehicles accessible to the current user
+      description: |
+        Used to populate the vehicle dropdown when a driver creates a new issue.
+        Drivers receive only vehicles assigned to them.
+        Mechanics and admins receive the full fleet.
+      parameters:
+        - name: search
+          in: query
+          description: Filter by license plate, make, or model
+          schema:
+            type: string
+          example: MA-204
+      responses:
+        '200':
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Issues ────────────────────────────────────────────────────────────────
+
+  /issues:
+    get:
+      tags: [Issues]
+      summary: List issues
+      description: |
+        Returns a paginated list of issues. Role-based scoping applies automatically:
+
+        - **Driver**: only issues reported by the authenticated user
+        - **Mechanic**: the union of —
+          - issues IN_PROGRESS and assigned to them ("Assigned to me" section)
+          - issues OPEN and unassigned ("Available to pick up" section)
+
+          When a `status` filter is applied the scope narrows:
+          - `OPEN` → only unassigned open issues (available to pick up)
+          - `IN_PROGRESS` → only in-progress issues assigned to the calling mechanic
+          - `DONE` → issues resolved by the calling mechanic (previously assigned to them)
+
+          The frontend renders the "All" tab as two grouped sections using the `status`
+          field on each returned item; no extra parameter is required.
+        - **Admin**: all issues, no scoping
+
+        Sorted by `updatedAt` descending by default — this is the timestamp
+        shown as "last modified" on the issue list cards.
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status (maps to the filter chips on the dashboard)
+          schema:
+            $ref: '#/components/schemas/IssueStatus'
+        - name: priority
+          in: query
+          description: Filter by priority
+          schema:
+            $ref: '#/components/schemas/IssuePriority'
+        - name: search
+          in: query
+          description: Full-text filter across issue title, description, and vehicle license plate
+          schema:
+            type: string
+          example: "brake"
+        - name: vehicleId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: sort
+          in: query
+          description: "Field and direction, e.g. updatedAt,desc"
+          schema:
+            type: string
+            default: updatedAt,desc
+      responses:
+        '200':
+          description: Paginated list of issues
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [Issues]
+      summary: Create a new issue
+      description: Only users with role DRIVER can create issues.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateIssueRequest'
+            example:
+              vehicleId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+              title: "Engine warning light — truck won't start"
+              description: "Tried to start the engine this morning. Located at depot gate 3."
+              priority: HIGH
+      responses:
+        '201':
+          description: Issue created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /issues/{issueId}:
+    parameters:
+      - $ref: '#/components/parameters/IssueId'
+
+    get:
+      tags: [Issues]
+      summary: Get issue details
+      description: |
+        Returns the full issue detail. Photos are fetched separately via
+        GET /issues/{issueId}/photos. History timeline is fetched separately
+        via GET /issues/{issueId}/history.
+      responses:
+        '200':
+          description: Issue detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /issues/{issueId}/start:
+    parameters:
+      - $ref: '#/components/parameters/IssueId'
+    post:
+      tags: [Issues]
+      summary: Mechanic starts working on an issue
+      description: |
+        Transitions the issue from OPEN to IN_PROGRESS and sets the authenticated
+        mechanic as `assignedTo`. Only users with role MECHANIC or ADMIN can call this.
+        A STATUS_CHANGE history entry (OPEN → IN_PROGRESS) is created automatically.
+      responses:
+        '200':
+          description: Issue is now IN_PROGRESS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Issue is not in OPEN state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /issues/{issueId}/resolve:
+    parameters:
+      - $ref: '#/components/parameters/IssueId'
+    post:
+      tags: [Issues]
+      summary: Resolve an issue
+      description: |
+        Transitions the issue to DONE. Available to:
+        - The driver who reported it
+        - The mechanic assigned to it
+        - Admins
+
+        A STATUS_CHANGE history entry (IN_PROGRESS → DONE) is created automatically.
+      responses:
+        '200':
+          description: Issue is now DONE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Issue is not in IN_PROGRESS state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ── Issue Photos ──────────────────────────────────────────────────────────
+
+  /issues/{issueId}/photos:
+    parameters:
+      - $ref: '#/components/parameters/IssueId'
+
+    get:
+      tags: [Issue Photos]
+      summary: List photos attached to an issue
+      description: Returns the full list of photo attachments. No pagination — volume is expected to be small.
+      responses:
+        '200':
+          description: Photos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags: [Issue Photos]
+      summary: Upload photos to an issue
+      description: |
+        Accepts one or more image files as multipart/form-data.
+        Both drivers and mechanics can upload photos:
+        - Drivers attach evidence photos when reporting an issue (called after create)
+        - Mechanics upload diagnostic or repair evidence photos to issues assigned to them
+
+        Photo upload failures do not block issue creation.
+        Max 5 files per request, 10 MB per file. JPEG and PNG only.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '201':
+          description: Photos uploaded, returns the newly created photo records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: |
+            Mechanic is not assigned to this issue (or issue is not OPEN).
+            Drivers can only upload to their own issues.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Issue History ─────────────────────────────────────────────────────────
+
+  /issues/{issueId}/history:
+    parameters:
+      - $ref: '#/components/parameters/IssueId'
+
+    get:
+      tags: [Issue History]
+      summary: Get the full history timeline of an issue
+      description: |
+        Returns all events on the issue in chronological order (oldest first).
+        Combines status changes and comments into a single unified list —
+        this is what the detail screen timeline renders directly.
+      responses:
+        '200':
+          description: History entries ordered by createdAt ascending
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoryEntry'
+              example:
+                - id: "aaa"
+                  type: STATUS_CHANGE
+                  performedBy:
+                    id: "u1"
+                    username: michael.schumacher
+                    fullName: Michael Schumacher
+                    role: DRIVER
+                  createdAt: "2026-05-25T09:32:00Z"
+                  statusChange:
+                    from: null
+                    to: OPEN
+                  comment: null
+                - id: "bbb"
+                  type: STATUS_CHANGE
+                  performedBy:
+                    id: "u2"
+                    username: mattia.binotto
+                    fullName: Mattia Binotto
+                    role: MECHANIC
+                  createdAt: "2026-05-25T10:05:00Z"
+                  statusChange:
+                    from: OPEN
+                    to: IN_PROGRESS
+                  comment: null
+                - id: "ccc"
+                  type: COMMENT
+                  performedBy:
+                    id: "u2"
+                    username: mattia.binotto
+                    fullName: Mattia Binotto
+                    role: MECHANIC
+                  createdAt: "2026-05-25T11:20:00Z"
+                  statusChange: null
+                  comment:
+                    text: "Issue diagnosed, spare parts ordered."
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /issues/{issueId}/comments:
+    parameters:
+      - $ref: '#/components/parameters/IssueId'
+
+    post:
+      tags: [Issue History]
+      summary: Add a comment to an issue
+      description: |
+        Adds a free-text comment. Drivers, mechanics, and admins can all comment.
+        The new entry appears as type COMMENT in the history timeline.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCommentRequest'
+            example:
+              text: "Parts order delayed, ETA tomorrow morning."
+      responses:
+        '201':
+          description: Comment added — returns the new history entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ── Components ────────────────────────────────────────────────────────────────
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IssueId:
+      name: issueId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Authenticated user does not have permission for this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Invalid request body or parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+
+    # ── Auth ────────────────────────────────────────────────────────────────
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: michael.schumacher
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'JWT bearer token — include as: Authorization: Bearer <token>'
+        expiresAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+
+    # ── Users ───────────────────────────────────────────────────────────────
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: michael.schumacher
+        fullName:
+          type: string
+          example: Michael Schumacher
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    UserRole:
+      type: string
+      enum: [DRIVER, MECHANIC, ADMIN]
+
+    # ── Vehicles ────────────────────────────────────────────────────────────
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        licensePlate:
+          type: string
+          pattern: '^MA-\d{3}-[A-Z]{2}$'
+          example: MA-204-TT
+        make:
+          type: string
+          example: Volvo
+        model:
+          type: string
+          example: FH16
+        type:
+          $ref: '#/components/schemas/VehicleType'
+
+    VehicleType:
+      type: string
+      enum: [TRUCK, TRAILER]
+
+    # ── Issues ──────────────────────────────────────────────────────────────
+
+    IssuePriority:
+      type: string
+      enum: [HIGH, MEDIUM, LOW]
+
+    IssueStatus:
+      type: string
+      enum: [OPEN, IN_PROGRESS, DONE]
+
+    Issue:
+      type: object
+      description: Summary representation used in list responses
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "Engine warning light — truck won't start"
+        status:
+          $ref: '#/components/schemas/IssueStatus'
+        priority:
+          $ref: '#/components/schemas/IssuePriority'
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        reportedBy:
+          $ref: '#/components/schemas/User'
+        assignedTo:
+          allOf:
+            - $ref: '#/components/schemas/User'
+          nullable: true
+        photoCount:
+          type: integer
+          example: 3
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          description: Drives the "last modified" timestamp on issue list cards
+
+    IssueDetail:
+      allOf:
+        - $ref: '#/components/schemas/Issue'
+        - type: object
+          properties:
+            description:
+              type: string
+              example: "Tried to start the engine this morning. Located at depot gate 3."
+
+    IssuePage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        totalElements:
+          type: integer
+          example: 42
+        totalPages:
+          type: integer
+          example: 3
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        hasNext:
+          type: boolean
+          example: true
+
+    CreateIssueRequest:
+      type: object
+      required: [vehicleId, title, description, priority]
+      properties:
+        vehicleId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+          example: "Engine warning light — truck won't start"
+        description:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          example: "Tried to start the engine this morning. Located at depot gate 3."
+        priority:
+          $ref: '#/components/schemas/IssuePriority'
+
+    # ── Photos ──────────────────────────────────────────────────────────────
+
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+          description: URL to the full-size image
+        uploadedBy:
+          $ref: '#/components/schemas/User'
+        uploadedAt:
+          type: string
+          format: date-time
+
+    # ── History ─────────────────────────────────────────────────────────────
+
+    HistoryEntryType:
+      type: string
+      enum: [STATUS_CHANGE, COMMENT]
+
+    HistoryEntry:
+      type: object
+      description: |
+        A single event in the issue timeline. Exactly one of `statusChange` or
+        `comment` will be non-null, depending on `type`.
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/HistoryEntryType'
+        performedBy:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+        statusChange:
+          nullable: true
+          type: object
+          description: Present when type is STATUS_CHANGE
+          properties:
+            from:
+              type: string
+              enum: [OPEN, IN_PROGRESS, DONE]
+              nullable: true
+              description: null when the issue is first created (initial OPEN entry)
+            to:
+              type: string
+              enum: [OPEN, IN_PROGRESS, DONE]
+        comment:
+          nullable: true
+          type: object
+          description: Present when type is COMMENT
+          properties:
+            text:
+              type: string
+              example: "Issue diagnosed, spare parts ordered."
+
+    AddCommentRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          example: "Parts order delayed, ETA tomorrow morning."
+
+    # ── Errors ──────────────────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: "Validation failed: title must not be blank"
+        timestamp:
+          type: string
+          format: date-time
+        path:
+          type: string
+          example: /api/v1/issues
