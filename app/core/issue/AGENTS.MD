@@ -53,13 +53,14 @@ commonMain/
   IssueAttachmentRepository.kt
   IssueAttachmentRepositoryImpl.kt
   model/                     ← All domain models — pure Kotlin
-  dto/                       ← Kotlinx Serialization DTOs + DtoMappers.kt
+  dto/DtoMappers.kt          ← maps shared's DTOs (IssueDto, AccountDto, etc.) -> domain models; no local DTO classes
   di/IssueModule.kt          ← Koin bindings
 ```
 
 ## Depends On
 
 - `:core:common` — `Page<T>`, `Logger`, `DispatcherProvider`
-- `:core:network` — Ktor `HttpClient`, `PageDto`
+- `:core:network` — Ktor `HttpClient`, `PageDto` mapper
 - `:core:user` — `AuthManager` (via network)
 - `:core:vehicle` — `Vehicle` model referenced in `Issue`
+- `com.momosi.trucktrack:shared` — `IssueDto`, `AccountDto`, `IssueCreateDto`, `IssueFilterDto`, `IssueHistoryDto`, status/priority enums (separate build, see `../../../shared/AGENTS.MD`)

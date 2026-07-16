@@ -18,9 +18,8 @@ commonMain/
   VehicleRepositoryImpl.kt
   model/Vehicle.kt
   model/VehicleType.kt
-  dto/VehicleDto.kt
-  dto/VehicleDtoMapper.kt
-  api/VehicleApi.kt          ← Ktor API client
+  dto/VehicleDtoMapper.kt    ← maps shared's VehicleDto -> Vehicle; no local DTO class
+  api/VehicleApi.kt          ← Ktor API client, returns com.momosi.trucktrack.shared.vehicle.VehicleDto
   di/VehicleModule.kt        ← Koin bindings
 ```
 
@@ -28,3 +27,4 @@ commonMain/
 
 - `:core:common` — `Logger`, `DispatcherProvider`
 - `:core:network` — Ktor `HttpClient`
+- `com.momosi.trucktrack:shared` — `VehicleDto`, `VehicleTypeDto` (separate build, see `../../../shared/AGENTS.MD`)

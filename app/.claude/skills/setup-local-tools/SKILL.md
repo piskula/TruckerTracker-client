@@ -19,9 +19,9 @@ description: Use when setting up a new machine for this repo, checking whether r
 
 | Tool | Version | Needed for | Check | Platform |
 |---|---|---|---|---|
-| JDK | 21 (Temurin/Adoptium recommended) | Gradle toolchain — `jvmToolchain(21)` in `build-logic/convention` | `java -version` | all |
-| Android SDK | cmdline-tools + platform 37 + build-tools (latest) | `./gradlew :app:android:assembleDebug`, Android Studio | Android SDK path env var set and exists (`ANDROID_HOME` on macOS/Linux, `%LOCALAPPDATA%\Android\Sdk` on Windows) | all |
-| Xcode | latest stable from the App Store (15+ minimum) + CLT | Building `app:ios` (`app/ios/iosApp.xcodeproj`) | `xcode-select -p` | **macOS only** — iOS can't be built elsewhere |
+| JDK | 21 (Temurin/Adoptium recommended) | Gradle toolchain — `jvmToolchain(21)` in `app/build-logic/convention` | `java -version` | all |
+| Android SDK | cmdline-tools + platform 37 + build-tools (latest) | `./gradlew :app:app:android:assembleDebug` (from the repo root), Android Studio | Android SDK path env var set and exists (`ANDROID_HOME` on macOS/Linux, `%LOCALAPPDATA%\Android\Sdk` on Windows) | all |
+| Xcode | latest stable from the App Store (15+ minimum) + CLT | Building `app:ios` (`app/app/ios/iosApp.xcodeproj`) | `xcode-select -p` | **macOS only** — iOS can't be built elsewhere |
 | `gh` (GitHub CLI), logged in | latest | Agents running `gh run list`/`gh release create` etc. directly (`analyze-ci-failure`, `release-app` skills) | `gh auth status` | all |
 | Node.js | current LTS (20+) | Runs the Firebase MCP server (`npx -y firebase-tools@latest mcp`, see `.mcp.json`) — an old Node breaks `npx` resolution for modern packages | `node --version` | all |
 | `firebase-tools` CLI, logged in | latest (must support the `mcp` subcommand — anything recent does) | Firebase App Distribution setup, Crashlytics analysis, and the underlying tool the Firebase MCP server wraps | `firebase --version` and `firebase login:list` | all |
@@ -116,18 +116,18 @@ firebase login:list            # shows an authenticated account
 xcode-select -p               # macOS only — points at an installed Xcode
 ```
 
-- [ ] `./gradlew :app:android:assembleDebug` succeeds from the command line
-- [ ] (macOS only) `open app/ios/iosApp.xcodeproj` builds and runs in Xcode
+- [ ] `./gradlew :app:app:android:assembleDebug` succeeds from the repo root (or `cd app && ./gradlew :app:android:assembleDebug` for a decoupled client-only build)
+- [ ] (macOS only) `open app/app/ios/iosApp.xcodeproj` builds and runs in Xcode
 - [ ] A fresh Claude Code session shows the `firebase` MCP server in its tool list
       (MCP servers load at session start — restart the session after finishing setup)
 
 ## Step 3 — Firebase config files for local builds
 
-`app/android/google-services.json` and `app/ios/iosApp/GoogleService-Info.plist` are required for
+`app/app/android/google-services.json` and `app/app/ios/iosApp/GoogleService-Info.plist` are required for
 Crashlytics (and Firebase generally) to compile/link, but neither is committed — both are
 gitignored and fetched fresh in CI on every build via `firebase apps:sdkconfig` (see the "Fetch
 Firebase Android config" / "Fetch Firebase iOS config" steps in `.github/workflows/build-app.yml`
-and `release-app.yml`). A fresh local checkout has neither file, so local builds need one of:
+and `release-app.yml`, both at the repo root). A fresh local checkout has neither file, so local builds need one of:
 
 - **Firebase Console** (no CLI needed): `console.firebase.google.com` → `trucktrack-cf134` → ⚙️
   Project settings → General → "Your apps" → download `google-services.json` /
@@ -135,14 +135,13 @@ and `release-app.yml`). A fresh local checkout has neither file, so local builds
 - **`firebase-tools` CLI** (once logged in per Step 1):
   ```bash
   firebase apps:list --project trucktrack-cf134   # get the ANDROID/IOS app IDs
-  firebase apps:sdkconfig ANDROID <ANDROID_APP_ID> --project trucktrack-cf134 -o app/android/google-services.json
-  firebase apps:sdkconfig IOS <IOS_APP_ID> --project trucktrack-cf134 -o app/ios/iosApp/GoogleService-Info.plist
+  firebase apps:sdkconfig ANDROID <ANDROID_APP_ID> --project trucktrack-cf134 -o app/app/android/google-services.json
+  firebase apps:sdkconfig IOS <IOS_APP_ID> --project trucktrack-cf134 -o app/app/ios/iosApp/GoogleService-Info.plist
   ```
 
 This is a one-time step per machine — the files don't change unless the Firebase project
-reconfigures. iOS additionally needs `pod install` run from `app/ios` (CocoaPods) before opening
-`iosApp.xcworkspace` — see the `manage-ios-signing` skill and `docs/KMP_IOS_READINESS.md` for the
-rest of the iOS build setup.
+reconfigures. iOS additionally needs `pod install` run from `app/app/ios` (CocoaPods) before opening
+`iosApp.xcworkspace` — see the `manage-ios-signing` skill for the rest of the iOS build setup.
 
 ## Gotchas worth knowing
 

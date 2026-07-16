@@ -16,15 +16,15 @@ Load this skill when the task matches **any** of these:
 
 ## Prerequisites
 
-- `settings.gradle.kts` is accessible — the new module paths must be added there
-- `app/shared/build.gradle.kts` and `app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt` are accessible for wiring
+- `app/settings.gradle.kts` is accessible — the new module paths must be added there (this is `app/`'s own settings file, not the thin composite-build one at the repo root)
+- `app/app/shared/build.gradle.kts` and `app/app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt` are accessible for wiring
 
 ## Steps
 
 ### 1. Create directory structure
 
 ```
-feature/<name>/
+app/feature/<name>/
   api/
     build.gradle.kts
     src/commonMain/kotlin/com/momosi/trucktrack/feature/<name>/api/
@@ -49,7 +49,7 @@ kotlin {
 
 ### 3. Create the entry-point nav key in `api/`
 
-File: `...feature/<name>/api/src/commonMain/kotlin/.../feature/<name>/api/<Name>NavKey.kt`
+File: `app/feature/<name>/api/src/commonMain/kotlin/.../feature/<name>/api/<Name>NavKey.kt`
 
 ```kotlin
 package com.momosi.trucktrack.feature.<name>.api
@@ -90,13 +90,13 @@ kotlin {
 
 ### 5. Create screen files — follow `add-screen-to-feature/SKILL.md` for each screen
 
-Package: `...feature/<name>/impl/src/commonMain/kotlin/.../feature/<name>/impl/<screen>/`
+Package: `app/feature/<name>/impl/src/commonMain/kotlin/.../feature/<name>/impl/<screen>/`
 Required files: `<Screen>Screen.kt`, `<Screen>ViewModel.kt`, `<Screen>State.kt`, `<Screen>Action.kt`
 Optional: `<Screen>Event.kt` (only when one-shot VM→UI signals are needed)
 
 ### 6. Create the entry provider in `impl/navigation/`
 
-File: `...feature/<name>/impl/src/commonMain/kotlin/.../feature/<name>/impl/navigation/<Name>EntryProvider.kt`
+File: `app/feature/<name>/impl/src/commonMain/kotlin/.../feature/<name>/impl/navigation/<Name>EntryProvider.kt`
 
 ```kotlin
 package com.momosi.trucktrack.feature.<name>.impl.navigation
@@ -118,7 +118,7 @@ fun EntryProviderScope<NavKey>.<name>Entries(navigator: Navigator) {
 
 ### 7. Create the Koin module in `impl/di/`
 
-File: `...feature/<name>/impl/src/commonMain/kotlin/.../feature/<name>/impl/di/<Name>Module.kt`
+File: `app/feature/<name>/impl/src/commonMain/kotlin/.../feature/<name>/impl/di/<Name>Module.kt`
 
 ```kotlin
 package com.momosi.trucktrack.feature.<name>.impl.di
@@ -132,7 +132,7 @@ val <name>Module = module {
 }
 ```
 
-### 8. Register modules in `settings.gradle.kts`
+### 8. Register modules in `app/settings.gradle.kts`
 
 Add to the `include(...)` block:
 ```kotlin
@@ -142,29 +142,29 @@ Add to the `include(...)` block:
 
 ### 9. Wire into `app:shared`
 
-In `app/shared/build.gradle.kts`, add to `commonMain.dependencies`:
+In `app/app/shared/build.gradle.kts`, add to `commonMain.dependencies`:
 ```kotlin
 implementation(projects.feature.<name>.impl)
 ```
 
-In `app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt`, add `<name>Module` to the modules list.
+In `app/app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt`, add `<name>Module` to the modules list.
 
-In `app/shared/src/commonMain/kotlin/.../app/TruckTrackApp.kt`, call `<name>Entries(navigator)` inside the `entryProvider` block.
+In `app/app/shared/src/commonMain/kotlin/.../app/TruckTrackApp.kt`, call `<name>Entries(navigator)` inside the `entryProvider` block.
 
 ### 10. Create module AGENTS.MD files
 
-Create `feature/<name>/api/AGENTS.MD` and `feature/<name>/impl/AGENTS.MD`.
+Create `app/feature/<name>/api/AGENTS.MD` and `app/feature/<name>/impl/AGENTS.MD` (plus matching `CLAUDE.md` stubs — see any existing `feature/*` module for the one-line `@AGENTS.MD` pattern).
 Document the nav keys, screens, and dependencies. See existing modules for examples.
 
 ## Verification
 
-- [ ] `feature/<name>/api/` contains `build.gradle.kts` and one `*NavKey.kt` in `src/commonMain/kotlin/`
-- [ ] `feature/<name>/impl/` contains `build.gradle.kts`, at least one screen package, an `EntryProvider`, and a Koin module — all in `src/commonMain/kotlin/`
-- [ ] Both module paths appear in `settings.gradle.kts`
-- [ ] `app/shared/build.gradle.kts` references `projects.feature.<name>.impl`
+- [ ] `app/feature/<name>/api/` contains `build.gradle.kts` and one `*NavKey.kt` in `src/commonMain/kotlin/`
+- [ ] `app/feature/<name>/impl/` contains `build.gradle.kts`, at least one screen package, an `EntryProvider`, and a Koin module — all in `src/commonMain/kotlin/`
+- [ ] Both module paths appear in `app/settings.gradle.kts`
+- [ ] `app/app/shared/build.gradle.kts` references `projects.feature.<name>.impl`
 - [ ] `AppModule.kt` includes the new Koin module
 - [ ] `TruckTrackApp.kt` calls the new `<name>Entries(navigator)`
-- [ ] `./gradlew :feature:<name>:impl:assembleDebug` passes
-- [ ] `./gradlew spotlessCheck` passes
+- [ ] `cd app && ./gradlew :feature:<name>:impl:assembleDebug` passes (or `:app:feature:<name>:impl:assembleDebug` from the repo root)
+- [ ] `cd app && ./gradlew spotlessCheck` passes
 
 

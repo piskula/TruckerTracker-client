@@ -5,7 +5,7 @@ description: Use when running Spotless (ktlint + compose-rules-ktlint) or fixing
 
 # Skill: Run Spotless and Fix Violations
 
-> Formats and lints all Kotlin/KTS files via the `trucktrack.spotless` convention plugin (`build-logic/convention/src/main/kotlin/com/momosi/trucktrack/SpotlessPlugin.kt`). Applies standard ktlint plus the `compose-rules-ktlint` custom rule set (`io.nlopez.compose.rules:ktlint:0.6.2`) to every `**/*.kt` file, project-wide.
+> Formats and lints all Kotlin/KTS files via the `trucktrack.spotless` convention plugin (`app/build-logic/convention/src/main/kotlin/com/momosi/trucktrack/SpotlessPlugin.kt`). Applies standard ktlint plus the `compose-rules-ktlint` custom rule set (`io.nlopez.compose.rules:ktlint:0.6.2`) to every `**/*.kt` file in `app/` — Spotless is only configured for the client build, not `server/`.
 
 ## Triggers
 
@@ -16,7 +16,10 @@ Load this skill when the task matches **any** of these:
 
 ## Commands
 
+Run from inside `app/` (its own Gradle build); prefix tasks with `:app:` instead if running from the repo root (e.g. `:app:core:issue:spotlessApply`).
+
 ```bash
+cd app
 ./gradlew spotlessApply    # auto-format all Kotlin/KTS files — run this first, always
 ./gradlew spotlessCheck    # fails with a diff if any file still needs formatting
 ```

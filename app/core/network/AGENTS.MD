@@ -7,22 +7,21 @@ Provides the shared HTTP client (Ktor) and pagination DTO infrastructure used by
 | Symbol | Description |
 |--------|-------------|
 | `NetworkModule` | Koin module that provides the configured `HttpClient`. Registered in `app:shared`'s `AppModule`. |
-| `PageDto<T>` | Kotlinx Serialization DTO for paginated API responses. |
-| `PageDtoMapper` | Maps `PageDto<T>` → `Page<T>` (domain model from `core:common`). |
+| `PageDtoMapper` | Maps `com.momosi.trucktrack.shared.common.PageDto<T>` (from the separate `shared` build, not defined here) → `Page<T>` (domain model from `core:common`). |
 
 ## Key Files
 
 ```
 commonMain/
   di/NetworkModule.kt     ← Ktor HttpClient setup, Auth plugin, base URL
-  dto/PageDto.kt
-  dto/PageDtoMapper.kt
+  dto/PageDtoMapper.kt    ← maps shared's PageDto<T>; no local PageDto class
 ```
 
 ## Depends On
 
 - `:core:common` — `ConnectivityManager`, `Logger`, `Page<T>`
 - `:core:user` — `AuthManager` (for bearer token injection via Ktor Auth plugin)
+- `com.momosi.trucktrack:shared` — `PageDto<T>` (separate build, see `../../../shared/AGENTS.MD`)
 
 ## Configuration
 

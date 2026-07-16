@@ -5,7 +5,7 @@ description: Use when adding/removing an iOS tester device, regenerating the ad-
 
 # Skill: Manage iOS Ad-Hoc Signing (Certificate, Provisioning Profile, GitHub Secrets)
 
-> `build-ios` (`.github/workflows/build-app.yml`) and `release-ios` (`.github/workflows/release-app.yml`) sign a real `.ipa` using an Apple Distribution certificate + ad-hoc provisioning profile, stored as five GitHub Secrets. This skill covers the two operations that come up again: adding a tester's device, and renewing the certificate. Read `docs/KMP_IOS_READINESS.md` item 4 for the broader picture.
+> `build-ios` (`.github/workflows/build-app.yml`) and `release-ios` (`.github/workflows/release-app.yml`), both at the repo root, sign a real `.ipa` using an Apple Distribution certificate + ad-hoc provisioning profile, stored as five GitHub Secrets. This skill covers the two operations that come up again: adding a tester's device, and renewing the certificate.
 
 ## Looking up current values
 

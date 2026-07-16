@@ -5,26 +5,26 @@ description: Use when adding a new repository, manager, or API data source to a 
 
 # Skill: Add a Repository to a Core Module
 
-> Adds a repository (or manager) to an existing `core/*` module: domain model, interface, DTO, mapper, Ktor API client, implementation, and Koin binding. All files go in `src/commonMain/kotlin/`.
+> Adds a repository (or manager) to an existing `app/core/*` module: domain model, DTO mapper, Ktor API client, repository interface + implementation, and Koin binding. All files go in `src/commonMain/kotlin/`. DTOs themselves come from the separate `shared` build (`com.momosi.trucktrack:shared`), not from this module — see Step 3.
 
 ## Triggers
 
 Load this skill when the task matches **any** of these:
-- Adding a new data source or backend resource to a `core/*` module
+- Adding a new data source or backend resource to an `app/core/*` module
 - Task says "add a repository", "add a manager", "fetch X from the API", "expose X to feature modules"
 - A new API endpoint needs to be called from the app
 
 ## Prerequisites
 
-- The target `core/<module>` already exists with a `build.gradle.kts`
-- `core:network` is available and provides a Koin-managed `HttpClient` with base URL and auth pre-configured
-- The API endpoint is known (see OpenAPI at `https://tt.momosi.org/v3/api-docs`)
+- The target `app/core/<module>` already exists with a `build.gradle.kts`
+- `core:network` is available and provides a Koin-managed `HttpClient` with base URL and auth pre-configured, plus `PageDtoMapper.toPage` for paginated responses
+- The API endpoint is known (see OpenAPI at `https://tt.momosi.org/v3/api-docs`, or `server/module-api` directly)
 
 ## Steps
 
 ### 1. Create the domain model in `model/`
 
-Place in `core/<module>/src/commonMain/kotlin/.../core/<module>/model/<Thing>.kt`.
+Place in `app/core/<module>/src/commonMain/kotlin/com/momosi/trucktrack/core/<module>/model/<Thing>.kt`.
 Pure Kotlin only — no Android imports, no `Context`, no `@StringRes`.
 
 ```kotlin
@@ -46,7 +46,7 @@ import com.momosi.trucktrack.core.common.model.Page
 
 interface <Thing>Repository {
 
-    suspend fun get<Things>(page: Int? = null, size: Int? = null): Result<Page<<Thing>>>
+    suspend fun get<Things>(): Result<Page<<Thing>>>
 
     suspend fun get<Thing>(id: Long): Result<<Thing>>
 }
@@ -54,29 +54,36 @@ interface <Thing>Repository {
 
 Rules: all methods `suspend`; never throw — return `Result<T>`, `T?`, or `List<T>`; no Android types.
 
-### 3. Create the DTO in `dto/`
+### 3. Use (or add) the DTO in `shared`
+
+DTOs live in the separate `shared` build (`shared/src/commonMain/kotlin/com/momosi/trucktrack/shared/<domain>/`), not in this module — check there first for an existing `<Thing>Dto`. Only add a new one if it genuinely doesn't exist yet:
 
 ```kotlin
-package com.momosi.trucktrack.core.<module>.dto
+// shared/src/commonMain/kotlin/com/momosi/trucktrack/shared/<domain>/<Thing>Dto.kt
+package com.momosi.trucktrack.shared.<domain>
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class <Thing>Dto(
-    @SerialName("id") val id: Long,
-    @SerialName("name") val name: String,
+    val id: Long,
+    val name: String,
 )
 ```
 
+See `shared/AGENTS.MD` for naming/type conventions (`kotlin.time.Instant` for dates, `kotlin.uuid.Uuid` for UUIDs, no framework annotations). Adding a new DTO here also needs a matching type on the `server/module-api`/`module-server` side — see `server/module-api/AGENTS.MD`.
+
 ### 4. Create the DTO mapper in `dto/`
+
+No local DTO class here — the mapper converts `shared`'s DTO straight to the domain model:
 
 ```kotlin
 package com.momosi.trucktrack.core.<module>.dto
 
 import com.momosi.trucktrack.core.<module>.model.<Thing>
+import com.momosi.trucktrack.shared.<domain>.<Thing>Dto
 
-internal fun <Thing>Dto.to<Thing>(): <Thing> = <Thing>(
+fun <Thing>Dto.to<Thing>(): <Thing> = <Thing>(
     id = id,
     name = name,
 )
@@ -84,32 +91,39 @@ internal fun <Thing>Dto.to<Thing>(): <Thing> = <Thing>(
 
 ### 5. Create the Ktor API client in `api/`
 
-Mark `internal` — it is an implementation detail, not part of the module's public API.
+Returns `shared`'s DTO types directly — no local response wrapper.
 
 ```kotlin
 package com.momosi.trucktrack.core.<module>.api
 
-import com.momosi.trucktrack.core.<module>.dto.<Thing>Dto
-import com.momosi.trucktrack.core.network.dto.PageDto
+import com.momosi.trucktrack.shared.<domain>.<Thing>Dto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 
-internal class <Thing>Api(private val client: HttpClient) {
+class <Thing>Api(private val client: HttpClient) {
 
-    suspend fun get<Things>(page: Int?, size: Int?): PageDto<<Thing>Dto> =
-        client.get("api/v1/<things>") {
-            page?.let { parameter("page", it) }
-            size?.let { parameter("size", it) }
-        }.body()
+    suspend fun get<Things>(): List<<Thing>Dto> = client.get("api/v1/<things>").body()
 
-    suspend fun get<Thing>(id: Long): <Thing>Dto =
-        client.get("api/v1/<things>/$id").body()
+    suspend fun get<Thing>(id: Long): <Thing>Dto = client.get("api/v1/<things>/$id").body()
 }
 ```
 
-For POST with JSON body:
+For a paginated endpoint, wrap the response in `shared`'s `PageDto<T>` and convert with `core:network`'s `PageDtoMapper`:
+
+```kotlin
+suspend fun get<Things>(page: Int?, size: Int?): PageDto<<Thing>Dto> =
+    client.get("api/v1/<things>") {
+        page?.let { parameter("page", it) }
+        size?.let { parameter("size", it) }
+    }.body()
+```
+```kotlin
+// in the repository impl
+api.get<Things>(page, size).toPage { it.to<Thing>() }
+```
+
+For POST with a JSON body:
 ```kotlin
 suspend fun create<Thing>(body: <Thing>CreateDto): <Thing>Dto =
     client.post("api/v1/<things>") {
@@ -120,23 +134,19 @@ suspend fun create<Thing>(body: <Thing>CreateDto): <Thing>Dto =
 
 ### 6. Create the repository implementation
 
-Mark `internal` — bound via Koin, never constructed directly by feature modules.
-
 ```kotlin
 package com.momosi.trucktrack.core.<module>
 
 import com.momosi.trucktrack.core.<module>.api.<Thing>Api
 import com.momosi.trucktrack.core.<module>.dto.to<Thing>
 import com.momosi.trucktrack.core.<module>.model.<Thing>
-import com.momosi.trucktrack.core.common.model.Page
-import com.momosi.trucktrack.core.network.dto.toDomain
 
-internal class <Thing>RepositoryImpl(
+class <Thing>RepositoryImpl(
     private val api: <Thing>Api,
 ) : <Thing>Repository {
 
-    override suspend fun get<Things>(page: Int?, size: Int?): Result<Page<<Thing>>> = runCatching {
-        api.get<Things>(page, size).toDomain { it.to<Thing>() }
+    override suspend fun get<Things>(): Result<List<<Thing>>> = runCatching {
+        api.get<Things>().map { it.to<Thing>() }
     }
 
     override suspend fun get<Thing>(id: Long): Result<<Thing>> = runCatching {
@@ -166,20 +176,20 @@ val <module>Module = module {
 
 ### 8. Register in `AppModule` (new Koin module files only)
 
-If this is a new `val xxxModule`, add it to `app/shared/src/commonMain/kotlin/.../app/di/AppModule.kt`.
+If this is a new `val xxxModule`, add it to `app/app/shared/src/commonMain/kotlin/com/momosi/trucktrack/app/di/AppModule.kt`.
 If adding to an existing module file, no app-level change is needed.
 
-### 9. Update `core/<module>/AGENTS.MD`
+### 9. Update `app/core/<module>/AGENTS.MD`
 
 Add the new repository interface and domain model to the Public API table.
-Add the new files to the Key Files section.
+Add the new files to the Key Files section. If you added a new DTO in `shared`, add it to `shared/AGENTS.MD`'s domain list too.
 
 ## Verification
 
 - [ ] Domain model in `model/` contains no Android imports — placed in `src/commonMain/kotlin/`
+- [ ] No local `<Thing>Dto` class in `app/core/<module>` — it's in `shared/src/commonMain/kotlin/com/momosi/trucktrack/shared/<domain>/`, reused if it already existed
 - [ ] Repository interface returns only `Result<T>`, `T?`, or `List<T>` — never throws
-- [ ] `<Thing>Api` and `<Thing>RepositoryImpl` are marked `internal`
-- [ ] DTO uses `@Serializable` and `@SerialName` on all fields
+- [ ] DTO (in `shared`) uses `@Serializable`
 - [ ] Koin module has `single { <Thing>Api(get()) }` and `single<<Thing>Repository> { ... }`
-- [ ] `./gradlew :core:<module>:assembleDebug` passes
-- [ ] `./gradlew spotlessCheck` passes
+- [ ] `cd app && ./gradlew :core:<module>:assembleDebug` passes (or `:app:core:<module>:assembleDebug` from the repo root)
+- [ ] `cd app && ./gradlew spotlessCheck` passes

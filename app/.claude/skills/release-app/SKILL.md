@@ -25,7 +25,7 @@ That's the entire release process. Pushing the tag triggers `release-android`, w
 
 1. Parses `vMAJOR.MINOR.PATCH` from `GITHUB_REF_NAME` — **fails fast** if the tag doesn't match, or if `MINOR`/`PATCH` are ≥ 100.
 2. Computes `versionCode = MAJOR * 10000 + MINOR * 100 + PATCH` (this is why `MINOR`/`PATCH` are capped under 100 — keeps codes from colliding across versions).
-3. Decodes the release keystore from the `ANDROID_KEYSTORE_BASE64` secret and runs `:app:android:assembleRelease :app:android:bundleRelease` with `-PappVersionName`/`-PappVersionCode` set from the parsed tag — these flow into `app/android/build.gradle.kts`'s `versionName`/`versionCode` via `stringProperty("appVersionName"/"appVersionCode")`.
+3. Decodes the release keystore from the `ANDROID_KEYSTORE_BASE64` secret and runs `:app:app:android:assembleRelease :app:app:android:bundleRelease` (from the repo root) with `-PappVersionName`/`-PappVersionCode` set from the parsed tag — these flow into `app/app/android/build.gradle.kts`'s `versionName`/`versionCode` via `stringProperty("appVersionName"/"appVersionCode")`.
 4. Renames the outputs to `truck-track-<version>.apk` / `truck-track-<version>.aab` (version-suffixed, not the raw AGP output names).
 5. Publishes both as a GitHub Release titled after the tag via `gh release create "$GITHUB_REF_NAME" ...`.
 
