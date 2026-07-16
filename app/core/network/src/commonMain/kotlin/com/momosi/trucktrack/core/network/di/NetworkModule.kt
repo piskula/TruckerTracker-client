@@ -54,6 +54,8 @@ val networkModule = module {
 }
 
 private fun buildHttpClient(authManager: AuthManager, block: HttpClientConfig<*>.() -> Unit = {}): HttpClient = HttpClient(httpClientEngineFactory()) {
+    expectSuccess = true
+
     block()
 
     install(Auth) {
