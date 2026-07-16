@@ -61,7 +61,8 @@ For day-to-day work you'll usually want just one side:
 ## Continuous integration
 
 `build-app.yml` (push to `main`) and `release-app.yml` (version tags) build and distribute the
-client — see `app/README.md` for details. The server has no CI workflow yet.
+client — see `app/README.md` for details. `build-server.yml` builds the server on every push to
+`main` — see `server/README.md`.
 
 ## Contributing
 

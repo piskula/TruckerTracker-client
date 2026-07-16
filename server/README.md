@@ -6,6 +6,7 @@ Spring Boot backend for TruckTrack, a fleet-management issue-tracking system for
 
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
+- [Continuous integration](#continuous-integration)
 - [Project structure](#project-structure)
 - [Configuration](#configuration)
 - [Runtime](#runtime)
@@ -47,6 +48,20 @@ java -jar module-server/build/libs/module-server-*-SNAPSHOT.jar
 The app connects to a running Keycloak instance for auth (`https://sso.momosi.org` by default —
 see [Configuration](#configuration) to point at a different one) and to the Postgres/MinIO
 containers started above.
+
+## Continuous integration
+
+`build-server.yml` (repo root `.github/workflows/`) runs on every push to `main` that touches
+`server/`, `shared/`, or shared root config (skipped for `app/**`-only, doc-only, or
+`.claude/**`-only changes) — also triggerable manually via `workflow_dispatch`.
+
+- **`build`** — `./gradlew clean build` from inside `server/`, uploads
+  `module-server/build/libs/module-server-*.jar` as a workflow artifact.
+- **`dependency-submission`** — submits a Gradle dependency graph for `server/` so Dependabot can
+  alert on vulnerable dependencies.
+
+There's no release/deploy workflow for the server yet — see [Runtime](#runtime) for how it's
+currently deployed.
 
 ## Project structure
 
