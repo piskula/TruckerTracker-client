@@ -2,6 +2,7 @@
 
 [![Build Debug Apps](https://github.com/piskula/TruckerTracker-client/actions/workflows/build-app.yml/badge.svg)](https://github.com/piskula/TruckerTracker-client/actions/workflows/build-app.yml)
 [![Release App](https://github.com/piskula/TruckerTracker-client/actions/workflows/release-app.yml/badge.svg)](https://github.com/piskula/TruckerTracker-client/actions/workflows/release-app.yml)
+[![Build Server](https://github.com/piskula/TruckerTracker-client/actions/workflows/build-server.yml/badge.svg)](https://github.com/piskula/TruckerTracker-client/actions/workflows/build-server.yml)
 
 Fleet-management monorepo for drivers and mechanics to report and track vehicle issues, manage
 vehicles, and sign in via OAuth/OIDC — a Kotlin Multiplatform client (Android + iOS) and a Spring
