@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transroute Tracker – Dashboard</title>
+    <title>TruckTrack – My Issues (Driver)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -39,9 +39,10 @@
           font-weight: 500;
           flex-shrink: 0;
         }
+        /* DashboardTopBar: title + subtitle + a single AccountCircle action (no search icon) */
         .top-bar {
           background: #1565C0;
-          padding: 14px 16px 16px;
+          padding: 14px 16px;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -49,8 +50,7 @@
         }
         .top-bar-left { display: flex; flex-direction: column; }
         .top-bar h2 { color: #fff; font-size: 20px; font-weight: 700; }
-        .top-bar-sub { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
-        .top-bar-actions { display: flex; gap: 4px; }
+        .top-bar-sub { color: rgba(255,255,255,0.65); font-size: 13px; margin-top: 2px; }
         .icon-btn {
           width: 40px; height: 40px;
           border-radius: 50%;
@@ -58,6 +58,7 @@
         }
         .icon-btn .material-icons { color: #fff; font-size: 24px; }
 
+        /* FilterChipRow: Driver = My Open / My Closed / All */
         .filter-row {
           background: #1565C0;
           padding: 0 16px 12px;
@@ -71,8 +72,8 @@
           font-size: 13px;
           font-weight: 500;
           cursor: pointer;
-          border: 1.5px solid rgba(255,255,255,0.4);
-          color: rgba(255,255,255,0.85);
+          border: 1.5px solid rgba(255,255,255,0.3);
+          color: rgba(255,255,255,0.75);
         }
         .filter-chip.active {
           background: #fff;
@@ -80,6 +81,7 @@
           border-color: #fff;
         }
 
+        /* Flat list — no "Reported by me" / "Completed" section headers in the real screen */
         .content {
           flex: 1;
           overflow-y: auto;
@@ -88,29 +90,20 @@
           flex-direction: column;
           gap: 10px;
         }
-        .section-label {
-          font-size: 11px;
-          font-weight: 700;
-          color: #9E9E9E;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          padding: 4px 4px 0;
-        }
 
-        /* Card */
+        /* Card — 16dp corner radius (Shapes.CardShape), 4dp priority-colored left edge */
         .card {
           background: #fff;
-          border-radius: 12px;
+          border-radius: 16px;
           padding: 12px 14px;
           box-shadow: 0 1px 4px rgba(0,0,0,0.08);
           cursor: pointer;
           border-left: 4px solid #BDBDBD;
         }
         .card.priority-high   { border-left-color: #C62828; }
-        .card.priority-medium { border-left-color: #F9A825; }
-        .card.priority-low    { border-left-color: #0288D1; }
+        .card.priority-medium { border-left-color: #F57C00; }
+        .card.priority-low    { border-left-color: #1565C0; }
 
-        /* Row 1: title + status badge */
         .card-top {
           display: flex;
           align-items: flex-start;
@@ -130,7 +123,7 @@
           align-items: center;
           gap: 4px;
           padding: 3px 10px 3px 7px;
-          border-radius: 12px;
+          border-radius: 16px;
           font-size: 11px;
           font-weight: 700;
           text-transform: uppercase;
@@ -143,11 +136,11 @@
         .status-progress { background: #FFF3E0; color: #F57C00; }
         .status-done     { background: #E8F5E9; color: #2E7D32; }
 
-        /* Row 2: priority + plate + photos + time */
         .card-meta {
           display: flex;
           align-items: center;
           gap: 8px;
+          margin-bottom: 8px;
         }
         .priority-indicator {
           display: flex;
@@ -161,8 +154,8 @@
         }
         .priority-indicator .material-icons { font-size: 15px; }
         .priority-indicator.high   { color: #C62828; }
-        .priority-indicator.medium { color: #F9A825; }
-        .priority-indicator.low    { color: #0288D1; }
+        .priority-indicator.medium { color: #F57C00; }
+        .priority-indicator.low    { color: #1565C0; }
 
         .meta-item {
           display: flex;
@@ -173,27 +166,22 @@
         }
         .meta-item .material-icons { font-size: 15px; }
 
+        /* Bottom row: driver sees the assigned mechanic (Build icon) + time-ago, right-aligned */
+        .card-bottom-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
         .card-time {
-          margin-left: auto;
           font-size: 11px;
           color: #9E9E9E;
           white-space: nowrap;
-          flex-shrink: 0;
         }
-        .photo-count {
-          display: flex;
-          align-items: center;
-          gap: 2px;
-          color: #9E9E9E;
-          font-size: 12px;
-          flex-shrink: 0;
-        }
-        .photo-count .material-icons { font-size: 14px; }
 
-        /* FAB */
+        /* FAB — only shown for Driver / dual-role, not Mechanic */
         .fab {
           position: absolute;
-          bottom: 80px;
+          bottom: 20px;
           right: 20px;
           width: 56px;
           height: 56px;
@@ -207,27 +195,8 @@
         }
         .fab .material-icons { color: #fff; font-size: 28px; }
 
-        /* Bottom nav */
-        .bottom-nav {
-          background: #fff;
-          height: 64px;
-          display: flex;
-          border-top: 1px solid #E0E0E0;
-          flex-shrink: 0;
-        }
-        .nav-item {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 2px;
-          cursor: pointer;
-        }
-        .nav-item .material-icons { font-size: 24px; color: #9E9E9E; }
-        .nav-item .nav-label { font-size: 11px; color: #9E9E9E; font-weight: 500; }
-        .nav-item.active .material-icons { color: #1565C0; }
-        .nav-item.active .nav-label { color: #1565C0; }
+        /* NOTE: the real app has no bottom navigation bar — Profile is reached
+           via the account-circle icon in the top bar, not a tab. */
     </style>
 </head>
 <body>
@@ -245,21 +214,16 @@
             <h2>My Issues</h2>
             <span class="top-bar-sub">Michael Schumacher · Driver</span>
         </div>
-        <div class="top-bar-actions">
-            <div class="icon-btn"><span class="material-icons">search</span></div>
-            <div class="icon-btn"><span class="material-icons">account_circle</span></div>
-        </div>
+        <div class="icon-btn"><span class="material-icons">account_circle</span></div>
     </div>
 
     <div class="filter-row">
-        <div class="filter-chip active">All</div>
-        <div class="filter-chip">Open</div>
-        <div class="filter-chip">In Progress</div>
-        <div class="filter-chip">Done</div>
+        <div class="filter-chip active">My Open</div>
+        <div class="filter-chip">My Closed</div>
+        <div class="filter-chip">All</div>
     </div>
 
     <div class="content">
-        <div class="section-label">Reported by me (3)</div>
 
         <!-- High / In Progress -->
         <div class="card priority-high">
@@ -279,15 +243,17 @@
                     <span class="material-icons">local_shipping</span>
                     <span>MA-204-TT</span>
                 </div>
-                <div class="photo-count">
-                    <span class="material-icons">photo_camera</span>
-                    <span>3</span>
+            </div>
+            <div class="card-bottom-row">
+                <div class="meta-item">
+                    <span class="material-icons">build</span>
+                    <span>Mattia Binotto</span>
                 </div>
-                <span class="card-time">2h ago</span>
+                <span class="card-time">2 hr ago</span>
             </div>
         </div>
 
-        <!-- High / Open -->
+        <!-- High / Open, unassigned -->
         <div class="card priority-high">
             <div class="card-top">
                 <div class="card-title">Left rear tire pressure critically low</div>
@@ -305,11 +271,13 @@
                     <span class="material-icons">local_shipping</span>
                     <span>MA-118-AB</span>
                 </div>
-                <div class="photo-count">
-                    <span class="material-icons">photo_camera</span>
-                    <span>1</span>
+            </div>
+            <div class="card-bottom-row">
+                <div class="meta-item">
+                    <span class="material-icons">build</span>
+                    <span>Unassigned</span>
                 </div>
-                <span class="card-time">5h ago</span>
+                <span class="card-time">5 hr ago</span>
             </div>
         </div>
 
@@ -331,11 +299,15 @@
                     <span class="material-icons">local_shipping</span>
                     <span>MA-337-PK</span>
                 </div>
+            </div>
+            <div class="card-bottom-row">
+                <div class="meta-item">
+                    <span class="material-icons">build</span>
+                    <span>Unassigned</span>
+                </div>
                 <span class="card-time">Yesterday</span>
             </div>
         </div>
-
-        <div class="section-label" style="margin-top:4px;">Completed (1)</div>
 
         <!-- Low / Done -->
         <div class="card priority-low">
@@ -355,7 +327,13 @@
                     <span class="material-icons">local_shipping</span>
                     <span>MA-118-AB</span>
                 </div>
-                <span class="card-time">May 22</span>
+            </div>
+            <div class="card-bottom-row">
+                <div class="meta-item">
+                    <span class="material-icons">build</span>
+                    <span>Mattia Binotto</span>
+                </div>
+                <span class="card-time">22 days ago</span>
             </div>
         </div>
 
@@ -363,17 +341,6 @@
 
     <div class="fab">
         <span class="material-icons">add</span>
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active">
-            <span class="material-icons">list_alt</span>
-            <span class="nav-label">Issues</span>
-        </div>
-        <div class="nav-item">
-            <span class="material-icons">person_outline</span>
-            <span class="nav-label">Profile</span>
-        </div>
     </div>
 </div>
 </body>

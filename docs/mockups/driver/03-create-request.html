@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transroute Tracker – New Issue</title>
+  <title>TruckTrack – Report Issue</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
@@ -38,9 +38,10 @@
       font-weight: 500;
       flex-shrink: 0;
     }
+    /* Toolbar: back arrow + title only, no subtitle/actions */
     .top-bar {
       background: #1565C0;
-      padding: 14px 8px 14px 4px;
+      padding: 12px 8px 12px 4px;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -65,7 +66,7 @@
 
     .card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 16px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
@@ -85,10 +86,10 @@
       font-weight: 500;
       color: #1565C0;
     }
-    .field input, .field textarea, .field select {
+    .field input, .field textarea {
       border: none;
-      border-bottom: 2px solid #BDBDBD;
-      padding: 8px 0;
+      border-bottom: 2px solid #E0E0E0;
+      padding: 4px 0 8px;
       font-size: 15px;
       font-family: 'Roboto', sans-serif;
       color: #212121;
@@ -96,19 +97,32 @@
       background: transparent;
       resize: none;
     }
-    .field textarea { min-height: 110px; line-height: 1.5; }
-    .field input:focus, .field textarea:focus { border-bottom-color: #1565C0; }
+    .field textarea { min-height: 90px; line-height: 1.5; }
 
+    /* Vehicle selector — tap to expand an inline dropdown list (not a "Change" link) */
     .vehicle-selector {
       display: flex;
       align-items: center;
-      border-bottom: 2px solid #1565C0;
       padding: 8px 0;
       gap: 8px;
+      cursor: pointer;
     }
-    .vehicle-selector .material-icons { color: #1565C0; font-size: 20px; }
-    .vehicle-selector span { font-size: 15px; color: #212121; font-weight: 500; }
-    .vehicle-selector .change { margin-left: auto; font-size: 13px; color: #1565C0; font-weight: 500; cursor: pointer; }
+    .vehicle-selector .material-icons.leading { color: #1565C0; font-size: 20px; }
+    .vehicle-selector span.value { font-size: 15px; color: #212121; font-weight: 500; flex: 1; }
+    .vehicle-selector .material-icons.chevron { color: #1565C0; font-size: 24px; }
+    .vehicle-dropdown {
+      display: flex;
+      flex-direction: column;
+    }
+    .vehicle-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 4px;
+      font-size: 14px;
+      color: #212121;
+    }
+    .vehicle-option .material-icons { color: #757575; font-size: 18px; }
 
     .priority-grid {
       display: flex;
@@ -123,30 +137,17 @@
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      transition: all 0.15s;
     }
-    .priority-option.selected { border-width: 2px; }
-    .priority-option.selected.critical { border-color: #C62828; background: #FFEBEE; }
     .priority-option.selected.high { border-color: #C62828; background: #FFEBEE; }
-    .priority-option.selected.medium { border-color: #F9A825; background: #FFFDE7; }
-    .priority-option.selected.low { border-color: #0288D1; background: #E1F5FE; }
-
-    .priority-dot {
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .dot-critical { background: #C62828; }
-    .dot-high { background: #C62828; }
-    .dot-medium { background: #F9A825; }
-    .dot-low { background: #2E7D32; }
+    .priority-option.selected.medium { border-color: #F57C00; background: #FFF3E0; }
+    .priority-option.selected.low { border-color: #1565C0; background: #E3F2FD; }
 
     .priority-text { display: flex; flex-direction: column; }
     .priority-text strong { font-size: 14px; font-weight: 700; color: #212121; }
     .priority-text small { font-size: 11px; color: #9E9E9E; }
 
     .photo-upload {
-      border: 2px dashed #BDBDBD;
+      border: 2px solid #E0E0E0;
       border-radius: 10px;
       padding: 20px;
       display: flex;
@@ -154,42 +155,31 @@
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      background: #FAFAFA;
     }
-    .photo-upload .material-icons { font-size: 36px; color: #BDBDBD; }
+    .photo-upload .material-icons { font-size: 36px; color: #E0E0E0; }
     .photo-upload p { font-size: 14px; color: #9E9E9E; }
-    .photo-upload small { font-size: 12px; color: #BDBDBD; }
+    .photo-upload small { font-size: 12px; color: #E0E0E0; }
 
+    /* Photo previews scroll horizontally (LazyRow) — supports multi-select */
     .photo-previews {
       display: flex;
       gap: 8px;
       margin-top: 10px;
+      overflow-x: auto;
     }
     .photo-thumb {
       width: 72px; height: 72px;
       border-radius: 8px;
-      background: #CFD8DC;
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
-    }
-    .photo-thumb img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-    }
-    .photo-thumb-placeholder {
-      width: 100%; height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: linear-gradient(135deg, #CFD8DC, #B0BEC5);
     }
-    .photo-thumb-placeholder .material-icons { color: #fff; font-size: 28px; }
     .remove-photo {
       position: absolute;
       top: 2px; right: 2px;
       width: 18px; height: 18px;
-      background: rgba(0,0,0,0.55);
+      background: rgba(33,33,33,0.55);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
@@ -233,24 +223,28 @@
 
     <div class="top-bar">
       <div class="back-btn"><span class="material-icons">arrow_back</span></div>
-      <h2>New Issue</h2>
+      <h2>Report Issue</h2>
     </div>
 
     <div class="content">
 
-      <!-- Vehicle -->
+      <!-- Vehicle: expandable dropdown, not a "Change" link -->
       <div class="card">
         <div class="card-title">Vehicle</div>
         <div class="vehicle-selector">
-          <span class="material-icons">local_shipping</span>
-          <span>MA-204-TT · Volvo FH16</span>
-          <span class="change">Change</span>
+          <span class="material-icons leading">local_shipping</span>
+          <span class="value">MA-204-TT · Volvo FH16</span>
+          <span class="material-icons chevron">arrow_drop_down</span>
+        </div>
+        <div class="vehicle-dropdown">
+          <div class="vehicle-option"><span class="material-icons">local_shipping</span>MA-118-AB · DAF XF</div>
+          <div class="vehicle-option"><span class="material-icons">local_shipping</span>MA-337-PK · Scania R450</div>
         </div>
       </div>
 
       <!-- Description -->
       <div class="card">
-        <div class="card-title">Problem Description</div>
+        <div class="card-title">Description</div>
         <div class="field">
           <label>Short title</label>
           <input type="text" value="Engine warning light — won't start">
@@ -261,7 +255,7 @@
         </div>
       </div>
 
-      <!-- Priority -->
+      <!-- Priority: High / Medium / Low, with domain-accurate hints -->
       <div class="card">
         <div class="card-title">Priority</div>
         <div class="priority-grid">
@@ -269,41 +263,39 @@
             <span class="material-icons" style="color:#C62828;font-size:20px;">arrow_upward</span>
             <div class="priority-text">
               <strong>High</strong>
-              <small>Urgent fix needed</small>
+              <small>Blocks operation, immediate attention needed</small>
             </div>
           </div>
           <div class="priority-option">
-            <span class="material-icons" style="color:#F9A825;font-size:20px;">remove</span>
+            <span class="material-icons" style="color:#F57C00;font-size:20px;">remove</span>
             <div class="priority-text">
               <strong>Medium</strong>
-              <small>Fix soon</small>
+              <small>Should be fixed soon, but not critical</small>
             </div>
           </div>
           <div class="priority-option">
-            <span class="material-icons" style="color:#0288D1;font-size:20px;">arrow_downward</span>
+            <span class="material-icons" style="color:#1565C0;font-size:20px;">arrow_downward</span>
             <div class="priority-text">
               <strong>Low</strong>
-              <small>Not urgent</small>
+              <small>Minor issue, can wait for scheduled maintenance</small>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Photos -->
+      <!-- Photos: multi-select image picker -->
       <div class="card">
         <div class="card-title">Photos</div>
         <div class="photo-upload">
           <span class="material-icons">add_photo_alternate</span>
-          <p>Tap to add photos</p>
-          <small>Camera or gallery</small>
+          <p>Add photos</p>
+          <small>From camera or gallery</small>
         </div>
         <div class="photo-previews">
           <div class="photo-thumb">
-            <div class="photo-thumb-placeholder"></div>
             <div class="remove-photo"><span class="material-icons">close</span></div>
           </div>
           <div class="photo-thumb">
-            <div class="photo-thumb-placeholder"></div>
             <div class="remove-photo"><span class="material-icons">close</span></div>
           </div>
         </div>
@@ -312,10 +304,7 @@
     </div>
 
     <div class="bottom-action">
-      <button class="btn-primary">
-        <span class="material-icons">send</span>
-        Submit Issue
-      </button>
+      <button class="btn-primary">Submit Issue</button>
     </div>
   </div>
 </body>

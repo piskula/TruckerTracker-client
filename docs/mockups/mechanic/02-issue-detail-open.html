@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transroute Tracker – Issue Detail (Open)</title>
+  <title>TruckTrack – Issue Detail (Open, Mechanic)</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
@@ -51,15 +51,7 @@
       display: flex; align-items: center; justify-content: center;
     }
     .back-btn .material-icons { color: #fff; font-size: 24px; }
-    .top-bar-text { flex: 1; }
-    .top-bar-text h2 { color: #fff; font-size: 18px; font-weight: 700; }
-    .top-bar-text span { color: rgba(255,255,255,0.8); font-size: 12px; }
-    .icon-btn {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .icon-btn .material-icons { color: #fff; font-size: 24px; }
+    .top-bar h2 { color: #fff; font-size: 20px; font-weight: 700; flex: 1; }
 
     .people-strip {
       background: #0D47A1;
@@ -73,10 +65,6 @@
       align-items: center;
       gap: 8px;
     }
-    .person-cell + .person-cell {
-      border-left: 1px solid rgba(255,255,255,0.2);
-      padding-left: 14px;
-    }
     .person-avatar {
       width: 30px; height: 30px;
       border-radius: 50%;
@@ -88,7 +76,8 @@
     .person-info { display: flex; flex-direction: column; }
     .person-role { font-size: 10px; color: rgba(255,255,255,0.65); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
     .person-name { font-size: 13px; color: #fff; font-weight: 700; }
-    .person-name.unassigned { color: rgba(255,255,255,0.5); font-style: italic; font-weight: 400; }
+    /* Unassigned: the real screen just shows "—", not the word "Unassigned" */
+    .person-name.empty { color: rgba(255,255,255,0.55); }
 
     .content {
       flex: 1;
@@ -101,7 +90,7 @@
 
     .card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 16px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
@@ -114,10 +103,9 @@
       margin-bottom: 12px;
     }
 
-    /* Header card — same style as dashboard */
     .header-card {
       background: #fff;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 12px 14px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       border-left: 4px solid #C62828;
@@ -141,7 +129,7 @@
       align-items: center;
       gap: 4px;
       padding: 3px 10px 3px 7px;
-      border-radius: 12px;
+      border-radius: 16px;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
@@ -182,14 +170,12 @@
       color: #9E9E9E;
     }
 
-    /* Description */
     .description-text {
       font-size: 14px;
       color: #424242;
       line-height: 1.5;
     }
 
-    /* Timeline */
     .timeline { display: flex; flex-direction: column; }
     .timeline-step { display: flex; gap: 12px; }
     .timeline-left {
@@ -207,47 +193,41 @@
     }
     .step-dot.status-open { background: #1565C0; }
     .step-dot .material-icons { font-size: 17px; color: #fff; }
-    .timeline-right { padding-bottom: 0; flex: 1; min-width: 0; }
+    .timeline-right { flex: 1; min-width: 0; }
     .step-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 4px;
-      margin-top: 6px;
     }
     .step-status { font-size: 14px; font-weight: 700; color: #212121; }
     .step-person { font-size: 12px; color: #757575; white-space: nowrap; flex-shrink: 0; }
     .step-time { font-size: 11px; color: #BDBDBD; margin-top: 1px; }
 
-    /* Photos */
-    .photo-row { display: flex; gap: 8px; }
+    .photo-row { display: flex; gap: 8px; overflow-x: auto; }
     .photo-thumb {
       width: 80px; height: 80px;
       border-radius: 8px;
       background: linear-gradient(135deg, #CFD8DC, #B0BEC5);
       flex-shrink: 0;
-      position: relative;
     }
-    .photo-caption {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.42);
-      border-radius: 0 0 8px 8px;
-      text-align: center;
-      font-size: 10px;
-      color: #fff;
-      padding: 2px 0;
+    .photo-add-tile {
+      width: 80px; height: 80px;
+      border-radius: 8px;
+      background: #E0E0E0;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
+    .photo-add-tile .material-icons { color: #757575; font-size: 28px; }
 
-    /* Bottom action */
+    /* Bottom action bar — filled Warning-color button, matches Button(style = Warning) */
     .bottom-action {
       padding: 12px 16px 20px;
       background: #fff;
-      border-top: 1px solid #E0E0E0;
       flex-shrink: 0;
     }
-    .btn-primary {
-      background: #37474F;
+    .btn-warning {
+      background: #F57C00;
       color: #fff;
       border: none;
       border-radius: 28px;
@@ -257,13 +237,12 @@
       font-family: 'Roboto', sans-serif;
       cursor: pointer;
       width: 100%;
-      box-shadow: 0 4px 12px rgba(55,71,79,0.35);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
-    .btn-primary .material-icons { font-size: 20px; }
+    .btn-warning .material-icons { font-size: 20px; }
   </style>
 </head>
 <body>
@@ -278,11 +257,7 @@
 
     <div class="top-bar">
       <div class="back-btn"><span class="material-icons">arrow_back</span></div>
-      <div class="top-bar-text">
-        <h2>Issue #1087</h2>
-        <span>MA-501-KL · Scania R450</span>
-      </div>
-      <div class="icon-btn"><span class="material-icons">more_vert</span></div>
+      <h2>Issue #1087</h2>
     </div>
 
     <div class="people-strip">
@@ -297,7 +272,7 @@
         <div class="person-avatar"><span class="material-icons">build</span></div>
         <div class="person-info">
           <span class="person-role">Assigned</span>
-          <span class="person-name unassigned">Unassigned</span>
+          <span class="person-name empty">—</span>
         </div>
       </div>
     </div>
@@ -319,13 +294,12 @@
           </div>
           <div class="meta-item">
             <span class="material-icons">local_shipping</span>
-            <span>MA-501-KL</span>
+            <span>MA-501-KL · Scania R450</span>
           </div>
           <span class="card-time">May 25, 07:15</span>
         </div>
       </div>
 
-      <!-- Description -->
       <div class="card">
         <div class="card-section-title">Description</div>
         <div class="description-text">
@@ -333,7 +307,6 @@
         </div>
       </div>
 
-      <!-- History -->
       <div class="card">
         <div class="card-section-title">History</div>
         <div class="timeline">
@@ -352,23 +325,28 @@
         </div>
       </div>
 
-      <!-- Photos -->
+      <div class="card">
+        <div class="card-section-title">Add Comment</div>
+        <div style="display:flex; align-items:flex-end; gap:10px;">
+          <textarea placeholder="Write a comment…" rows="2" style="flex:1; background:#F5F5F5; border:none; border-radius:10px; padding:10px 12px; font-size:14px; font-family:'Roboto',sans-serif; color:#212121; resize:none; min-height:44px; outline:none;"></textarea>
+          <button style="width:44px; height:44px; border-radius:50%; background:#1565C0; border:none; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-icons" style="color:#fff; font-size:20px;">send</span></button>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-section-title">Photos (2)</div>
         <div class="photo-row">
-          <div class="photo-thumb">
-            <div class="photo-caption">Front axle</div>
-          </div>
-          <div class="photo-thumb">
-            <div class="photo-caption">Puddle</div>
-          </div>
+          <div class="photo-thumb"></div>
+          <div class="photo-thumb"></div>
+          <div class="photo-add-tile"><span class="material-icons">add</span></div>
         </div>
       </div>
 
     </div>
 
+    <!-- mechanicAction = StartWorking (issue Open, not assigned to viewer) -->
     <div class="bottom-action">
-      <button class="btn-primary">
+      <button class="btn-warning">
         <span class="material-icons">build</span>
         Start Working
       </button>
