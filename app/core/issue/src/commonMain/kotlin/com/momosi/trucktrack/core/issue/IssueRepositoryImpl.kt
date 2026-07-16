@@ -1,6 +1,7 @@
 package com.momosi.trucktrack.core.issue
 
 import androidx.paging.PagingSource
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.common.model.Page
 import com.momosi.trucktrack.core.issue.api.IssueApi
 import com.momosi.trucktrack.core.issue.api.IssueHistoryApi
@@ -13,6 +14,8 @@ import com.momosi.trucktrack.core.issue.model.IssueCreate
 import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.network.dto.toPage
+
+internal const val TAG = "Issues"
 
 class IssueRepositoryImpl(private val issueApi: IssueApi, private val issueHistoryApi: IssueHistoryApi) : IssueRepository {
 
@@ -29,31 +32,31 @@ class IssueRepositoryImpl(private val issueApi: IssueApi, private val issueHisto
             size = 500,
             sort = "status,desc;priority,asc;createdAtUtc,asc",
         ).toPage { it.toIssue() }
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to get issues") }
 
     override suspend fun getIssue(id: Long): Result<Issue> = runCatching {
         issueApi.getIssue(id).toIssue()
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to get issue $id") }
 
     override suspend fun createIssue(issueCreate: IssueCreate): Result<Issue> = runCatching {
         issueApi.createIssue(issueCreate.toDto()).toIssue()
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to create issue") }
 
     override suspend fun startIssue(id: Long): Result<Issue> = runCatching {
         issueApi.startIssue(id).toIssue()
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to start issue $id") }
 
     override suspend fun resolveIssue(id: Long): Result<Issue> = runCatching {
         issueApi.resolveIssue(id).toIssue()
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to resolve issue $id") }
 
     override suspend fun assignIssue(id: Long): Result<Issue> = runCatching {
         issueApi.assignIssue(id).toIssue()
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to assign issue $id") }
 
     override suspend fun addComment(issueId: Long, comment: String): Result<IssueHistory> = runCatching {
         issueApi.addComment(issueId, comment).toIssueHistory()
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to add comment to issue $issueId") }
 
     override suspend fun getIssueHistory(
         issueId: Long,
@@ -66,7 +69,7 @@ class IssueRepositoryImpl(private val issueApi: IssueApi, private val issueHisto
             size = 500,
             sort = "createdAtUtc,asc",
         ).toPage { it.toIssueHistory() }
-    }
+    }.onFailure { Logger.e(TAG, it, "Failed to get issue history for issue $issueId") }
 
     override fun getIssuesPagingSource(
         statuses: List<IssueStatus>,

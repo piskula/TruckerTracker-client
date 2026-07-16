@@ -2,6 +2,7 @@ package com.momosi.trucktrack.core.issue
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.issue.api.IssueApi
 import com.momosi.trucktrack.core.issue.dto.toFilterDto
 import com.momosi.trucktrack.core.issue.dto.toIssue
@@ -25,6 +26,7 @@ internal class IssuePagingSource(private val issueApi: IssueApi, private val sta
             nextKey = if (page < pageDto.totalPages - 1) page + 1 else null,
         )
     } catch (e: Exception) {
+        Logger.e(TAG, e, "Failed to load issue page")
         LoadResult.Error(e)
     }
 
