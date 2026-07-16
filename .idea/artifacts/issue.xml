@@ -1,8 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="issue">
-    <output-path>$PROJECT_DIR$/core/issue/build/libs</output-path>
-    <root id="archive" name="issue.jar">
-      <element id="module-output" name="TruckTrack.core.issue.androidMain" />
-    </root>
+    <output-path>$PROJECT_DIR$/app/core/issue/build/libs</output-path>
+    <root id="archive" name="issue.jar" />
   </artifact>
 </component>

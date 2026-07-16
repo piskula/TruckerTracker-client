@@ -1,8 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="ui-library">
-    <output-path>$PROJECT_DIR$/core/ui-library/build/libs</output-path>
-    <root id="archive" name="ui-library.jar">
-      <element id="module-output" name="TruckTrack.core.ui-library.androidMain" />
-    </root>
+    <output-path>$PROJECT_DIR$/app/core/ui-library/build/libs</output-path>
+    <root id="archive" name="ui-library.jar" />
   </artifact>
 </component>

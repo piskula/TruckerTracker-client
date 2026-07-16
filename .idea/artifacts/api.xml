@@ -1,8 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="api">
-    <output-path>$PROJECT_DIR$/feature/sign-in/api/build/libs</output-path>
-    <root id="archive" name="api.jar">
-      <element id="module-output" name="TruckTrack.feature.sign-in.api.androidMain" />
-    </root>
+    <output-path>$PROJECT_DIR$/app/feature/sign-in/api/build/libs</output-path>
+    <root id="archive" name="api.jar" />
   </artifact>
 </component>
