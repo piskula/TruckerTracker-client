@@ -4,12 +4,11 @@ on:
     push:
         branches:
             - main
-        paths-ignore:
-            - '**/*.md'
-            - '**/*.MD'
-            - '.claude/**'
-            - 'docs/**'
-            - 'app/**'
+        paths:
+            - 'server/**'
+            - 'shared/**'
+            - 'gradle/libs.versions.toml'
+            - '.github/workflows/build-server.yml'
     workflow_dispatch:
 
 jobs:
@@ -24,12 +23,10 @@ jobs:
                 uses: actions/setup-java@v5
                 with:
                     java-version: '21'
-                    distribution: 'jetbrains'
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    distribution: 'temurin'
 
             -   name: Setup Gradle
-                uses: gradle/actions/setup-gradle@v4
+                uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
             -   name: Grant execute permission for gradlew
                 working-directory: server
@@ -59,11 +56,9 @@ jobs:
                 uses: actions/setup-java@v5
                 with:
                     java-version: '21'
-                    distribution: 'jetbrains'
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    distribution: 'temurin'
 
             -   name: Generate and submit dependency graph
-                uses: gradle/actions/dependency-submission@v4
+                uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
                 with:
                     build-root-directory: server
