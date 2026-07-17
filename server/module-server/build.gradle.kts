@@ -26,6 +26,10 @@ configure<DependencyManagementExtension> {
     }
 }
 
+springBoot {
+    buildInfo()
+}
+
 dependencies {
     implementation(project(":module-api"))
 
