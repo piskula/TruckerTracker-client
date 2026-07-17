@@ -1,11 +1,11 @@
 package sk.momosilabs.truckTrack.api.issue
 
-import com.momosi.trucktrack.shared.common.PageDto
-import com.momosi.trucktrack.shared.common.PageableDto
-import com.momosi.trucktrack.shared.issue.IssueCreateDto
-import com.momosi.trucktrack.shared.issue.IssueDto
-import com.momosi.trucktrack.shared.issue.IssueFilterDto
-import com.momosi.trucktrack.shared.issue.IssueHistoryDto
+import sk.momosilabs.truckTrack.api.common.PageDto
+import sk.momosilabs.truckTrack.api.common.PageableDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueCreateDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject

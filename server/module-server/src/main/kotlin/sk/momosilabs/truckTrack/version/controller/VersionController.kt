@@ -1,11 +1,10 @@
 package sk.momosilabs.truckTrack.version.controller
 
-import com.momosi.trucktrack.shared.version.BuildInfoDto
+import sk.momosilabs.truckTrack.api.version.dto.BuildInfoDto
 import org.springframework.web.bind.annotation.RestController
 import sk.momosilabs.truckTrack.api.version.VersionApi
 import sk.momosilabs.truckTrack.version.model.BuildInfoModel
 import sk.momosilabs.truckTrack.version.service.getVersion.GetVersionUseCase
-import kotlin.time.toKotlinInstant
 
 @RestController
 class VersionController(
@@ -18,6 +17,6 @@ class VersionController(
 
 private fun BuildInfoModel.toDto() = BuildInfoDto(
     version = version,
-    time = time.toInstant().toKotlinInstant(),
+    time = time,
     name = name,
 )

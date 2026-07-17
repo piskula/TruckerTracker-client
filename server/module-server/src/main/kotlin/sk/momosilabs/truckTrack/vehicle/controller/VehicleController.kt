@@ -1,7 +1,7 @@
 package sk.momosilabs.truckTrack.vehicle.controller
 
-import com.momosi.trucktrack.shared.vehicle.VehicleDto
-import com.momosi.trucktrack.shared.vehicle.VehicleTypeDto
+import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleDto
+import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleTypeDto
 import org.springframework.web.bind.annotation.RestController
 import sk.momosilabs.truckTrack.api.vehicle.VehicleApi
 import sk.momosilabs.truckTrack.vehicle.model.VehicleModel

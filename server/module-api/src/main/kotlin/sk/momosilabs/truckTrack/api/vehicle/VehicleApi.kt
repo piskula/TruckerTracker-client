@@ -1,6 +1,6 @@
 package sk.momosilabs.truckTrack.api.vehicle
 
-import com.momosi.trucktrack.shared.vehicle.VehicleDto
+import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping

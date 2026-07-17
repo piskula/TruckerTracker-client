@@ -3,8 +3,6 @@ rootProject.name = "server"
 include("module-api")
 include("module-server")
 
-includeBuild("../shared")
-
 pluginManagement {
     repositories {
         gradlePluginPortal()

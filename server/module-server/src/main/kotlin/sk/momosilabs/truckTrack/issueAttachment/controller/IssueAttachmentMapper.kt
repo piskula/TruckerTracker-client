@@ -1,15 +1,12 @@
 package sk.momosilabs.truckTrack.issueAttachment.controller
 
-import com.momosi.trucktrack.shared.issue.AccountDto
-import com.momosi.trucktrack.shared.issue.IssueAttachmentDto
-import kotlin.time.toKotlinInstant
+import sk.momosilabs.truckTrack.api.issue.dto.AccountDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueAttachmentDto
 import org.springframework.http.MediaType
 import org.springframework.web.multipart.MultipartFile
 import sk.momosilabs.truckTrack.account.model.AccountModel
 import sk.momosilabs.truckTrack.file.model.TruckTrackFile
 import sk.momosilabs.truckTrack.issueAttachment.model.IssueAttachmentModel
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.toKotlinUuid
 
 fun MultipartFile.toModel() = TruckTrackFile(
     filename = originalFilename ?: name,
@@ -23,12 +20,11 @@ fun IssueAttachmentModel.toDto() = IssueAttachmentDto(
     contentType = contentType,
     sizeBytes = sizeBytes,
     uploadedBy = uploadedBy.toDto(),
-    uploadedAt = uploadedAt.toInstant().toKotlinInstant(),
+    uploadedAt = uploadedAt,
 )
 
-@OptIn(ExperimentalUuidApi::class)
 fun AccountModel.toDto() = AccountDto(
-    id = id.toKotlinUuid(),
+    id = id,
     username = username,
     firstName = firstName,
     lastName = lastName,

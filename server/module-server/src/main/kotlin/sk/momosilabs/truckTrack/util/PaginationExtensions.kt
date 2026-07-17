@@ -1,7 +1,7 @@
 package sk.momosilabs.truckTrack.util
 
-import com.momosi.trucktrack.shared.common.PageDto
-import com.momosi.trucktrack.shared.common.PageableDto
+import sk.momosilabs.truckTrack.api.common.PageDto
+import sk.momosilabs.truckTrack.api.common.PageableDto
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable

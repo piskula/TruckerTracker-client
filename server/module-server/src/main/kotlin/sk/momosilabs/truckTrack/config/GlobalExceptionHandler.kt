@@ -1,6 +1,6 @@
 package sk.momosilabs.truckTrack.config
 
-import com.momosi.trucktrack.shared.common.ErrorDto
+import sk.momosilabs.truckTrack.api.common.ErrorDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import org.springframework.web.util.WebUtils
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import java.util.UUID
 
-@OptIn(ExperimentalUuidApi::class)
 @ControllerAdvice
 class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
@@ -22,7 +20,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         private val LOG = KotlinLogging.logger {}
         private val internalServerErrorDto = ErrorDto(
             userMessage = "Internal Server Error",
-            errorIdentifier = Uuid.random(),
+            errorIdentifier = UUID.randomUUID(),
         )
     }
 
@@ -53,9 +51,9 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     private fun getErrorDto(exception: GlobalException): ErrorDto {
         val cause = exception.cause
         if (cause is GlobalException)
-            return ErrorDto(cause.userMessage, Uuid.random())
+            return ErrorDto(cause.userMessage, UUID.randomUUID())
         else
-            return ErrorDto(exception.userMessage, Uuid.random())
+            return ErrorDto(exception.userMessage, UUID.randomUUID())
     }
 
 }

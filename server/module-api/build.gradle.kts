@@ -22,7 +22,6 @@ kotlin {
 }
 
 dependencies {
-    api("com.momosi.trucktrack:shared")
     compileOnly(libs.springdoc.openapi.webmvc.api)   // @Tag, @Operation, etc.
     compileOnly("org.springframework:spring-web")     // @GetMapping, @PathVariable, etc. — version from BOM
 }

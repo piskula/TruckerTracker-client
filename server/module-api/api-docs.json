@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "TruckTrack API",
-    "version": "0.0.3"
+    "version": "0.0.4"
   },
   "servers": [
     {
@@ -553,21 +553,9 @@
           "accountIds": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Uuid"
+              "type": "string",
+              "format": "uuid"
             }
-          }
-        }
-      },
-      "Uuid": {
-        "type": "object",
-        "properties": {
-          "mostSignificantBits": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "leastSignificantBits": {
-            "type": "integer",
-            "format": "int64"
           }
         }
       },
@@ -575,7 +563,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "$ref": "#/components/schemas/Uuid"
+            "type": "string",
+            "format": "uuid"
           },
           "username": {
             "type": "string"
@@ -710,8 +699,7 @@
             "format": "int64"
           },
           "uploadedBy": {
-            "type": "string",
-            "format": "date-time"
+            "$ref": "#/components/schemas/AccountDto"
           },
           "uploadedAt": {
             "type": "string",
@@ -723,7 +711,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "$ref": "#/components/schemas/Uuid"
+            "type": "string",
+            "format": "uuid"
           },
           "type": {
             "type": "string",

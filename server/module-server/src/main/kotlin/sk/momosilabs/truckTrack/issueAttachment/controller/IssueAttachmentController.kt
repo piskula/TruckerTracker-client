@@ -1,8 +1,8 @@
 package sk.momosilabs.truckTrack.issueAttachment.controller
 
-import com.momosi.trucktrack.shared.common.PageDto
-import com.momosi.trucktrack.shared.common.PageableDto
-import com.momosi.trucktrack.shared.issue.IssueAttachmentDto
+import sk.momosilabs.truckTrack.api.common.PageDto
+import sk.momosilabs.truckTrack.api.common.PageableDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueAttachmentDto
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController

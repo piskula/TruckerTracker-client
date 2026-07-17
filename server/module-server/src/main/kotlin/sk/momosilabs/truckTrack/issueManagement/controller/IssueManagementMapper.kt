@@ -1,17 +1,14 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package sk.momosilabs.truckTrack.issueManagement.controller
 
-import com.momosi.trucktrack.shared.issue.AccountDto
-import com.momosi.trucktrack.shared.issue.IssueDto
-import com.momosi.trucktrack.shared.issue.IssueFilterDto
-import com.momosi.trucktrack.shared.issue.IssueHistoryDto
-import com.momosi.trucktrack.shared.issue.IssueHistoryEventTypeDto
-import com.momosi.trucktrack.shared.issue.IssuePriorityDto
-import com.momosi.trucktrack.shared.issue.IssueStatusDto
-import com.momosi.trucktrack.shared.vehicle.VehicleDto
-import com.momosi.trucktrack.shared.vehicle.VehicleTypeDto
-import kotlin.time.toKotlinInstant
+import sk.momosilabs.truckTrack.api.issue.dto.AccountDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueFilterDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueHistoryEventTypeDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssuePriorityDto
+import sk.momosilabs.truckTrack.api.issue.dto.IssueStatusDto
+import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleDto
+import sk.momosilabs.truckTrack.api.vehicle.dto.VehicleTypeDto
 import sk.momosilabs.truckTrack.account.model.AccountModel
 import sk.momosilabs.truckTrack.issueManagement.entity.IssuePriority
 import sk.momosilabs.truckTrack.issueManagement.entity.IssueStatus
@@ -19,9 +16,6 @@ import sk.momosilabs.truckTrack.issueManagement.model.IssueHistoryModel
 import sk.momosilabs.truckTrack.issueManagement.model.IssueModel
 import sk.momosilabs.truckTrack.issueManagement.service.IssueListFilter
 import sk.momosilabs.truckTrack.vehicle.model.VehicleModel
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.toJavaUuid
-import kotlin.uuid.toKotlinUuid
 
 fun IssueStatusDto.toModel() = IssueStatus.valueOf(name)
 fun IssuePriorityDto.toModel() = IssuePriority.valueOf(name)
@@ -35,15 +29,15 @@ fun IssueModel.toDto() = IssueDto(
     vehicle = vehicle.toDto(),
     reportedBy = reportedBy.toDto(),
     assignedTo = assignedTo?.toDto(),
-    createdAt = createdAt.toInstant().toKotlinInstant(),
-    updatedAt = updatedAt.toInstant().toKotlinInstant(),
+    createdAt = createdAt,
+    updatedAt = updatedAt,
 )
 
 fun IssueHistoryModel.toDto() = IssueHistoryDto(
-    id = id.toKotlinUuid(),
+    id = id,
     type = IssueHistoryEventTypeDto.valueOf(type.name),
     performedBy = performedBy.toDto(),
-    createdAt = createdAt.toInstant().toKotlinInstant(),
+    createdAt = createdAt,
     statusFrom = statusFrom?.let { IssueStatusDto.valueOf(it.name) },
     statusTo = statusTo?.let { IssueStatusDto.valueOf(it.name) },
     commentText = commentText,
@@ -58,7 +52,7 @@ fun VehicleModel.toDto() = VehicleDto(
 )
 
 fun AccountModel.toDto() = AccountDto(
-    id = id.toKotlinUuid(),
+    id = id,
     username = username,
     firstName = firstName,
     lastName = lastName,
@@ -67,5 +61,5 @@ fun AccountModel.toDto() = AccountDto(
 fun IssueFilterDto.toModel() = IssueListFilter(
     statuses = statuses.map { it.toModel() },
     vehicleIds = vehicleIds,
-    accountIds = accountIds.map { it.toJavaUuid() },
+    accountIds = accountIds,
 )
