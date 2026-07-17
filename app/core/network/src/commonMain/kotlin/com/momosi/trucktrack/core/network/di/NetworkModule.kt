@@ -7,6 +7,8 @@ import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.model.TokenResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
+import io.ktor.client.plugins.HttpCallValidator
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -73,13 +75,32 @@ private fun buildHttpClient(authManager: AuthManager, block: HttpClientConfig<*>
         level = LogLevel.BODY
         logger = object : io.ktor.client.plugins.logging.Logger {
             override fun log(message: String) {
-                Logger.d("Ktor", message)
+                Logger.d("Network", message)
             }
+        }
+    }
+
+    install(HttpCallValidator) {
+        handleResponseExceptionWithRequest { cause, request ->
+            val response = (cause as? ResponseException)?.response
+            val durationMs = response?.let { it.responseTime.timestamp - it.requestTime.timestamp }
+
+            Logger.d(
+                "Network",
+                "Request failed: ${request.method.value} ${request.url.encodedPath}" +
+                    (response?.let { " status=${it.status.value} durationMs=$durationMs" } ?: " (no response)"),
+            )
         }
     }
 }
 
 private fun TokenResponse.toBearerTokens(): BearerTokens? = when (this) {
     is TokenResponse.Token -> BearerTokens(accessToken = token, refreshToken = "")
-    else -> null
+
+    is TokenResponse.TokenError -> {
+        Logger.e("Network", exception, "Token refresh failed, sending request unauthenticated")
+        null
+    }
+
+    TokenResponse.GuestWithoutToken -> null
 }
