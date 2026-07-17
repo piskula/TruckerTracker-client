@@ -5,36 +5,37 @@ import com.momosi.trucktrack.shared.issue.IssueCreateDto
 import com.momosi.trucktrack.shared.issue.IssueDto
 import com.momosi.trucktrack.shared.issue.IssueFilterDto
 import com.momosi.trucktrack.shared.issue.IssueHistoryDto
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import de.jensklingenberg.ktorfit.http.Body
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.POST
+import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 
-class IssueApi(private val client: HttpClient) {
+interface IssueApi {
 
+    @POST("api/v1/issue")
     suspend fun getIssueList(
-        filter: IssueFilterDto,
-        page: Int? = null,
-        size: Int? = null,
-        sort: String? = null,
-    ): PageDto<IssueDto> = client.post("api/v1/issue") {
-        page?.let { parameter("page", it) }
-        size?.let { parameter("size", it) }
-        sort?.let { parameter("sort", it) }
-        setBody(filter)
-    }.body()
+        @Body filter: IssueFilterDto,
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null,
+        @Query("sort") sort: String? = null,
+    ): PageDto<IssueDto>
 
-    suspend fun createIssue(body: IssueCreateDto): IssueDto = client.post("api/v1/issue/create") { setBody(body) }.body()
+    @POST("api/v1/issue/create")
+    suspend fun createIssue(@Body body: IssueCreateDto): IssueDto
 
-    suspend fun getIssue(id: Long): IssueDto = client.get("api/v1/issue/byId/$id").body()
+    @GET("api/v1/issue/byId/{id}")
+    suspend fun getIssue(@Path("id") id: Long): IssueDto
 
-    suspend fun startIssue(id: Long): IssueDto = client.post("api/v1/issue/$id/start").body()
+    @POST("api/v1/issue/{id}/start")
+    suspend fun startIssue(@Path("id") id: Long): IssueDto
 
-    suspend fun resolveIssue(id: Long): IssueDto = client.post("api/v1/issue/$id/resolve").body()
+    @POST("api/v1/issue/{id}/resolve")
+    suspend fun resolveIssue(@Path("id") id: Long): IssueDto
 
-    suspend fun assignIssue(id: Long): IssueDto = client.post("api/v1/issue/$id/assignTome").body()
+    @POST("api/v1/issue/{id}/assignTome")
+    suspend fun assignIssue(@Path("id") id: Long): IssueDto
 
-    suspend fun addComment(id: Long, comment: String): IssueHistoryDto = client.post("api/v1/issue/$id/comment") { setBody(comment) }.body()
+    @POST("api/v1/issue/{id}/comment")
+    suspend fun addComment(@Path("id") id: Long, @Body comment: String): IssueHistoryDto
 }

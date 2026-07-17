@@ -9,7 +9,11 @@ import org.gradle.api.Project
 
 class KtorPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
-        pluginManager.apply("org.jetbrains.kotlin.plugin.serialization")
+        with(pluginManager) {
+            apply("org.jetbrains.kotlin.plugin.serialization")
+            apply("com.google.devtools.ksp")
+            apply("de.jensklingenberg.ktorfit")
+        }
 
         commonMainDependencies {
             implementation(libs.findLibrary("ktor-client-core").get())
@@ -17,6 +21,7 @@ class KtorPlugin : Plugin<Project> {
             implementation(libs.findLibrary("ktor-client-auth").get())
             implementation(libs.findLibrary("ktor-client-logging").get())
             implementation(libs.findLibrary("ktor-serialization-kotlinx-json").get())
+            implementation(libs.findLibrary("ktorfit-lib").get())
         }
         androidMainDependencies {
             implementation(libs.findLibrary("ktor-client-okhttp").get())

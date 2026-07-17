@@ -2,21 +2,17 @@ package com.momosi.trucktrack.core.issue.api
 
 import com.momosi.trucktrack.shared.common.PageDto
 import com.momosi.trucktrack.shared.issue.IssueHistoryDto
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 
-class IssueHistoryApi(private val client: HttpClient) {
+interface IssueHistoryApi {
 
+    @GET("api/v1/issue/{id}/history")
     suspend fun getIssueHistory(
-        id: Long,
-        page: Int? = null,
-        size: Int? = null,
-        sort: String? = null,
-    ): PageDto<IssueHistoryDto> = client.get("api/v1/issue/$id/history") {
-        page?.let { parameter("page", it) }
-        size?.let { parameter("size", it) }
-        sort?.let { parameter("sort", it) }
-    }.body()
+        @Path("id") id: Long,
+        @Query("page") page: Int? = null,
+        @Query("size") size: Int? = null,
+        @Query("sort") sort: String? = null,
+    ): PageDto<IssueHistoryDto>
 }

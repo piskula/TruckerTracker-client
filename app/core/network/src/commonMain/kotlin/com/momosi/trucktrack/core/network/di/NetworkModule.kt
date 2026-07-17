@@ -5,6 +5,7 @@ import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.network.httpClientEngineFactory
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.model.TokenResponse
+import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpCallValidator
@@ -43,6 +44,13 @@ val networkModule = module {
                 json(json)
             }
         }
+    }
+
+    single {
+        Ktorfit.Builder()
+            .baseUrl(TruckTrackConfig.API_BASE_URL)
+            .httpClient(get<HttpClient>())
+            .build()
     }
 
     single(named("image")) {

@@ -7,6 +7,11 @@ import com.momosi.trucktrack.core.issue.api.IssueAttachmentApi
 import com.momosi.trucktrack.core.issue.dto.toIssueAttachment
 import com.momosi.trucktrack.core.issue.model.IssueAttachment
 import com.momosi.trucktrack.core.network.dto.toPage
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.setBody
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 
 class IssueAttachmentRepositoryImpl(private val issueAttachmentApi: IssueAttachmentApi) : IssueAttachmentRepository {
 
@@ -32,12 +37,22 @@ class IssueAttachmentRepositoryImpl(private val issueAttachmentApi: IssueAttachm
         fileBytes: ByteArray,
         contentType: String,
     ): Result<IssueAttachment> = runCatching {
-        issueAttachmentApi.uploadPhoto(
-            issueId = issueId,
-            fileName = fileName,
-            fileBytes = fileBytes,
-            contentType = contentType,
-        ).toIssueAttachment()
+        issueAttachmentApi.uploadPhoto(issueId) {
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            "file",
+                            fileBytes,
+                            Headers.build {
+                                append(HttpHeaders.ContentType, contentType)
+                                append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
+                            },
+                        )
+                    },
+                ),
+            )
+        }.toIssueAttachment()
     }.onFailure { Logger.e(TAG, it, "Failed to upload photo for issue $issueId") }
 
     override suspend fun downloadPhoto(issueId: Long, attachmentId: Long): Result<ByteArray> = runCatching {
