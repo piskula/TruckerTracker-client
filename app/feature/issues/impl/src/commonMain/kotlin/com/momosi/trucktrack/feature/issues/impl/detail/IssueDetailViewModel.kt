@@ -3,6 +3,7 @@ package com.momosi.trucktrack.feature.issues.impl.detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.core.common.formatter.DateFormatter
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.Issue
@@ -39,6 +40,7 @@ class IssueDetailViewModel(
     }
 
     fun onAction(action: IssueDetailAction) {
+        Logger.i("Action:IssueDetail", action.toString())
         when (action) {
             is IssueDetailAction.UpdateComment -> _state.update { it.copy(commentText = action.text) }
             is IssueDetailAction.UploadPhoto -> uploadPhoto(action.file)

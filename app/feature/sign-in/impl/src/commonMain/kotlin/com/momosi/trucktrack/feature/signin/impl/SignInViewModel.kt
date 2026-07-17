@@ -2,6 +2,7 @@
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.model.AuthActionResult
 import kotlinx.coroutines.channels.Channel
@@ -19,6 +20,7 @@ class SignInViewModel(private val authManager: AuthManager) : ViewModel() {
     val event = _event.receiveAsFlow()
 
     fun onAction(action: SignInAction) {
+        Logger.i("Action:SignIn", action.toString())
         when (action) {
             SignInAction.SignInClick -> signIn()
         }

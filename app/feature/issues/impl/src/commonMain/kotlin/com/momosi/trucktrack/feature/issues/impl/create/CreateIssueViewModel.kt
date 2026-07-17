@@ -3,6 +3,7 @@ package com.momosi.trucktrack.feature.issues.impl.create
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.momosi.trucktrack.core.common.io.PhotoData
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.issue.IssueAttachmentRepository
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.IssueCreate
@@ -37,6 +38,7 @@ class CreateIssueViewModel(private val vehicleRepository: VehicleRepository, pri
     }
 
     fun onAction(action: CreateIssueAction) {
+        Logger.i("Action:CreateIssue", action.toString())
         when (action) {
             is CreateIssueAction.SelectVehicle -> selectVehicle(action.vehicle)
             is CreateIssueAction.UpdateTitle -> _state.update { it.copy(title = action.title) }

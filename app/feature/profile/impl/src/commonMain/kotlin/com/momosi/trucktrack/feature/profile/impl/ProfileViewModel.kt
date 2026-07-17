@@ -2,6 +2,7 @@ package com.momosi.trucktrack.feature.profile.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.user.AuthManager
 import com.momosi.trucktrack.user.UserRepository
 import kotlinx.coroutines.channels.Channel
@@ -36,6 +37,7 @@ class ProfileViewModel(userRepository: UserRepository, private val authManager: 
     )
 
     fun onAction(action: ProfileAction) {
+        Logger.i("Action:Profile", action.toString())
         when (action) {
             is ProfileAction.SignOut -> signOut()
         }

@@ -15,6 +15,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.feature.profile.api)
             implementation(projects.feature.signIn.api)
+            implementation(projects.core.common)
             implementation(projects.core.user)
         }
     }

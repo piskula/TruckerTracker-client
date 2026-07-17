@@ -6,6 +6,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.issue.IssueRepository
 import com.momosi.trucktrack.core.issue.model.Issue
 import com.momosi.trucktrack.core.issue.model.IssueStatus
@@ -75,6 +76,7 @@ class IssuesViewModel(private val userRepository: UserRepository, private val is
     )
 
     fun onAction(action: IssuesAction) {
+        Logger.i("Action:Issues", action.toString())
         when (action) {
             is IssuesAction.SelectFilter -> selectedFilter.value = action.filter
             is IssuesAction.Retry -> refreshTrigger.tryEmit(Unit)
