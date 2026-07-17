@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.app.di
 
+import com.momosi.trucktrack.app.CrashReportingSync
 import com.momosi.trucktrack.app.TruckTrackViewModel
 import com.momosi.trucktrack.core.common.di.commonModule
 import com.momosi.trucktrack.core.common.di.platformCommonModule
@@ -19,6 +20,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { CoroutineScope(SupervisorJob()) }
+    single(createdAtStart = true) { CrashReportingSync(get(), get(), get()) }
     viewModel { TruckTrackViewModel(get()) }
 }
 

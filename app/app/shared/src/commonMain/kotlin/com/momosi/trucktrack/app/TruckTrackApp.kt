@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.momosi.trucktrack.core.common.crashreporting.CrashReporting
+import com.momosi.trucktrack.core.common.logger.Logger
 import com.momosi.trucktrack.core.navigation.Navigator
 import com.momosi.trucktrack.core.navigation.rememberNavigationState
 import com.momosi.trucktrack.core.navigation.rememberResultStore
@@ -41,6 +44,11 @@ fun TruckTrackApp(modifier: Modifier = Modifier, viewModel: TruckTrackViewModel 
     )
     val navigator = remember { Navigator(navigationState) }
     val resultStore = rememberResultStore()
+
+    LaunchedEffect(navigationState.currentKey) {
+        Logger.i("Nav", "-> ${navigationState.currentKey}")
+        CrashReporting.setCustomKey("screen", navigationState.currentKey.toString())
+    }
 
     TruckTrackTheme {
         SharedTransitionLayout(

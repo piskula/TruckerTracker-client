@@ -10,6 +10,14 @@ object CrashReporting {
         Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
         Logger.addWriter(CrashlyticsLogWriter())
     }
+
+    fun setUserId(userId: String?) {
+        Firebase.crashlytics.setUserId(userId.orEmpty())
+    }
+
+    fun setCustomKey(key: String, value: String) {
+        Firebase.crashlytics.setCustomKey(key, value)
+    }
 }
 
 internal expect fun initializeFirebase()
