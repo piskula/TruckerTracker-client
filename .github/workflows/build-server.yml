@@ -43,6 +43,47 @@ jobs:
                     path: server/module-server/build/libs/module-server-*.jar
                     retention-days: 7
 
+    deploy:
+        needs: build
+        runs-on: ubuntu-latest
+        if: github.ref == 'refs/heads/main'
+
+        steps:
+            -   name: Download build artifact
+                uses: actions/download-artifact@v4
+                with:
+                    name: module-server-jar
+                    path: ./artifact
+
+            -   name: Rename JAR for upload
+                run: mv $(ls ./artifact/module-server-*.jar | head -1) ./artifact/module-server-new.jar
+
+            -   name: Copy JAR to server
+                uses: appleboy/scp-action@v0.1.7
+                with:
+                    host: ${{ secrets.DEPLOY_HOST }}
+                    username: ${{ secrets.DEPLOY_USER }}
+                    key: ${{ secrets.DEPLOY_SSH_KEY }}
+                    host_key: ${{ secrets.DEPLOY_HOST_KEY }}
+                    source: ./artifact/module-server-new.jar
+                    target: ~/module-server-tt/
+                    strip_components: 1
+
+            -   name: Deploy on server
+                uses: appleboy/ssh-action@v1.0.3
+                with:
+                    host: ${{ secrets.DEPLOY_HOST }}
+                    username: ${{ secrets.DEPLOY_USER }}
+                    key: ${{ secrets.DEPLOY_SSH_KEY }}
+                    host_key: ${{ secrets.DEPLOY_HOST_KEY }}
+                    script: |
+                        rm -f ~/module-server-tt/module-server.jar.bak
+                        systemctl stop trucker-service.service
+                        mv ~/module-server-tt/module-server.jar ~/module-server-tt/module-server.jar.bak 2>/dev/null || true
+                        mv ~/module-server-tt/module-server-new.jar ~/module-server-tt/module-server.jar
+                        mv ~/module-server-tt/server.log ~/module-server-tt/server-$(date +%Y%m%d-%H%M%S).log 2>/dev/null || true
+                        systemctl start trucker-service.service
+
     dependency-submission:
         runs-on: ubuntu-latest
         permissions:
