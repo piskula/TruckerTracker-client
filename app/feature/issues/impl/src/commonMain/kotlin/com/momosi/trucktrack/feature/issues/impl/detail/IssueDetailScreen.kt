@@ -2,25 +2,34 @@ package com.momosi.trucktrack.feature.issues.impl.detail
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +42,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -83,7 +93,10 @@ import com.momosi.trucktrack.feature.issues.impl.resources.my_issues_retry
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.PlatformFile
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -153,6 +166,7 @@ private fun IssueDetailScreenContent(
         when (val content = state.content) {
             is IssueDetailContent.Loading -> {
                 Toolbar(title = "", onBack = onBack)
+                PeopleStrip(reportedByName = "", assignedToName = "")
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     LoadingSpinner()
                 }
@@ -176,7 +190,7 @@ private fun IssueDetailScreenContent(
             is IssueDetailContent.Loaded -> {
                 LoadedContent(
                     issue = content.issue,
-                    historyContent = state.historyContent,
+                    history = content.history,
                     photosContent = state.photosContent,
                     commentText = state.commentText,
                     isSendingComment = state.isSendingComment,
@@ -200,7 +214,7 @@ private fun IssueDetailScreenContent(
 @Composable
 private fun LoadedContent(
     issue: IssueUi,
-    historyContent: IssueHistoryContent,
+    history: ImmutableList<IssueHistoryUi>,
     photosContent: IssuePhotosContent,
     commentText: String,
     isSendingComment: Boolean,
@@ -227,45 +241,56 @@ private fun LoadedContent(
 
         PeopleStrip(reportedByName = issue.reportedByName, assignedToName = issue.assignedToName)
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(12.dp),
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            HeaderCard(issue = issue)
-            DescriptionCard(description = issue.description)
-            AnimatedVisibility(
-                visible = mechanicAction == MechanicActionType.Reassign,
-            ) {
-                ReassignCard(
-                    isLoading = isMechanicActionLoading,
-                    onReassignToMe = onReassignToMe,
+            item { HeaderCard(issue = issue) }
+            item { DescriptionCard(description = issue.description) }
+            item {
+                AnimatedVisibility(
+                    visible = mechanicAction == MechanicActionType.Reassign,
+                ) {
+                    ReassignCard(
+                        isLoading = isMechanicActionLoading,
+                        onReassignToMe = onReassignToMe,
+                    )
+                }
+            }
+            item { HistoryCard(history = history) }
+            item {
+                CommentCard(
+                    commentText = commentText,
+                    isSending = isSendingComment,
+                    onUpdateComment = onUpdateComment,
+                    onSend = onSendComment,
                 )
             }
-            HistoryCard(historyContent = historyContent)
-            CommentCard(
-                commentText = commentText,
-                isSending = isSendingComment,
-                onUpdateComment = onUpdateComment,
-                onSend = onSendComment,
-            )
-            PhotosCard(
-                photosContent = photosContent,
-                isUploading = isUploadingPhoto,
-                onPhotoClick = onPhotoClick,
-                onAddPhoto = { photoPickerLauncher.launch() },
-            )
+            item {
+                PhotosCard(
+                    photosContent = photosContent,
+                    isUploading = isUploadingPhoto,
+                    onPhotoClick = onPhotoClick,
+                    onAddPhoto = { photoPickerLauncher.launch() },
+                )
+            }
         }
 
         if (mechanicAction != null) {
-            MechanicActionBar(
-                actionType = mechanicAction,
-                isLoading = isMechanicActionLoading,
-                onStartWorking = onStartWorking,
-                onResolveIssue = onResolveIssue,
-            )
+            val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+            AnimatedVisibility(
+                visible = !isImeVisible,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+            ) {
+                MechanicActionBar(
+                    actionType = mechanicAction,
+                    isLoading = isMechanicActionLoading,
+                    onStartWorking = onStartWorking,
+                    onResolveIssue = onResolveIssue,
+                )
+            }
         }
     }
 }
@@ -428,33 +453,21 @@ private fun DescriptionCard(description: String, modifier: Modifier = Modifier) 
 }
 
 @Composable
-private fun HistoryCard(historyContent: IssueHistoryContent, modifier: Modifier = Modifier) {
-    CardContainer(title = stringResource(Res.string.issue_detail_history), modifier = modifier) {
-        when (historyContent) {
-            is IssueHistoryContent.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    LoadingSpinner(size = 24.dp, strokeWidth = 2.dp)
-                }
-            }
-
-            is IssueHistoryContent.Empty -> {
-                Text(
-                    text = stringResource(Res.string.issue_detail_history_empty),
-                    style = AppTheme.typography.bodySmall,
-                    color = AppTheme.colors.onSurfaceVariant,
-                )
-            }
-
-            is IssueHistoryContent.Loaded -> {
-                Column {
-                    historyContent.items.forEachIndexed { index, entry ->
-                        TimelineStep(entry = entry, isLast = index == historyContent.items.lastIndex)
-                    }
+private fun HistoryCard(history: ImmutableList<IssueHistoryUi>, modifier: Modifier = Modifier) {
+    CardContainer(
+        title = stringResource(Res.string.issue_detail_history),
+        modifier = modifier.animateContentSize(),
+    ) {
+        if (history.isEmpty()) {
+            Text(
+                text = stringResource(Res.string.issue_detail_history_empty),
+                style = AppTheme.typography.bodySmall,
+                color = AppTheme.colors.onSurfaceVariant,
+            )
+        } else {
+            Column {
+                history.forEachIndexed { index, entry ->
+                    TimelineStep(entry = entry, isLast = index == history.lastIndex)
                 }
             }
         }
@@ -586,7 +599,19 @@ private fun CommentCard(
     onSend: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    CardContainer(title = stringResource(Res.string.issue_detail_add_comment), modifier = modifier) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    LaunchedEffect(isImeVisible, commentText) {
+        if (isImeVisible) {
+            delay(100)
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
+    CardContainer(
+        title = stringResource(Res.string.issue_detail_add_comment),
+        modifier = modifier.bringIntoViewRequester(bringIntoViewRequester),
+    ) {
         Row(
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -768,7 +793,6 @@ private fun CardContainer(
         modifier = modifier
             .fillMaxWidth()
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .animateContentSize()
             .padding(16.dp),
     ) {
         Text(
@@ -872,33 +896,9 @@ private fun IssueDetailLoadedPreview() {
     TruckTrackTheme {
         IssueDetailScreenContent(
             state = IssueDetailState(
-                content = IssueDetailContent.Loaded(issue = previewIssue),
-                historyContent = IssueHistoryContent.Loaded(previewHistory),
+                content = IssueDetailContent.Loaded(issue = previewIssue, history = previewHistory),
                 photosContent = IssuePhotosContent.Loaded(),
                 mechanicAction = MechanicActionType.Reassign,
-            ),
-            onBack = {},
-            onRetry = {},
-            onUpdateComment = {},
-            onSendComment = {},
-            onStartWorking = {},
-            onResolveIssue = {},
-            onReassignToMe = {},
-            onUploadPhoto = {},
-            onNavigateToFullScreenPhoto = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun IssueDetailHistoryLoadingPreview() {
-    TruckTrackTheme {
-        IssueDetailScreenContent(
-            state = IssueDetailState(
-                content = IssueDetailContent.Loaded(issue = previewIssue),
-                historyContent = IssueHistoryContent.Loading,
-                photosContent = IssuePhotosContent.Loading,
             ),
             onBack = {},
             onRetry = {},
@@ -919,8 +919,7 @@ private fun IssueDetailHistoryEmptyPreview() {
     TruckTrackTheme {
         IssueDetailScreenContent(
             state = IssueDetailState(
-                content = IssueDetailContent.Loaded(issue = previewIssue),
-                historyContent = IssueHistoryContent.Empty,
+                content = IssueDetailContent.Loaded(issue = previewIssue, history = persistentListOf()),
                 photosContent = IssuePhotosContent.Loaded(),
             ),
             onBack = {},

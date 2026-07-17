@@ -11,8 +11,10 @@ import com.momosi.trucktrack.core.issue.model.IssueHistory
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.user.UserRepository
 import io.github.vinceglb.filekit.core.PlatformFile
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -56,49 +58,48 @@ class IssueDetailViewModel(
         _state.update {
             it.copy(
                 content = IssueDetailContent.Loading,
-                historyContent = IssueHistoryContent.Loading,
                 photosContent = IssuePhotosContent.Loading,
             )
         }
 
         viewModelScope.launch {
-            val issue = issueRepository.getIssue(issueId).getOrNull()
+            val issueDeferred = async { issueRepository.getIssue(issueId) }
+            val historyDeferred = async { fetchHistory() }
+
+            val issue = issueDeferred.await().getOrNull()
             if (issue == null) {
                 _state.update { it.copy(content = IssueDetailContent.Error) }
                 return@launch
             }
             _state.update {
                 it.copy(
-                    content = IssueDetailContent.Loaded(issue.toUi()),
+                    content = IssueDetailContent.Loaded(issue.toUi(), historyDeferred.await()),
                     mechanicAction = computeMechanicAction(issue),
                 )
             }
         }
 
-        loadHistory()
         loadPhotos()
     }
 
-    private fun loadHistory(updateOnly: Boolean = false) {
-        if (!updateOnly) {
-            _state.update { it.copy(historyContent = IssueHistoryContent.Loading) }
-        }
+    private fun refreshHistory() {
         viewModelScope.launch {
-            val items = issueRepository.getIssueHistory(issueId)
-                .getOrNull()?.content
-                ?.map { it.toUi() }
-                ?.toImmutableList()
-            _state.update {
-                it.copy(
-                    historyContent = if (items.isNullOrEmpty()) {
-                        IssueHistoryContent.Empty
-                    } else {
-                        IssueHistoryContent.Loaded(items)
-                    },
-                )
+            val history = fetchHistory()
+            _state.update { current ->
+                val content = current.content
+                if (content is IssueDetailContent.Loaded) {
+                    current.copy(content = content.copy(history = history))
+                } else {
+                    current
+                }
             }
         }
     }
+
+    private suspend fun fetchHistory(): ImmutableList<IssueHistoryUi> = issueRepository.getIssueHistory(issueId)
+        .getOrNull()?.content
+        ?.map { it.toUi() }
+        ?.toImmutableList() ?: persistentListOf()
 
     private fun loadPhotos() {
         _state.update { it.copy(photosContent = IssuePhotosContent.Loading) }
@@ -136,13 +137,13 @@ class IssueDetailViewModel(
                 .onSuccess { issue ->
                     _state.update {
                         it.copy(
-                            content = IssueDetailContent.Loaded(issue.toUi()),
+                            content = it.withUpdatedIssue(issue),
                             mechanicAction = computeMechanicAction(issue),
                             isMechanicActionLoading = false,
                             statusChanged = true,
                         )
                     }
-                    loadHistory(updateOnly = true)
+                    refreshHistory()
                 }
                 .onFailure {
                     _state.update { it.copy(isMechanicActionLoading = false) }
@@ -158,13 +159,13 @@ class IssueDetailViewModel(
                 .onSuccess { issue ->
                     _state.update {
                         it.copy(
-                            content = IssueDetailContent.Loaded(issue.toUi()),
+                            content = it.withUpdatedIssue(issue),
                             mechanicAction = computeMechanicAction(issue),
                             isMechanicActionLoading = false,
                             statusChanged = true,
                         )
                     }
-                    loadHistory(updateOnly = true)
+                    refreshHistory()
                 }
                 .onFailure {
                     _state.update { it.copy(isMechanicActionLoading = false) }
@@ -180,12 +181,12 @@ class IssueDetailViewModel(
                 .onSuccess { issue ->
                     _state.update {
                         it.copy(
-                            content = IssueDetailContent.Loaded(issue.toUi()),
+                            content = it.withUpdatedIssue(issue),
                             mechanicAction = computeMechanicAction(issue),
                             isMechanicActionLoading = false,
                         )
                     }
-                    loadHistory(updateOnly = true)
+                    refreshHistory()
                 }
                 .onFailure {
                     _state.update { it.copy(isMechanicActionLoading = false) }
@@ -203,12 +204,17 @@ class IssueDetailViewModel(
             issueRepository.addComment(issueId, text)
                 .onSuccess {
                     _state.update { it.copy(commentText = "", isSendingComment = false) }
-                    loadHistory(updateOnly = true)
+                    refreshHistory()
                 }
                 .onFailure {
                     _state.update { it.copy(isSendingComment = false) }
                 }
         }
+    }
+
+    private fun IssueDetailState.withUpdatedIssue(issue: Issue): IssueDetailContent.Loaded {
+        val existingHistory = (content as? IssueDetailContent.Loaded)?.history ?: persistentListOf()
+        return IssueDetailContent.Loaded(issue.toUi(), existingHistory)
     }
 
     private fun uploadPhoto(file: PlatformFile) {

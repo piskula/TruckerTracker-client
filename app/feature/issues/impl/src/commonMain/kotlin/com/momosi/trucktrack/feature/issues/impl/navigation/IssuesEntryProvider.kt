@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.momosi.trucktrack.core.navigation.Navigator
 import com.momosi.trucktrack.core.navigation.ResultStore
+import com.momosi.trucktrack.core.uilibrary.animation.slideFromEndEntryMetadata
 import com.momosi.trucktrack.feature.issues.api.IssuesNavKey
 import com.momosi.trucktrack.feature.issues.impl.FullScreenPhotoScreen
 import com.momosi.trucktrack.feature.issues.impl.create.CreateIssueScreen
@@ -35,7 +36,7 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
             },
         )
     }
-    entry<IssueDetailNavKey> { key ->
+    entry<IssueDetailNavKey>(metadata = slideFromEndEntryMetadata()) { key ->
         IssueDetailScreen(
             issueId = key.issueId,
             onBack = { shouldReload ->

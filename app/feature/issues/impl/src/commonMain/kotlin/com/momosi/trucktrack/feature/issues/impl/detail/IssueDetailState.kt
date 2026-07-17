@@ -11,7 +11,6 @@ import kotlinx.collections.immutable.persistentListOf
 @Immutable
 data class IssueDetailState(
     val content: IssueDetailContent = IssueDetailContent.Loading,
-    val historyContent: IssueHistoryContent = IssueHistoryContent.Loading,
     val photosContent: IssuePhotosContent = IssuePhotosContent.Loading,
     val commentText: String = "",
     val isSendingComment: Boolean = false,
@@ -27,16 +26,7 @@ sealed interface IssueDetailContent {
     data object Error : IssueDetailContent
 
     @Immutable
-    data class Loaded(val issue: IssueUi) : IssueDetailContent
-}
-
-@Immutable
-sealed interface IssueHistoryContent {
-    data object Loading : IssueHistoryContent
-    data object Empty : IssueHistoryContent
-
-    @Immutable
-    data class Loaded(val items: ImmutableList<IssueHistoryUi>) : IssueHistoryContent
+    data class Loaded(val issue: IssueUi, val history: ImmutableList<IssueHistoryUi>) : IssueDetailContent
 }
 
 @Immutable
