@@ -69,7 +69,7 @@ class AuthManagerImpl(
                 verifyAndStore(authFlow.continueLogin())
                 authenticationState.value = AuthenticationState.Authorized
             }
-        }.onFailure { Logger.w(TAG, it, "Failed to resume pending login") }
+        }.onFailure { Logger.e(TAG, it, "Failed to resume pending login") }
 
         runCatching {
             val endSessionFlow = authFlowFactory.createEndSessionFlow(client)
@@ -78,7 +78,7 @@ class AuthManagerImpl(
                 endSessionFlow.continueLogout()
                 invalidateAuth()
             }
-        }.onFailure { Logger.w(TAG, it, "Failed to resume pending logout") }
+        }.onFailure { Logger.e(TAG, it, "Failed to resume pending logout") }
     }
 
     override suspend fun signIn(): AuthActionResult {
@@ -109,12 +109,12 @@ class AuthManagerImpl(
                     }
 
                     is IllegalStateException -> {
-                        Logger.w(TAG, exception, "No activity available to start auth flow")
+                        Logger.e(TAG, exception, "No activity available to start auth flow")
                         AuthActionResult.Failed.NoActivity
                     }
 
                     else -> {
-                        Logger.w(TAG, exception, "Authorization failed")
+                        Logger.e(TAG, exception, "Authorization failed")
                         invalidateAuth()
                         AuthActionResult.Failed.Error(exception)
                     }
@@ -147,7 +147,7 @@ class AuthManagerImpl(
                     Logger.d(TAG, "User cancelled end session")
                     authenticationInProgress.value = false
                 } else {
-                    Logger.w(TAG, exception, "End session failed")
+                    Logger.e(TAG, exception, "End session failed")
                     invalidateAuth()
                 }
             }
@@ -167,7 +167,7 @@ class AuthManagerImpl(
         }
 
         val refreshToken = tokens.refreshToken ?: run {
-            Logger.w(TAG, "Token needs refresh but no refresh token is available")
+            Logger.e(TAG, "Token needs refresh but no refresh token is available")
             invalidateAuth()
             return TokenResponse.TokenError(IllegalStateException("No refresh token available"))
         }
