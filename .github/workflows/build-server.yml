@@ -40,7 +40,9 @@ jobs:
                 uses: actions/upload-artifact@v4
                 with:
                     name: module-server-jar
-                    path: server/module-server/build/libs/module-server-*.jar
+                    path: |
+                        server/module-server/build/libs/module-server-*.jar
+                        !server/module-server/build/libs/module-server-*-plain.jar
                     retention-days: 7
 
     deploy:
@@ -56,7 +58,7 @@ jobs:
                     path: ./artifact
 
             -   name: Rename JAR for upload
-                run: mv $(ls ./artifact/module-server-*.jar | head -1) ./artifact/module-server-new.jar
+                run: mv $(ls ./artifact/module-server-*.jar | head -1) ./module-server-new.jar
 
             -   name: Copy JAR to server
                 uses: appleboy/scp-action@v0.1.7
@@ -65,9 +67,8 @@ jobs:
                     username: ${{ secrets.DEPLOY_USER }}
                     key: ${{ secrets.DEPLOY_SSH_KEY }}
                     host_key: ${{ secrets.DEPLOY_HOST_KEY }}
-                    source: ./artifact/module-server-new.jar
+                    source: module-server-new.jar
                     target: ~/module-server-tt/
-                    strip_components: 1
 
             -   name: Deploy on server
                 uses: appleboy/ssh-action@v1.0.3
