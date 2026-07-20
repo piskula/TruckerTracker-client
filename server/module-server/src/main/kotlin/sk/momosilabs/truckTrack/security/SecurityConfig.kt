@@ -24,6 +24,9 @@ class SecurityConfig {
                     "/swagger-ui.html",
                     "/v3/api-docs/**",
                 ).permitAll()
+                it.requestMatchers(
+                    "/api/v1/version",
+                ).permitAll()
                 it.anyRequest().authenticated()
             }
             .oauth2ResourceServer { it.jwt {} }
