@@ -10,11 +10,107 @@ Boot backend, sharing one contract module of DTOs.
 
 ## Contents
 
+- [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [Getting started](#getting-started)
 - [Continuous integration](#continuous-integration)
 - [Contributing](#contributing)
 - [Docs](#docs)
+
+## Architecture
+
+### Use Case Diagram
+
+```mermaid
+flowchart LR
+    Driver(["Driver"])
+    Mechanic(["Mechanic"])
+    User(["All Users"]) -.->|can be| Driver
+    User(["All Users"]) -.->|can be| Mechanic
+
+    subgraph flow["Issue Flow"]
+        CI["Create Issue"]
+        SI["Start Issue<br/>(when OPEN)"]
+        AI["Assign To Me<br/>(when not OPEN)"]
+        RI["Resolve Issue"]
+    end
+
+    subgraph read["Issue Read"]
+        IR1["View List"]
+        IR2["View Detail"]
+        IR3["View History"]
+    end
+
+    subgraph attach["Issue Attachment Management"]
+        IA1["Upload Photo"]
+        IA2["View Photo"]
+    end
+
+    subgraph write["Issue Write"]
+        IW1["Add Comment"]
+    end
+
+    subgraph vehicles["Vehicle Read"]
+        BV["Browse Vehicles"]
+    end
+
+
+    User --> vehicles
+    User --> attach
+    User --> write
+    User --> read
+    Driver --> CI
+    Mechanic --> SI & RI & AI
+```
+
+### Issue Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> OPEN : Driver creates issue
+    OPEN --> IN_PROGRESS : Mechanic starts issue
+    IN_PROGRESS --> IN_PROGRESS : Mechanic assigns to themselves
+    IN_PROGRESS --> RESOLVED : Mechanic resolves issue
+    RESOLVED --> [*]
+```
+
+### Component Diagram
+
+```mermaid
+flowchart TD
+    User(["User"])
+
+    subgraph Mobile["Mobile App"]
+        MobileApp["Android & iOS<br/>Kotlin / Compose Multiplatform"]
+    end
+
+    subgraph BrowserApp["Administration Web"]
+        Angular["Angular SPA"]
+    end
+
+    subgraph Backend["Backend"]
+        direction LR
+        API["REST API<br/>Spring Boot / Kotlin"]
+        DB[("PostgreSQL")]
+        Files["File Storage<br/>MinIO"]
+    end
+
+    subgraph AuthServer["Authorization Server"]
+        direction LR
+        Keycloak["Keycloak<br/>OAuth 2.0 / OIDC"]
+        AuthDB[("PostgreSQL")]
+    end
+
+    User --> MobileApp
+    User --> Angular
+    MobileApp --> API
+    Angular --> API
+    API --> DB & Files
+    MobileApp -.->|OIDC| Keycloak
+    Angular -.->|OIDC| Keycloak
+    API -.->|validates tokens| Keycloak
+    Keycloak --> AuthDB
+```
 
 ## Repository layout
 
