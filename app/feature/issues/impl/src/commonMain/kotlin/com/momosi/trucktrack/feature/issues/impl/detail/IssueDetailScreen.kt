@@ -304,7 +304,7 @@ private fun PeopleStrip(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.tertiary)
+            .background(AppTheme.colors.primary)
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         PersonCell(

@@ -1,4 +1,4 @@
-﻿package com.momosi.trucktrack.core.uilibrary.components
+package com.momosi.trucktrack.core.uilibrary.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -71,10 +71,10 @@ fun Chip(
             containerColor = AppTheme.colors.surfaceVariant,
             labelColor = AppTheme.colors.onSurfaceVariant,
             iconColor = AppTheme.colors.onSurfaceVariant,
-            selectedContainerColor = AppTheme.colors.secondaryContainer,
-            selectedLabelColor = AppTheme.colors.onSecondaryContainer,
-            selectedLeadingIconColor = AppTheme.colors.onSecondaryContainer,
-            selectedTrailingIconColor = AppTheme.colors.onSecondaryContainer,
+            selectedContainerColor = AppTheme.colors.primaryContainer,
+            selectedLabelColor = AppTheme.colors.onPrimaryContainer,
+            selectedLeadingIconColor = AppTheme.colors.onPrimaryContainer,
+            selectedTrailingIconColor = AppTheme.colors.onPrimaryContainer,
         ),
         border = null,
     )
@@ -89,7 +89,7 @@ fun Chip(
 ) {
     val (containerColor, contentColor) = when (variant) {
         ChipVariant.Default -> AppTheme.colors.surfaceVariant to AppTheme.colors.onSurfaceVariant
-        ChipVariant.Tonal -> AppTheme.colors.secondaryContainer to AppTheme.colors.onSecondaryContainer
+        ChipVariant.Tonal -> AppTheme.colors.primaryContainer to AppTheme.colors.onPrimaryContainer
         ChipVariant.Warning -> AppTheme.colors.warningContainer to AppTheme.colors.warning
     }
     Row(
@@ -157,14 +157,14 @@ fun OutlinedChip(
             containerColor = Color.Transparent,
             labelColor = AppTheme.colors.onSurfaceVariant,
             iconColor = AppTheme.colors.onSurfaceVariant,
-            selectedContainerColor = AppTheme.colors.secondaryContainer,
-            selectedLabelColor = AppTheme.colors.onSecondaryContainer,
-            selectedLeadingIconColor = AppTheme.colors.onSecondaryContainer,
-            selectedTrailingIconColor = AppTheme.colors.onSecondaryContainer,
+            selectedContainerColor = AppTheme.colors.primaryContainer,
+            selectedLabelColor = AppTheme.colors.onPrimaryContainer,
+            selectedLeadingIconColor = AppTheme.colors.onPrimaryContainer,
+            selectedTrailingIconColor = AppTheme.colors.onPrimaryContainer,
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = if (selected) AppTheme.colors.onSecondaryContainer else AppTheme.colors.onSurfaceVariant,
+            color = if (selected) AppTheme.colors.primary else AppTheme.colors.onSurfaceVariant,
         ),
     )
 }

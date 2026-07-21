@@ -1,5 +1,6 @@
 ﻿package com.momosi.trucktrack.core.uilibrary.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -8,7 +9,7 @@ import androidx.compose.runtime.remember
 
 @Composable
 fun TruckTrackTheme(
-    isDarkTheme: Boolean = false, // isSystemInDarkTheme(),
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val truckTrackColors = if (isDarkTheme) DarkTruckTrackColors else LightTruckTrackColors

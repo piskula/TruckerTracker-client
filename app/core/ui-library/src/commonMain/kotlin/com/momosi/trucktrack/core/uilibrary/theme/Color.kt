@@ -1,4 +1,4 @@
-﻿package com.momosi.trucktrack.core.uilibrary.theme
+package com.momosi.trucktrack.core.uilibrary.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -19,14 +19,7 @@ data class TruckTrackColorPalette(
     val primary: Color,
     val onPrimary: Color,
     val primaryContainer: Color,
-    val secondary: Color,
-    val onSecondary: Color,
-    val secondaryContainer: Color,
-    val onSecondaryContainer: Color,
-    val tertiary: Color,
-    val onTertiary: Color,
-    val tertiaryContainer: Color,
-    val onTertiaryContainer: Color,
+    val onPrimaryContainer: Color,
 
     val positive: Color,
     val positiveContainer: Color,
@@ -39,23 +32,16 @@ data class TruckTrackColorPalette(
 )
 
 internal val LightTruckTrackColors = TruckTrackColorPalette(
-    background = Color(0xFFF5F5F5),
-    surface = Color(0xFFFFFFFF),
-    surfaceVariant = Color(0xFFE0E0E0),
-    onBackground = Color(0xFF212121),
-    onSurface = Color(0xFF212121),
-    onSurfaceVariant = Color(0xFF757575),
-    primary = Color(0xFF1565C0),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFE3F2FD),
-    secondary = Color(0xFF1976D2),
-    onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFBBDEFB),
-    onSecondaryContainer = Color(0xFF0D47A1),
-    tertiary = Color(0xFF0D47A1),
-    onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFBBDEFB),
-    onTertiaryContainer = Color(0xFF0D47A1),
+    background = Color(0xFFF2F0F4),     // azure neutral-95
+    surface = Color(0xFFFFFFFF),         // azure neutral-100
+    surfaceVariant = Color(0xFFE0E2EC),  // azure neutral-variant-90
+    onBackground = Color(0xFF1A1B1F),    // azure neutral-10
+    onSurface = Color(0xFF1A1B1F),       // azure neutral-10
+    onSurfaceVariant = Color(0xFF74777F), // azure neutral-variant-50
+    primary = Color(0xFF005CBB),              // azure primary-40
+    onPrimary = Color(0xFFFFFFFF),            // azure primary-100
+    primaryContainer = Color(0xFFD7E3FF),     // azure primary-90
+    onPrimaryContainer = Color(0xFF001B3F),   // azure primary-10
     positive = Color(0xFF2E7D32),
     positiveContainer = Color(0xFFE8F5E9),
     negative = Color(0xFFC62828),
@@ -66,23 +52,16 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
 )
 
 internal val DarkTruckTrackColors = TruckTrackColorPalette(
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
-    surfaceVariant = Color(0xFF2C2C2C),
-    onBackground = Color(0xFFE0E0E0),
-    onSurface = Color(0xFFE0E0E0),
-    onSurfaceVariant = Color(0xFF9E9E9E),
-    primary = Color(0xFF64B5F6),
-    onPrimary = Color(0xFF0D47A1),
-    primaryContainer = Color(0xFF1565C0),
-    secondary = Color(0xFF90CAF9),
-    onSecondary = Color(0xFF0D47A1),
-    secondaryContainer = Color(0xFF1565C0),
-    onSecondaryContainer = Color(0xFFBBDEFB),
-    tertiary = Color(0xFF64B5F6),
-    onTertiary = Color(0xFF0D47A1),
-    tertiaryContainer = Color(0xFF0D47A1),
-    onTertiaryContainer = Color(0xFFBBDEFB),
+    background = Color(0xFF121316),      // azure neutral-6
+    surface = Color(0xFF1F2022),         // azure neutral-12
+    surfaceVariant = Color(0xFF343537),  // azure neutral-22
+    onBackground = Color(0xFFE3E2E6),   // azure neutral-90
+    onSurface = Color(0xFFE3E2E6),      // azure neutral-90
+    onSurfaceVariant = Color(0xFFC4C6D0), // azure neutral-variant-80
+    primary = Color(0xFFABC7FF),              // azure primary-80
+    onPrimary = Color(0xFF002F65),            // azure primary-20
+    primaryContainer = Color(0xFF00458F),     // azure primary-30
+    onPrimaryContainer = Color(0xFFD7E3FF),   // azure primary-90
     positive = Color(0xFF66BB6A),
     positiveContainer = Color(0xFF1B3A1C),
     negative = Color(0xFFEF5350),
@@ -96,15 +75,7 @@ internal fun lightColorScheme(colors: TruckTrackColorPalette) = lightColorScheme
     primary = colors.primary,
     onPrimary = colors.onPrimary,
     primaryContainer = colors.primaryContainer,
-    onPrimaryContainer = colors.primary,
-    secondary = colors.secondary,
-    onSecondary = colors.onSecondary,
-    secondaryContainer = colors.secondaryContainer,
-    onSecondaryContainer = colors.onSecondaryContainer,
-    tertiary = colors.tertiary,
-    onTertiary = colors.onTertiary,
-    tertiaryContainer = colors.tertiaryContainer,
-    onTertiaryContainer = colors.onTertiaryContainer,
+    onPrimaryContainer = colors.onPrimaryContainer,
     background = colors.background,
     onBackground = colors.onBackground,
     surface = colors.surface,
@@ -122,15 +93,7 @@ internal fun darkColorScheme(colors: TruckTrackColorPalette) = darkColorScheme(
     primary = colors.primary,
     onPrimary = colors.onPrimary,
     primaryContainer = colors.primaryContainer,
-    onPrimaryContainer = colors.primary,
-    secondary = colors.secondary,
-    onSecondary = colors.onSecondary,
-    secondaryContainer = colors.secondaryContainer,
-    onSecondaryContainer = colors.onSecondaryContainer,
-    tertiary = colors.tertiary,
-    onTertiary = colors.onTertiary,
-    tertiaryContainer = colors.tertiaryContainer,
-    onTertiaryContainer = colors.onTertiaryContainer,
+    onPrimaryContainer = colors.onPrimaryContainer,
     background = colors.background,
     onBackground = colors.onBackground,
     surface = colors.surface,

@@ -72,8 +72,8 @@ fun IconButton(
                 onClick = onClick,
                 modifier = modifier,
                 colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = AppTheme.colors.secondaryContainer,
-                    contentColor = AppTheme.colors.onSecondaryContainer,
+                    containerColor = AppTheme.colors.primaryContainer,
+                    contentColor = AppTheme.colors.onPrimaryContainer,
                 ),
             ) {
                 Icon(imageVector = imageVector, contentDescription = null)

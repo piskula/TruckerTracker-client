@@ -19,7 +19,7 @@
     .phone {
       width: 390px;
       height: 844px;
-      background: #F5F5F5;
+      background: #f2f0f4;
       border-radius: 40px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.18);
       overflow: hidden;
@@ -27,7 +27,7 @@
       flex-direction: column;
     }
     .status-bar {
-      background: #1565C0;
+      background: #005cbb;
       height: 28px;
       display: flex;
       align-items: center;
@@ -40,7 +40,7 @@
     }
     /* Toolbar: back arrow + title only, no subtitle/actions */
     .top-bar {
-      background: #1565C0;
+      background: #005cbb;
       padding: 12px 8px 12px 4px;
       display: flex;
       align-items: center;
@@ -84,15 +84,15 @@
     .field label {
       font-size: 12px;
       font-weight: 500;
-      color: #1565C0;
+      color: #005cbb;
     }
     .field input, .field textarea {
       border: none;
-      border-bottom: 2px solid #E0E0E0;
+      border-bottom: 2px solid #e0e2ec;
       padding: 4px 0 8px;
       font-size: 15px;
       font-family: 'Roboto', sans-serif;
-      color: #212121;
+      color: #1a1b1f;
       outline: none;
       background: transparent;
       resize: none;
@@ -107,9 +107,9 @@
       gap: 8px;
       cursor: pointer;
     }
-    .vehicle-selector .material-icons.leading { color: #1565C0; font-size: 20px; }
-    .vehicle-selector span.value { font-size: 15px; color: #212121; font-weight: 500; flex: 1; }
-    .vehicle-selector .material-icons.chevron { color: #1565C0; font-size: 24px; }
+    .vehicle-selector .material-icons.leading { color: #005cbb; font-size: 20px; }
+    .vehicle-selector span.value { font-size: 15px; color: #1a1b1f; font-weight: 500; flex: 1; }
+    .vehicle-selector .material-icons.chevron { color: #005cbb; font-size: 24px; }
     .vehicle-dropdown {
       display: flex;
       flex-direction: column;
@@ -120,7 +120,7 @@
       gap: 8px;
       padding: 10px 4px;
       font-size: 14px;
-      color: #212121;
+      color: #1a1b1f;
     }
     .vehicle-option .material-icons { color: #757575; font-size: 18px; }
 
@@ -130,7 +130,7 @@
       gap: 8px;
     }
     .priority-option {
-      border: 2px solid #E0E0E0;
+      border: 2px solid #e0e2ec;
       border-radius: 10px;
       padding: 12px;
       display: flex;
@@ -140,14 +140,14 @@
     }
     .priority-option.selected.high { border-color: #C62828; background: #FFEBEE; }
     .priority-option.selected.medium { border-color: #F57C00; background: #FFF3E0; }
-    .priority-option.selected.low { border-color: #1565C0; background: #E3F2FD; }
+    .priority-option.selected.low { border-color: #005cbb; background: #d7e3ff; }
 
     .priority-text { display: flex; flex-direction: column; }
-    .priority-text strong { font-size: 14px; font-weight: 700; color: #212121; }
+    .priority-text strong { font-size: 14px; font-weight: 700; color: #1a1b1f; }
     .priority-text small { font-size: 11px; color: #9E9E9E; }
 
     .photo-upload {
-      border: 2px solid #E0E0E0;
+      border: 2px solid #e0e2ec;
       border-radius: 10px;
       padding: 20px;
       display: flex;
@@ -156,9 +156,9 @@
       gap: 6px;
       cursor: pointer;
     }
-    .photo-upload .material-icons { font-size: 36px; color: #E0E0E0; }
+    .photo-upload .material-icons { font-size: 36px; color: #e0e2ec; }
     .photo-upload p { font-size: 14px; color: #9E9E9E; }
-    .photo-upload small { font-size: 12px; color: #E0E0E0; }
+    .photo-upload small { font-size: 12px; color: #e0e2ec; }
 
     /* Photo previews scroll horizontally (LazyRow) — supports multi-select */
     .photo-previews {
@@ -188,11 +188,11 @@
     .bottom-action {
       padding: 12px 16px 20px;
       background: #fff;
-      border-top: 1px solid #E0E0E0;
+      border-top: 1px solid #e0e2ec;
       flex-shrink: 0;
     }
     .btn-primary {
-      background: #1565C0;
+      background: #005cbb;
       color: #fff;
       border: none;
       border-radius: 28px;
@@ -202,7 +202,7 @@
       font-family: 'Roboto', sans-serif;
       cursor: pointer;
       width: 100%;
-      box-shadow: 0 4px 12px rgba(21,101,192,0.35);
+      box-shadow: 0 4px 12px rgba(0,92,187,0.35);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -274,7 +274,7 @@
             </div>
           </div>
           <div class="priority-option">
-            <span class="material-icons" style="color:#1565C0;font-size:20px;">arrow_downward</span>
+            <span class="material-icons" style="color:#005cbb;font-size:20px;">arrow_downward</span>
             <div class="priority-text">
               <strong>Low</strong>
               <small>Minor issue, can wait for scheduled maintenance</small>
