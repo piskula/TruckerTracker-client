@@ -38,8 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -305,7 +303,7 @@ private fun PeopleStrip(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.surfaceContainerHighest)
+            .background(AppTheme.colors.primaryContainer)
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         PersonCell(
@@ -337,22 +335,22 @@ private fun PersonCell(
         Box(
             modifier = Modifier
                 .size(30.dp)
-                .background(AppTheme.colors.onSurface.copy(alpha = 0.08f), CircleShape),
+                .background(AppTheme.colors.onPrimaryContainer.copy(alpha = 0.08f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(imageVector = icon, tint = AppTheme.colors.onSurfaceVariant, modifier = Modifier.size(16.dp))
+            Icon(imageVector = icon, tint = AppTheme.colors.onPrimaryContainer, modifier = Modifier.size(16.dp))
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
                 text = role.uppercase(),
                 style = AppTheme.typography.labelSmall,
-                color = AppTheme.colors.onSurfaceVariant,
+                color = AppTheme.colors.onPrimaryContainer,
             )
             Text(
                 text = name,
                 style = AppTheme.typography.bodySmall,
-                color = AppTheme.colors.onSurface,
+                color = AppTheme.colors.onPrimaryContainer,
             )
         }
     }
@@ -360,20 +358,15 @@ private fun PersonCell(
 
 @Composable
 private fun HeaderCard(issue: IssueUi, modifier: Modifier = Modifier) {
-    val borderColor = issue.priority.borderColor()
+    val isUrgent = issue.priority == IssuePriority.High && issue.status != IssueStatus.Done
+    val borderColor = if (isUrgent) AppTheme.colors.error else AppTheme.colors.outlineVariant
+    val borderWidth = if (isUrgent) 1.5.dp else 1.dp
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
-            .drawBehind {
-                drawRect(
-                    color = borderColor,
-                    topLeft = Offset.Zero,
-                    size = size.copy(width = 4.dp.toPx()),
-                )
-            }
+            .border(borderWidth, borderColor, Shapes.CardShape)
             .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
         Column {
@@ -438,8 +431,8 @@ private fun PriorityIndicator(priority: IssuePriority, modifier: Modifier = Modi
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         modifier = modifier,
     ) {
-        Icon(imageVector = priority.indicatorIcon(), tint = priority.borderColor(), modifier = Modifier.size(15.dp))
-        Text(text = priority.displayName().uppercase(), style = AppTheme.typography.labelSmall, color = priority.borderColor())
+        Icon(imageVector = priority.indicatorIcon(), tint = priority.indicatorColor(), modifier = Modifier.size(15.dp))
+        Text(text = priority.displayName().uppercase(), style = AppTheme.typography.labelSmall, color = priority.indicatorColor())
     }
 }
 
@@ -621,7 +614,7 @@ private fun CommentCard(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .background(AppTheme.colors.outlineVariant, RoundedCornerShape(10.dp))
+                    .background(AppTheme.colors.surfaceVariant, RoundedCornerShape(10.dp))
                     .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
                 BasicTextField(
@@ -812,8 +805,8 @@ private fun CardContainer(
 }
 
 @Composable
-private fun IssuePriority.borderColor(): Color = when (this) {
-    IssuePriority.High -> AppTheme.colors.negative
+private fun IssuePriority.indicatorColor(): Color = when (this) {
+    IssuePriority.High -> AppTheme.colors.error
     IssuePriority.Medium -> AppTheme.colors.warning
     IssuePriority.Low -> AppTheme.colors.primary
 }

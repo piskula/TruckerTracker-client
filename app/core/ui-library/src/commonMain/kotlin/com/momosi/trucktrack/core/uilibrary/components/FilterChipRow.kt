@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.runtime.Composable
@@ -30,7 +31,7 @@ fun <T> FilterChipRow(
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.primaryContainer),
+            .background(AppTheme.colors.primary),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -45,16 +46,17 @@ fun <T> FilterChipRow(
                         style = AppTheme.typography.labelLarge,
                     )
                 },
+                shape = CircleShape,
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = Color.Transparent,
-                    labelColor = AppTheme.colors.onPrimaryContainer,
-                    selectedContainerColor = AppTheme.colors.primary,
-                    selectedLabelColor = AppTheme.colors.onPrimary,
+                    labelColor = AppTheme.colors.onPrimary,
+                    selectedContainerColor = AppTheme.colors.primaryContainer,
+                    selectedLabelColor = AppTheme.colors.onPrimaryContainer,
                 ),
                 border = if (selected) {
                     null
                 } else {
-                    BorderStroke(1.dp, AppTheme.colors.onPrimaryContainer)
+                    BorderStroke(1.dp, AppTheme.colors.onPrimary)
                 },
             )
         }

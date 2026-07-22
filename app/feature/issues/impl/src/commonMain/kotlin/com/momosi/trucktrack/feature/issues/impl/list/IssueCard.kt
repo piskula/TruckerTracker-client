@@ -14,8 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -59,20 +57,15 @@ internal fun IssueCard(
     modifier: Modifier = Modifier,
 ) {
     val issue = state.issue
-    val borderColor = issue.priority.borderColor()
+    val isUrgent = issue.priority == IssuePriority.High && issue.status != IssueStatus.Done
+    val borderColor = if (isUrgent) AppTheme.colors.error else AppTheme.colors.outlineVariant
+    val borderWidth = if (isUrgent) 1.5.dp else 1.dp
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
-            .drawBehind {
-                drawRect(
-                    color = borderColor,
-                    topLeft = Offset.Zero,
-                    size = size.copy(width = 4.dp.toPx()),
-                )
-            }
+            .border(borderWidth, borderColor, Shapes.CardShape)
             .clickable(onClick = onClick)
             .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
@@ -216,13 +209,6 @@ private fun MetaItem(
 }
 
 @Composable
-private fun IssuePriority.borderColor() = when (this) {
-    IssuePriority.High -> AppTheme.colors.negative
-    IssuePriority.Medium -> AppTheme.colors.warning
-    IssuePriority.Low -> AppTheme.colors.primary
-}
-
-@Composable
 private fun IssueStatus.containerColor() = when (this) {
     IssueStatus.Open -> AppTheme.colors.primaryContainer
     IssueStatus.InProgress -> AppTheme.colors.warningContainer
@@ -253,7 +239,7 @@ private fun IssueStatus.displayName(): String = stringResource(
 
 @Composable
 private fun IssuePriority.indicatorColor() = when (this) {
-    IssuePriority.High -> AppTheme.colors.negative
+    IssuePriority.High -> AppTheme.colors.error
     IssuePriority.Medium -> AppTheme.colors.warning
     IssuePriority.Low -> AppTheme.colors.primary
 }

@@ -133,7 +133,7 @@ private fun SignInContent(
                 Text(
                     text = error,
                     style = AppTheme.typography.bodySmall,
-                    color = AppTheme.colors.negative,
+                    color = AppTheme.colors.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )

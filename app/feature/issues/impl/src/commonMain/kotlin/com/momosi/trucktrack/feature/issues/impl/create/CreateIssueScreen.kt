@@ -399,14 +399,14 @@ private fun PriorityOption(
 
 @Composable
 private fun IssuePriority.accentColor() = when (this) {
-    IssuePriority.High -> AppTheme.colors.negative
+    IssuePriority.High -> AppTheme.colors.error
     IssuePriority.Medium -> AppTheme.colors.warning
     IssuePriority.Low -> AppTheme.colors.primary
 }
 
 @Composable
 private fun IssuePriority.containerColor() = when (this) {
-    IssuePriority.High -> AppTheme.colors.negativeContainer
+    IssuePriority.High -> AppTheme.colors.errorContainer
     IssuePriority.Medium -> AppTheme.colors.warningContainer
     IssuePriority.Low -> AppTheme.colors.primaryContainer
 }

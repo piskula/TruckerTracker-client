@@ -27,19 +27,19 @@
       flex-direction: column;
     }
     .status-bar {
-      background: #d7e3ff;
+      background: #005cbb;
       height: 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      color: #001b3f;
+      color: #ffffff;
       font-size: 12px;
       font-weight: 500;
       flex-shrink: 0;
     }
     .top-bar {
-      background: #d7e3ff;
+      background: #005cbb;
       padding: 12px 8px 12px 4px;
       display: flex;
       align-items: center;
@@ -50,11 +50,11 @@
       width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
     }
-    .back-btn .material-icons { color: #001b3f; font-size: 24px; }
-    .top-bar h2 { color: #001b3f; font-size: 20px; font-weight: 700; flex: 1; }
+    .back-btn .material-icons { color: #ffffff; font-size: 24px; }
+    .top-bar h2 { color: #ffffff; font-size: 20px; font-weight: 700; flex: 1; }
 
     .people-strip {
-      background: #e1e2e9;
+      background: #d7e3ff;
       padding: 10px 16px;
       display: flex;
       flex-shrink: 0;
@@ -72,12 +72,12 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .person-avatar .material-icons { color: #74777f; font-size: 16px; }
+    .person-avatar .material-icons { color: #001b3f; font-size: 16px; }
     .person-info { display: flex; flex-direction: column; }
-    .person-role { font-size: 10px; color: #74777f; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
-    .person-name { font-size: 13px; color: #1a1b1f; font-weight: 700; }
+    .person-role { font-size: 10px; color: #001b3f; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
+    .person-name { font-size: 13px; color: #001b3f; font-weight: 700; }
     /* Unassigned: the real screen just shows "—", not the word "Unassigned" */
-    .person-name.empty { color: #9E9E9E; }
+    .person-name.empty { color: rgba(0,27,63,0.5); }
 
     .content {
       flex: 1;
@@ -107,8 +107,7 @@
       background: #f8f9ff;
       border-radius: 16px;
       padding: 12px 14px;
-      border: 1px solid #c1c7d0;
-      border-left: 4px solid #C62828;
+      border: 1.5px solid #BA1A1A;
     }
     .card-top {
       display: flex;
@@ -155,7 +154,7 @@
       letter-spacing: 0.3px;
     }
     .priority-indicator .material-icons { font-size: 15px; }
-    .priority-indicator.high { color: #C62828; }
+    .priority-indicator.high { color: #BA1A1A; }
     .meta-item {
       display: flex;
       align-items: center;
@@ -227,8 +226,8 @@
       flex-shrink: 0;
     }
     .btn-warning {
-      background: #F57C00;
-      color: #fff;
+      background: #FFE0B2;
+      color: #2E1500;
       border: none;
       border-radius: 28px;
       padding: 16px;
@@ -328,7 +327,7 @@
       <div class="card">
         <div class="card-section-title">Add Comment</div>
         <div style="display:flex; align-items:flex-end; gap:10px;">
-          <textarea placeholder="Write a comment…" rows="2" style="flex:1; background:#c1c7d0; border:none; border-radius:10px; padding:10px 12px; font-size:14px; font-family:'Roboto',sans-serif; color:#1a1b1f; resize:none; min-height:44px; outline:none;"></textarea>
+          <textarea placeholder="Write a comment…" rows="2" style="flex:1; background:#E0E2EC; border:none; border-radius:10px; padding:10px 12px; font-size:14px; font-family:'Roboto',sans-serif; color:#1a1b1f; resize:none; min-height:44px; outline:none;"></textarea>
           <button style="width:44px; height:44px; border-radius:50%; background:#005cbb; border:none; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-icons" style="color:#fff; font-size:20px;">send</span></button>
         </div>
       </div>

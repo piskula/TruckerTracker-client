@@ -42,7 +42,7 @@ fun Button(
 ) {
     val (containerColor, contentColor) = when (style) {
         ButtonStyle.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
-        ButtonStyle.Warning -> AppTheme.colors.warning to AppTheme.colors.onPrimary
+        ButtonStyle.Warning -> AppTheme.colors.warningContainer to AppTheme.colors.onWarningContainer
         ButtonStyle.Positive -> AppTheme.colors.positive to AppTheme.colors.onPrimary
     }
 

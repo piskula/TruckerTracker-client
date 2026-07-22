@@ -27,20 +27,20 @@
       flex-direction: column;
     }
     .status-bar {
-      background: #d7e3ff;
+      background: #005cbb;
       height: 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      color: #001b3f;
+      color: #ffffff;
       font-size: 12px;
       font-weight: 500;
       flex-shrink: 0;
     }
     /* Toolbar: back arrow + title only, no subtitle/actions */
     .top-bar {
-      background: #d7e3ff;
+      background: #005cbb;
       padding: 12px 8px 12px 4px;
       display: flex;
       align-items: center;
@@ -52,8 +52,8 @@
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
     }
-    .back-btn .material-icons { color: #001b3f; font-size: 24px; }
-    .top-bar h2 { color: #001b3f; font-size: 20px; font-weight: 700; }
+    .back-btn .material-icons { color: #ffffff; font-size: 24px; }
+    .top-bar h2 { color: #ffffff; font-size: 20px; font-weight: 700; }
 
     .content {
       flex: 1;
@@ -138,8 +138,8 @@
       gap: 10px;
       cursor: pointer;
     }
-    .priority-option.selected.high { border-color: #C62828; background: #FFEBEE; }
-    .priority-option.selected.medium { border-color: #F57C00; background: #FFF3E0; }
+    .priority-option.selected.high { border-color: #BA1A1A; background: #F9DEDC; }
+    .priority-option.selected.medium { border-color: #8A4F00; background: #FFE0B2; }
     .priority-option.selected.low { border-color: #005cbb; background: #d7e3ff; }
 
     .priority-text { display: flex; flex-direction: column; }
@@ -260,14 +260,14 @@
         <div class="card-title">Priority</div>
         <div class="priority-grid">
           <div class="priority-option selected high">
-            <span class="material-icons" style="color:#C62828;font-size:20px;">arrow_upward</span>
+            <span class="material-icons" style="color:#BA1A1A;font-size:20px;">arrow_upward</span>
             <div class="priority-text">
               <strong>High</strong>
               <small>Blocks operation, immediate attention needed</small>
             </div>
           </div>
           <div class="priority-option">
-            <span class="material-icons" style="color:#F57C00;font-size:20px;">remove</span>
+            <span class="material-icons" style="color:#8A4F00;font-size:20px;">remove</span>
             <div class="priority-text">
               <strong>Medium</strong>
               <small>Should be fixed soon, but not critical</small>

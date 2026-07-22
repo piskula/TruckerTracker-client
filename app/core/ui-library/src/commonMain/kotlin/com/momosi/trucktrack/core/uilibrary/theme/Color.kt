@@ -24,11 +24,17 @@ data class TruckTrackColorPalette(
     val onPrimaryContainer: Color,
 
     val positive: Color,
+    val onPositive: Color,
     val positiveContainer: Color,
-    val negative: Color,
-    val negativeContainer: Color,
+    val onPositiveContainer: Color,
+    val error: Color,
+    val onError: Color,
+    val errorContainer: Color,
+    val onErrorContainer: Color,
     val warning: Color,
+    val onWarning: Color,
     val warningContainer: Color,
+    val onWarningContainer: Color,
 
     val shadow: Color,
 )
@@ -47,11 +53,17 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
     primaryContainer = Color(0xFFD7E3FF),     // azure primary-90
     onPrimaryContainer = Color(0xFF001B3F),   // azure primary-10
     positive = Color(0xFF2E7D32),
-    positiveContainer = Color(0xFFE8F5E9),
-    negative = Color(0xFFC62828),
-    negativeContainer = Color(0xFFFFEBEE),
-    warning = Color(0xFFF57C00),
-    warningContainer = Color(0xFFFFF3E0),
+    onPositive = Color(0xFFFFFFFF),
+    positiveContainer = Color(0xFFC8E6C9),
+    onPositiveContainer = Color(0xFF00210B),
+    error = Color(0xFFBA1A1A),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF9DEDC),
+    onErrorContainer = Color(0xFF410E0B),
+    warning = Color(0xFF8A4F00),
+    onWarning = Color(0xFFFFFFFF),
+    warningContainer = Color(0xFFFFE0B2),
+    onWarningContainer = Color(0xFF2E1500),
     shadow = Color(0x1A000000),
 )
 
@@ -68,12 +80,18 @@ internal val DarkTruckTrackColors = TruckTrackColorPalette(
     onPrimary = Color(0xFF002F65),            // azure primary-20
     primaryContainer = Color(0xFF00458F),     // azure primary-30
     onPrimaryContainer = Color(0xFFD7E3FF),   // azure primary-90
-    positive = Color(0xFF66BB6A),
-    positiveContainer = Color(0xFF1B3A1C),
-    negative = Color(0xFFEF5350),
-    negativeContainer = Color(0xFF3E1414),
-    warning = Color(0xFFFFB74D),
-    warningContainer = Color(0xFF3E2A0F),
+    positive = Color(0xFF81C784),
+    onPositive = Color(0xFF003916),
+    positiveContainer = Color(0xFF1B5E20),
+    onPositiveContainer = Color(0xFFC8E6C9),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+    warning = Color(0xFFFFB95C),
+    onWarning = Color(0xFF4A2800),
+    warningContainer = Color(0xFF7A4B00),
+    onWarningContainer = Color(0xFFFFDDB3),
     shadow = Color(0x00000000),
 )
 
@@ -90,10 +108,10 @@ internal fun lightColorScheme(colors: TruckTrackColorPalette) = lightColorScheme
     onSurfaceVariant = colors.onSurfaceVariant,
     surfaceContainerLow = colors.background,
     surfaceContainerHighest = colors.surfaceContainerHighest,
-    error = colors.negative,
-    onError = colors.surface,
-    errorContainer = colors.negativeContainer,
-    onErrorContainer = colors.negative,
+    error = colors.error,
+    onError = colors.onError,
+    errorContainer = colors.errorContainer,
+    onErrorContainer = colors.onErrorContainer,
     outline = colors.onSurfaceVariant,
     outlineVariant = colors.outlineVariant,
 )
@@ -111,10 +129,10 @@ internal fun darkColorScheme(colors: TruckTrackColorPalette) = darkColorScheme(
     onSurfaceVariant = colors.onSurfaceVariant,
     surfaceContainerLow = colors.background,
     surfaceContainerHighest = colors.surfaceContainerHighest,
-    error = colors.negative,
-    onError = colors.surface,
-    errorContainer = colors.negativeContainer,
-    onErrorContainer = colors.negative,
+    error = colors.error,
+    onError = colors.onError,
+    errorContainer = colors.errorContainer,
+    onErrorContainer = colors.onErrorContainer,
     outline = colors.onSurfaceVariant,
     outlineVariant = colors.outlineVariant,
 )

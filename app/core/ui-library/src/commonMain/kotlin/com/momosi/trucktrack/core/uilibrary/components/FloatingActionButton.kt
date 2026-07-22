@@ -26,8 +26,8 @@ fun FloatingActionButton(
         containerColor = AppTheme.colors.primary,
         contentColor = AppTheme.colors.onPrimary,
         elevation = FloatingActionButtonDefaults.elevation(
-            defaultElevation = 6.dp,
-            pressedElevation = 12.dp,
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
         ),
     ) {
         Icon(imageVector = icon, contentDescription = null)
