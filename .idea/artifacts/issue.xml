@@ -1,6 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="issue">
-    <output-path>$PROJECT_DIR$/app/core/issue/build/libs</output-path>
-    <root id="archive" name="issue.jar" />
-  </artifact>
-</component>
