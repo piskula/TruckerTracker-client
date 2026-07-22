@@ -14,10 +14,9 @@ import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.TaskAlt
-import androidx.compose.material.icons.rounded.TripOrigin
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.GroupAdd
 import androidx.compose.material.icons.rounded.MoreVert
@@ -50,8 +49,7 @@ data object TruckTrackIcons {
     val Build = Icons.Rounded.Build
     val CheckCircle = Icons.Rounded.CheckCircle
     val RadioButtonUnchecked = Icons.Rounded.RadioButtonUnchecked
-    val TripOrigin = Icons.Rounded.TripOrigin
-    val TaskAlt = Icons.Rounded.TaskAlt
+    val Check = Icons.Rounded.Check
     val Remove = Icons.Rounded.Remove
     val ArrowUpward = Icons.Rounded.ArrowUpward
     val ArrowDownward = Icons.Rounded.ArrowDownward

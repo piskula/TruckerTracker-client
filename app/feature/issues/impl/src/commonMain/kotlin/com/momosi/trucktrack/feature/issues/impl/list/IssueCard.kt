@@ -1,7 +1,6 @@
 package com.momosi.trucktrack.feature.issues.impl.list
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,14 +56,11 @@ internal fun IssueCard(
     modifier: Modifier = Modifier,
 ) {
     val issue = state.issue
-    val borderColor = AppTheme.colors.outlineVariant
-    val borderWidth = 1.dp
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(borderWidth, borderColor, Shapes.CardShape)
             .clickable(onClick = onClick)
             .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
@@ -222,9 +218,9 @@ private fun IssueStatus.contentColor() = when (this) {
 }
 
 private fun IssueStatus.icon() = when (this) {
-    IssueStatus.Open -> TruckTrackIcons.TripOrigin
+    IssueStatus.Open -> TruckTrackIcons.RadioButtonUnchecked
     IssueStatus.InProgress -> TruckTrackIcons.Build
-    IssueStatus.Done -> TruckTrackIcons.TaskAlt
+    IssueStatus.Done -> TruckTrackIcons.Check
 }
 
 @Composable

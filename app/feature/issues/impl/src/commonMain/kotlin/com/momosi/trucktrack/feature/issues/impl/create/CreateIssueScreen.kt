@@ -184,7 +184,7 @@ private fun CreateIssueContent(
                 loading = state.isSubmitting,
                 modifier = Modifier.fillMaxWidth(),
                 style = ButtonStyle.Open,
-                icon = TruckTrackIcons.TripOrigin,
+                icon = TruckTrackIcons.RadioButtonUnchecked,
             )
         }
     }
@@ -201,7 +201,6 @@ private fun Card(
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .padding(16.dp),
     ) {
         Text(

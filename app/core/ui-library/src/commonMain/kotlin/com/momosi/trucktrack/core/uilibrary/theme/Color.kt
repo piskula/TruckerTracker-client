@@ -10,8 +10,13 @@ import androidx.compose.ui.graphics.Color
 data class TruckTrackColorPalette(
     val background: Color,
     val surface: Color,
-    val surfaceVariant: Color,
+    val surfaceContainerLowest: Color,
+    val surfaceContainerLow: Color,
+    val surfaceContainer: Color,
+    val surfaceContainerHigh: Color,
     val surfaceContainerHighest: Color,
+    val surfaceVariant: Color,
+    val outline: Color,
     val outlineVariant: Color,
 
     val onBackground: Color,
@@ -45,14 +50,19 @@ data class TruckTrackColorPalette(
 )
 
 internal val LightTruckTrackColors = TruckTrackColorPalette(
-    background = Color(0xFFF2F3FA),             // azure neutral-96 (surfaceContainerLow)
-    surface = Color(0xFFF8F9FF),                 // azure neutral-98
-    surfaceVariant = Color(0xFFE0E2EC),          // azure neutral-variant-90
-    surfaceContainerHighest = Color(0xFFE1E2E9), // azure neutral-90
-    outlineVariant = Color(0xFFC1C7D0),          // azure neutral-variant-80
-    onBackground = Color(0xFF1A1B1F),    // azure neutral-10
-    onSurface = Color(0xFF1A1B1F),       // azure neutral-10
-    onSurfaceVariant = Color(0xFF74777F), // azure neutral-variant-50
+    background = Color(0xFFECEEF4),                  // azure neutral-94 (surfaceContainer)
+    surface = Color(0xFFFFFFFF),                      // azure neutral-100 (surfaceContainerLowest)
+    surfaceContainerLowest = Color(0xFFFFFFFF),        // azure neutral-100
+    surfaceContainerLow = Color(0xFFF2F3FA),           // azure neutral-96
+    surfaceContainer = Color(0xFFECEEF4),              // azure neutral-94
+    surfaceContainerHigh = Color(0xFFE6E7EE),          // azure neutral-92
+    surfaceContainerHighest = Color(0xFFE1E2E9),       // azure neutral-90
+    surfaceVariant = Color(0xFFE0E2EC),                // azure neutral-variant-90
+    outline = Color(0xFF74777F),                       // azure neutral-variant-50
+    outlineVariant = Color(0xFFC1C7D0),                // azure neutral-variant-80
+    onBackground = Color(0xFF1A1B1F),                  // azure neutral-10
+    onSurface = Color(0xFF1A1B1F),                     // azure neutral-10
+    onSurfaceVariant = Color(0xFF74777F),               // azure neutral-variant-50
     primary = Color(0xFF005CBB),              // azure primary-40
     onPrimary = Color(0xFFFFFFFF),            // azure primary-100
     primaryContainer = Color(0xFFD7E3FF),     // azure primary-90
@@ -69,7 +79,7 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFF9DEDC),
     onErrorContainer = Color(0xFF410E0B),
-    warning = Color(0xFFE37100),
+    warning = Color(0xFFFF8E36),
     onWarning = Color(0xFFFFFFFF),
     warningContainer = Color(0xFFFFDCC3),
     onWarningContainer = Color(0xFF753403),
@@ -77,14 +87,19 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
 )
 
 internal val DarkTruckTrackColors = TruckTrackColorPalette(
-    background = Color(0xFF121316),             // azure surface (neutral-6) — darkest screen bg
-    surface = Color(0xFF1A1C1F),                 // azure surface-container-low — card bg (elevated)
-    surfaceVariant = Color(0xFF343537),          // azure neutral-variant
-    surfaceContainerHighest = Color(0xFF333538), // azure surface-container-highest
-    outlineVariant = Color(0xFF41484D),          // azure neutral-variant-30
-    onBackground = Color(0xFFE3E2E6),   // azure neutral-90
-    onSurface = Color(0xFFE3E2E6),      // azure neutral-90
-    onSurfaceVariant = Color(0xFFC4C6D0), // azure neutral-variant-80
+    background = Color(0xFF1F2023),                  // azure neutral-12 (surfaceContainer)
+    surface = Color(0xFF0D0E11),                      // azure neutral-4 (surfaceContainerLowest)
+    surfaceContainerLowest = Color(0xFF0D0E11),        // azure neutral-4
+    surfaceContainerLow = Color(0xFF1A1C1F),           // azure neutral-10
+    surfaceContainer = Color(0xFF1F2023),              // azure neutral-12
+    surfaceContainerHigh = Color(0xFF292A2F),          // azure neutral-17
+    surfaceContainerHighest = Color(0xFF333538),       // azure neutral-20
+    surfaceVariant = Color(0xFF343537),                // azure neutral-variant-30
+    outline = Color(0xFF8E9099),                       // azure neutral-variant-60
+    outlineVariant = Color(0xFF41484D),                // azure neutral-variant-30
+    onBackground = Color(0xFFE3E2E6),                  // azure neutral-90
+    onSurface = Color(0xFFE3E2E6),                     // azure neutral-90
+    onSurfaceVariant = Color(0xFFC4C6D0),               // azure neutral-variant-80
     primary = Color(0xFFABC7FF),              // azure primary-80
     onPrimary = Color(0xFF002F65),            // azure primary-20
     primaryContainer = Color(0xFF00458F),     // azure primary-30
@@ -101,7 +116,7 @@ internal val DarkTruckTrackColors = TruckTrackColorPalette(
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),
     onErrorContainer = Color(0xFFFFDAD6),
-    warning = Color(0xFFBC5D00),
+    warning = Color(0xFFFFB787),
     onWarning = Color(0xFF4A2800),
     warningContainer = Color(0xFFFFB683),
     onWarningContainer = Color(0xFF753403),
@@ -119,13 +134,16 @@ internal fun lightColorScheme(colors: TruckTrackColorPalette) = lightColorScheme
     onSurface = colors.onSurface,
     surfaceVariant = colors.surfaceVariant,
     onSurfaceVariant = colors.onSurfaceVariant,
-    surfaceContainerLow = colors.background,
+    surfaceContainerLowest = colors.surfaceContainerLowest,
+    surfaceContainerLow = colors.surfaceContainerLow,
+    surfaceContainer = colors.surfaceContainer,
+    surfaceContainerHigh = colors.surfaceContainerHigh,
     surfaceContainerHighest = colors.surfaceContainerHighest,
     error = colors.error,
     onError = colors.onError,
     errorContainer = colors.errorContainer,
     onErrorContainer = colors.onErrorContainer,
-    outline = colors.onSurfaceVariant,
+    outline = colors.outline,
     outlineVariant = colors.outlineVariant,
 )
 
@@ -140,13 +158,16 @@ internal fun darkColorScheme(colors: TruckTrackColorPalette) = darkColorScheme(
     onSurface = colors.onSurface,
     surfaceVariant = colors.surfaceVariant,
     onSurfaceVariant = colors.onSurfaceVariant,
-    surfaceContainerLow = colors.background,
+    surfaceContainerLowest = colors.surfaceContainerLowest,
+    surfaceContainerLow = colors.surfaceContainerLow,
+    surfaceContainer = colors.surfaceContainer,
+    surfaceContainerHigh = colors.surfaceContainerHigh,
     surfaceContainerHighest = colors.surfaceContainerHighest,
     error = colors.error,
     onError = colors.onError,
     errorContainer = colors.errorContainer,
     onErrorContainer = colors.onErrorContainer,
-    outline = colors.onSurfaceVariant,
+    outline = colors.outline,
     outlineVariant = colors.outlineVariant,
 )
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,7 +19,7 @@
         .phone {
           width: 390px;
           height: 844px;
-          background: #f2f3fa;
+          background: #ECEEF4;
           border-radius: 40px;
           box-shadow: 0 8px 40px rgba(0,0,0,0.18);
           overflow: hidden;
@@ -93,10 +93,9 @@
 
         /* Card — 16dp corner radius (Shapes.CardShape) */
         .card {
-          background: #f8f9ff;
+          background: #ffffff;
           border-radius: 16px;
           padding: 12px 14px;
-          border: 1px solid #c1c7d0;
           cursor: pointer;
         }
         /* Error border only for HIGH priority that is not yet done */
@@ -152,7 +151,7 @@
         }
         .priority-indicator .material-icons { font-size: 15px; }
         .priority-indicator.high   { color: #BA1A1A; }
-        .priority-indicator.medium { color: #e37100; }
+        .priority-indicator.medium { color: #ff8e36; }
         .priority-indicator.low    { color: #005cbb; }
 
         .meta-item {
@@ -183,7 +182,7 @@
           right: 20px;
           width: 56px;
           height: 56px;
-          background: #005cbb;
+          background: #e1e2e9;
           border-radius: 16px;
           display: flex;
           align-items: center;
@@ -194,7 +193,8 @@
 
         /* NOTE: the real app has no bottom navigation bar — Profile is reached
            via the account-circle icon in the top bar, not a tab. */
-    </style>
+      .card, .header-card { box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.06); }
+  </style>
 </head>
 <body>
 <div class="phone">
@@ -255,7 +255,7 @@
             <div class="card-top">
                 <div class="card-title">Left rear tire pressure critically low</div>
                 <div class="status-chip status-open">
-                    <span class="material-icons">trip_origin</span>
+                    <span class="material-icons">radio_button_unchecked</span>
                     Open
                 </div>
             </div>
@@ -283,7 +283,7 @@
             <div class="card-top">
                 <div class="card-title">Windshield wiper blade broken</div>
                 <div class="status-chip status-open">
-                    <span class="material-icons">trip_origin</span>
+                    <span class="material-icons">radio_button_unchecked</span>
                     Open
                 </div>
             </div>
@@ -311,7 +311,7 @@
             <div class="card-top">
                 <div class="card-title">Routine oil change service</div>
                 <div class="status-chip status-done">
-                    <span class="material-icons">task_alt</span>
+                    <span class="material-icons">check</span>
                     Done
                 </div>
             </div>

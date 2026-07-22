@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -358,14 +357,11 @@ private fun PersonCell(
 
 @Composable
 private fun HeaderCard(issue: IssueUi, modifier: Modifier = Modifier) {
-    val borderColor = AppTheme.colors.outlineVariant
-    val borderWidth = 1.dp
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(borderWidth, borderColor, Shapes.CardShape)
             .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
         Column {
@@ -720,7 +716,6 @@ private fun ReassignCard(
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Text(
@@ -768,7 +763,7 @@ private fun MechanicActionBar(
                 text = stringResource(Res.string.issue_detail_resolve_issue),
                 onClick = onResolveIssue,
                 loading = isLoading,
-                icon = TruckTrackIcons.TaskAlt,
+                icon = TruckTrackIcons.Check,
                 style = ButtonStyle.Positive,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -789,7 +784,6 @@ private fun CardContainer(
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
-            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .padding(16.dp),
     ) {
         Text(
@@ -839,10 +833,10 @@ private fun IssueStatus.contentColor(): Color = when (this) {
 }
 
 private fun IssueStatus?.icon() = when (this) {
-    IssueStatus.Open -> TruckTrackIcons.TripOrigin
+    IssueStatus.Open -> TruckTrackIcons.RadioButtonUnchecked
     IssueStatus.InProgress -> TruckTrackIcons.Build
-    IssueStatus.Done -> TruckTrackIcons.TaskAlt
-    null -> TruckTrackIcons.TripOrigin
+    IssueStatus.Done -> TruckTrackIcons.Check
+    null -> TruckTrackIcons.RadioButtonUnchecked
 }
 
 @Composable

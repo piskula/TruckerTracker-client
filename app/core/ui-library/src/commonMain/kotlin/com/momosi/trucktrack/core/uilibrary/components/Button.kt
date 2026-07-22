@@ -144,7 +144,7 @@ private fun ButtonPositivePreview() {
             text = "Resolve Issue",
             onClick = {},
             style = ButtonStyle.Positive,
-            icon = TruckTrackIcons.TaskAlt,
+            icon = TruckTrackIcons.Check,
         )
     }
 }
