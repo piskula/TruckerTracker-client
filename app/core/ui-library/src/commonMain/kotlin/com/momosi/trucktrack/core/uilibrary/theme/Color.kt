@@ -23,6 +23,11 @@ data class TruckTrackColorPalette(
     val primaryContainer: Color,
     val onPrimaryContainer: Color,
 
+    val open: Color,
+    val onOpen: Color,
+    val openContainer: Color,
+    val onOpenContainer: Color,
+
     val positive: Color,
     val onPositive: Color,
     val positiveContainer: Color,
@@ -52,18 +57,22 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
     onPrimary = Color(0xFFFFFFFF),            // azure primary-100
     primaryContainer = Color(0xFFD7E3FF),     // azure primary-90
     onPrimaryContainer = Color(0xFF001B3F),   // azure primary-10
+    open = Color(0xFF004D68),
+    onOpen = Color(0xFFFFFFFF),
+    openContainer = Color(0xFFBDE9FF),
+    onOpenContainer = Color(0xFF004D68),
     positive = Color(0xFF2E7D32),
     onPositive = Color(0xFFFFFFFF),
-    positiveContainer = Color(0xFFC8E6C9),
-    onPositiveContainer = Color(0xFF00210B),
+    positiveContainer = Color(0xFFBEEFBB),
+    onPositiveContainer = Color(0xFF00522C),
     error = Color(0xFFBA1A1A),
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFF9DEDC),
     onErrorContainer = Color(0xFF410E0B),
-    warning = Color(0xFF8A4F00),
+    warning = Color(0xFFE37100),
     onWarning = Color(0xFFFFFFFF),
-    warningContainer = Color(0xFFFFE0B2),
-    onWarningContainer = Color(0xFF2E1500),
+    warningContainer = Color(0xFFFFDCC3),
+    onWarningContainer = Color(0xFF753403),
     shadow = Color(0x1A000000),
 )
 
@@ -80,18 +89,22 @@ internal val DarkTruckTrackColors = TruckTrackColorPalette(
     onPrimary = Color(0xFF002F65),            // azure primary-20
     primaryContainer = Color(0xFF00458F),     // azure primary-30
     onPrimaryContainer = Color(0xFFD7E3FF),   // azure primary-90
+    open = Color(0xFF67D4FF),
+    onOpen = Color(0xFF004D68),
+    openContainer = Color(0xFF67D4FF),
+    onOpenContainer = Color(0xFF004D68),
     positive = Color(0xFF81C784),
     onPositive = Color(0xFF003916),
-    positiveContainer = Color(0xFF1B5E20),
-    onPositiveContainer = Color(0xFFC8E6C9),
+    positiveContainer = Color(0xFF80DA88),
+    onPositiveContainer = Color(0xFF00522C),
     error = Color(0xFFFFB4AB),
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),
     onErrorContainer = Color(0xFFFFDAD6),
-    warning = Color(0xFFFFB95C),
+    warning = Color(0xFFBC5D00),
     onWarning = Color(0xFF4A2800),
-    warningContainer = Color(0xFF7A4B00),
-    onWarningContainer = Color(0xFFFFDDB3),
+    warningContainer = Color(0xFFFFB683),
+    onWarningContainer = Color(0xFF753403),
     shadow = Color(0x00000000),
 )
 

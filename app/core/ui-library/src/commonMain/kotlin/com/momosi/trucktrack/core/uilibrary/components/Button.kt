@@ -28,6 +28,7 @@ enum class ButtonStyle {
     Primary,
     Warning,
     Positive,
+    Open,
 }
 
 @Composable
@@ -43,7 +44,8 @@ fun Button(
     val (containerColor, contentColor) = when (style) {
         ButtonStyle.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
         ButtonStyle.Warning -> AppTheme.colors.warningContainer to AppTheme.colors.onWarningContainer
-        ButtonStyle.Positive -> AppTheme.colors.positive to AppTheme.colors.onPrimary
+        ButtonStyle.Positive -> AppTheme.colors.positiveContainer to AppTheme.colors.onPositiveContainer
+        ButtonStyle.Open -> AppTheme.colors.openContainer to AppTheme.colors.onOpenContainer
     }
 
     MaterialButton(
@@ -142,7 +144,19 @@ private fun ButtonPositivePreview() {
             text = "Resolve Issue",
             onClick = {},
             style = ButtonStyle.Positive,
-            icon = TruckTrackIcons.CheckCircle,
+            icon = TruckTrackIcons.TaskAlt,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ButtonOpenPreview() {
+    TruckTrackTheme {
+        Button(
+            text = "Submit Issue",
+            onClick = {},
+            style = ButtonStyle.Open,
         )
     }
 }

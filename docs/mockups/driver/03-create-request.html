@@ -139,7 +139,7 @@
       cursor: pointer;
     }
     .priority-option.selected.high { border-color: #BA1A1A; background: #F9DEDC; }
-    .priority-option.selected.medium { border-color: #8A4F00; background: #FFE0B2; }
+    .priority-option.selected.medium { border-color: #e37100; background: #FFE0B2; }
     .priority-option.selected.low { border-color: #005cbb; background: #d7e3ff; }
 
     .priority-text { display: flex; flex-direction: column; }
@@ -192,8 +192,8 @@
       flex-shrink: 0;
     }
     .btn-primary {
-      background: #005cbb;
-      color: #fff;
+      background: #BDE9FF;
+      color: #004D68;
       border: none;
       border-radius: 28px;
       padding: 16px;
@@ -267,7 +267,7 @@
             </div>
           </div>
           <div class="priority-option">
-            <span class="material-icons" style="color:#8A4F00;font-size:20px;">remove</span>
+            <span class="material-icons" style="color:#e37100;font-size:20px;">remove</span>
             <div class="priority-text">
               <strong>Medium</strong>
               <small>Should be fixed soon, but not critical</small>
@@ -304,7 +304,10 @@
     </div>
 
     <div class="bottom-action">
-      <button class="btn-primary">Submit Issue</button>
+      <button class="btn-primary">
+        <span class="material-icons">trip_origin</span>
+        Submit Issue
+      </button>
     </div>
   </div>
 </body>

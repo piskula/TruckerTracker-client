@@ -57,9 +57,8 @@ internal fun IssueCard(
     modifier: Modifier = Modifier,
 ) {
     val issue = state.issue
-    val isUrgent = issue.priority == IssuePriority.High && issue.status != IssueStatus.Done
-    val borderColor = if (isUrgent) AppTheme.colors.error else AppTheme.colors.outlineVariant
-    val borderWidth = if (isUrgent) 1.5.dp else 1.dp
+    val borderColor = AppTheme.colors.outlineVariant
+    val borderWidth = 1.dp
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -210,22 +209,22 @@ private fun MetaItem(
 
 @Composable
 private fun IssueStatus.containerColor() = when (this) {
-    IssueStatus.Open -> AppTheme.colors.primaryContainer
+    IssueStatus.Open -> AppTheme.colors.openContainer
     IssueStatus.InProgress -> AppTheme.colors.warningContainer
     IssueStatus.Done -> AppTheme.colors.positiveContainer
 }
 
 @Composable
 private fun IssueStatus.contentColor() = when (this) {
-    IssueStatus.Open -> AppTheme.colors.primary
-    IssueStatus.InProgress -> AppTheme.colors.warning
-    IssueStatus.Done -> AppTheme.colors.positive
+    IssueStatus.Open -> AppTheme.colors.onOpenContainer
+    IssueStatus.InProgress -> AppTheme.colors.onWarningContainer
+    IssueStatus.Done -> AppTheme.colors.onPositiveContainer
 }
 
 private fun IssueStatus.icon() = when (this) {
-    IssueStatus.Open -> TruckTrackIcons.RadioButtonUnchecked
+    IssueStatus.Open -> TruckTrackIcons.TripOrigin
     IssueStatus.InProgress -> TruckTrackIcons.Build
-    IssueStatus.Done -> TruckTrackIcons.CheckCircle
+    IssueStatus.Done -> TruckTrackIcons.TaskAlt
 }
 
 @Composable

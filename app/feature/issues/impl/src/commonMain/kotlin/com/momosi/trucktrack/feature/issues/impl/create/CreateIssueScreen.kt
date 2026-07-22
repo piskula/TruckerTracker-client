@@ -35,6 +35,7 @@ import coil3.compose.AsyncImage
 import com.momosi.trucktrack.core.common.io.PhotoData
 import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.uilibrary.components.Button
+import com.momosi.trucktrack.core.uilibrary.components.ButtonStyle
 import com.momosi.trucktrack.core.uilibrary.components.Icon
 import com.momosi.trucktrack.core.uilibrary.components.LoadingSpinner
 import com.momosi.trucktrack.core.uilibrary.components.Text
@@ -182,6 +183,8 @@ private fun CreateIssueContent(
                 enabled = state.isSubmitEnabled,
                 loading = state.isSubmitting,
                 modifier = Modifier.fillMaxWidth(),
+                style = ButtonStyle.Open,
+                icon = TruckTrackIcons.TripOrigin,
             )
         }
     }

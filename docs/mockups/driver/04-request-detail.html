@@ -107,7 +107,7 @@
       background: #f8f9ff;
       border-radius: 16px;
       padding: 12px 14px;
-      border: 1.5px solid #BA1A1A;
+      border: 1px solid #c1c7d0;
     }
     .card-top {
       display: flex;
@@ -137,7 +137,7 @@
       flex-shrink: 0;
     }
     .status-chip .material-icons { font-size: 13px; }
-    .status-progress { background: #FFE0B2; color: #8A4F00; }
+    .status-progress { background: #FFDCC3; color: #753403; }
 
     .card-meta {
       display: flex;
@@ -191,8 +191,10 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .step-dot.status-open { background: #005cbb; }
-    .step-dot.active      { background: #8A4F00; }
+    .step-dot.status-open { background: #BDE9FF; }
+    .step-dot.active      { background: #FFDCC3; }
+    .step-dot.status-open .material-icons { color: #004D68; }
+    .step-dot.active .material-icons { color: #753403; }
     .step-dot .material-icons { font-size: 17px; color: #fff; }
     .step-line {
       width: 2px;
@@ -351,7 +353,7 @@
 
           <div class="timeline-step">
             <div class="timeline-left">
-              <div class="step-dot status-open"><span class="material-icons">circle</span></div>
+              <div class="step-dot status-open"><span class="material-icons">trip_origin</span></div>
               <div class="step-line"></div>
             </div>
             <div class="timeline-right">
