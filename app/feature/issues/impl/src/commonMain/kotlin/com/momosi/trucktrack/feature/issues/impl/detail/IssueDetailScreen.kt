@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -304,7 +305,7 @@ private fun PeopleStrip(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.primary)
+            .background(AppTheme.colors.surfaceContainerHighest)
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         PersonCell(
@@ -336,22 +337,22 @@ private fun PersonCell(
         Box(
             modifier = Modifier
                 .size(30.dp)
-                .background(AppTheme.colors.onPrimary.copy(alpha = 0.2f), CircleShape),
+                .background(AppTheme.colors.onSurface.copy(alpha = 0.08f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(imageVector = icon, tint = AppTheme.colors.onPrimary, modifier = Modifier.size(16.dp))
+            Icon(imageVector = icon, tint = AppTheme.colors.onSurfaceVariant, modifier = Modifier.size(16.dp))
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
                 text = role.uppercase(),
                 style = AppTheme.typography.labelSmall,
-                color = AppTheme.colors.onPrimary.copy(alpha = 0.65f),
+                color = AppTheme.colors.onSurfaceVariant,
             )
             Text(
                 text = name,
                 style = AppTheme.typography.bodySmall,
-                color = AppTheme.colors.onPrimary,
+                color = AppTheme.colors.onSurface,
             )
         }
     }
@@ -365,6 +366,7 @@ private fun HeaderCard(issue: IssueUi, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
+            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .drawBehind {
                 drawRect(
                     color = borderColor,
@@ -537,7 +539,7 @@ private fun TimelineStep(
                     modifier = Modifier
                         .width(2.dp)
                         .height(24.dp)
-                        .background(AppTheme.colors.surfaceVariant),
+                        .background(AppTheme.colors.outlineVariant),
                 )
             }
         }
@@ -619,7 +621,7 @@ private fun CommentCard(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .background(AppTheme.colors.background, RoundedCornerShape(10.dp))
+                    .background(AppTheme.colors.outlineVariant, RoundedCornerShape(10.dp))
                     .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
                 BasicTextField(
@@ -725,7 +727,9 @@ private fun ReassignCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
+            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Text(
@@ -792,7 +796,9 @@ private fun CardContainer(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
+            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .padding(16.dp),
     ) {
         Text(

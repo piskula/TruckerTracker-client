@@ -1,6 +1,7 @@
 package com.momosi.trucktrack.feature.issues.impl.list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,6 +65,7 @@ internal fun IssueCard(
             .fillMaxWidth()
             .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
+            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .drawBehind {
                 drawRect(
                     color = borderColor,

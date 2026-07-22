@@ -196,7 +196,9 @@ private fun Card(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .clip(Shapes.CardShape)
             .background(AppTheme.colors.surface, Shapes.CardShape)
+            .border(1.dp, AppTheme.colors.outlineVariant, Shapes.CardShape)
             .padding(16.dp),
     ) {
         Text(
@@ -473,7 +475,7 @@ private fun PhotoPreviews(
                         .align(Alignment.TopEnd)
                         .padding(2.dp)
                         .size(18.dp)
-                        .background(AppTheme.colors.onSurface.copy(alpha = 0.55f), CircleShape)
+                        .background(AppTheme.colors.outlineVariant, CircleShape)
                         .clickable { onRemove(photo.fileName) },
                     contentAlignment = Alignment.Center,
                 ) {

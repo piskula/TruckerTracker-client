@@ -30,7 +30,7 @@ fun <T> FilterChipRow(
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.primary),
+            .background(AppTheme.colors.primaryContainer),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -47,14 +47,14 @@ fun <T> FilterChipRow(
                 },
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = Color.Transparent,
-                    labelColor = AppTheme.colors.onPrimary.copy(alpha = 0.75f),
-                    selectedContainerColor = AppTheme.colors.onPrimary,
-                    selectedLabelColor = AppTheme.colors.primary,
+                    labelColor = AppTheme.colors.onPrimaryContainer,
+                    selectedContainerColor = AppTheme.colors.primary,
+                    selectedLabelColor = AppTheme.colors.onPrimary,
                 ),
                 border = if (selected) {
                     null
                 } else {
-                    BorderStroke(1.5.dp, AppTheme.colors.onPrimary.copy(alpha = 0.3f))
+                    BorderStroke(1.dp, AppTheme.colors.onPrimaryContainer)
                 },
             )
         }
