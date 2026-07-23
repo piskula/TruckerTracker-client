@@ -54,7 +54,7 @@ fun IconButton(
                 modifier = modifier,
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = AppTheme.colors.surfaceVariant,
-                    contentColor = AppTheme.colors.onBackground,
+                    contentColor = AppTheme.colors.onSurface,
                 ),
             ) {
                 Icon(imageVector = imageVector, contentDescription = null)

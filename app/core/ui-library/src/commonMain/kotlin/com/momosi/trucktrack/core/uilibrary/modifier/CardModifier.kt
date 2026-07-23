@@ -11,4 +11,4 @@ import com.momosi.trucktrack.core.uilibrary.theme.Shapes as AppShape
 @Composable
 fun Modifier.card(shape: Shape = AppShape.CardShape): Modifier = this
     .clip(shape)
-    .background(AppTheme.colors.surface, shape)
+    .background(AppTheme.colors.surfaceContainerLowest, shape)

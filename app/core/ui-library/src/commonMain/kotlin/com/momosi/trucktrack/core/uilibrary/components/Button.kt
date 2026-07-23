@@ -43,9 +43,9 @@ fun Button(
 ) {
     val (containerColor, contentColor) = when (style) {
         ButtonStyle.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
-        ButtonStyle.Warning -> AppTheme.colors.warningContainer to AppTheme.colors.onWarningContainer
-        ButtonStyle.Positive -> AppTheme.colors.positiveContainer to AppTheme.colors.onPositiveContainer
-        ButtonStyle.Open -> AppTheme.colors.openContainer to AppTheme.colors.onOpenContainer
+        ButtonStyle.Warning -> AppTheme.colors.warning to AppTheme.colors.onWarning
+        ButtonStyle.Positive -> AppTheme.colors.positive to AppTheme.colors.onPositive
+        ButtonStyle.Open -> AppTheme.colors.open to AppTheme.colors.onOpen
     }
 
     MaterialButton(
@@ -61,9 +61,9 @@ fun Button(
         ),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
         elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = 4.dp,
-            pressedElevation = 8.dp,
-            disabledElevation = 2.dp,
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            disabledElevation = 0.dp,
         ),
     ) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

@@ -21,7 +21,7 @@ fun BottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         modifier = modifier,
-        containerColor = AppTheme.colors.surface,
+        containerColor = AppTheme.colors.surfaceContainerLowest,
         tonalElevation = 0.dp,
         dragHandle = { BottomSheetDefaults.DragHandle(color = AppTheme.colors.onSurfaceVariant) },
     ) {

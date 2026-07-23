@@ -35,7 +35,7 @@ fun SearchBarActive(
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .background(
-                color = AppTheme.colors.surface,
+                color = AppTheme.colors.surfaceContainerLowest,
                 shape = RoundedCornerShape(24.dp),
             )
             .padding(vertical = 8.dp),
@@ -43,7 +43,7 @@ fun SearchBarActive(
         Icon(
             imageVector = TruckTrackIcons.Search,
             contentDescription = null,
-            tint = if (query.isEmpty()) AppTheme.colors.onSurfaceVariant else AppTheme.colors.onBackground,
+            tint = if (query.isEmpty()) AppTheme.colors.onSurfaceVariant else AppTheme.colors.onSurface,
             modifier = Modifier
                 .padding(start = 16.dp)
                 .size(24.dp),
@@ -66,7 +66,7 @@ fun SearchBarActive(
                 onValueChange = onQueryChange,
                 textStyle = textStyle,
                 singleLine = true,
-                cursorBrush = SolidColor(AppTheme.colors.onBackground),
+                cursorBrush = SolidColor(AppTheme.colors.onSurface),
                 modifier = Modifier.fillMaxWidth(),
             )
         }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,7 @@
     <title>TruckTrack – All Issues (Mechanic)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../theme.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -19,7 +20,7 @@
         .phone {
           width: 390px;
           height: 844px;
-          background: #ECEEF4;
+          background: var(--tt-surface-container);
           border-radius: 40px;
           box-shadow: 0 8px 40px rgba(0,0,0,0.18);
           overflow: hidden;
@@ -28,19 +29,19 @@
           position: relative;
         }
         .status-bar {
-          background: #005cbb;
+          background: var(--tt-surface-dim);
           height: 28px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 0 20px;
-          color: #ffffff;
+          color: var(--tt-on-surface);
           font-size: 12px;
           font-weight: 500;
           flex-shrink: 0;
         }
         .top-bar {
-          background: #005cbb;
+          background: var(--tt-surface-dim);
           padding: 14px 16px;
           display: flex;
           align-items: center;
@@ -48,18 +49,18 @@
           flex-shrink: 0;
         }
         .top-bar-left { display: flex; flex-direction: column; }
-        .top-bar h2 { color: #ffffff; font-size: 20px; font-weight: 700; }
-        .top-bar-sub { color: #ffffff; font-size: 13px; margin-top: 2px; }
+        .top-bar h2 { color: var(--tt-on-surface); font-size: 20px; font-weight: 700; }
+        .top-bar-sub { color: var(--tt-on-surface); font-size: 13px; margin-top: 2px; }
         .icon-btn {
           width: 40px; height: 40px;
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
         }
-        .icon-btn .material-icons { color: #ffffff; font-size: 24px; }
+        .icon-btn .material-icons { color: var(--tt-on-surface); font-size: 24px; }
 
         /* FilterChipRow: Mechanic = My Issues / Open / All */
         .filter-row {
-          background: #005cbb;
+          background: var(--tt-surface-dim);
           padding: 0 16px 12px;
           display: flex;
           gap: 8px;
@@ -71,12 +72,12 @@
           font-size: 13px;
           font-weight: 500;
           cursor: pointer;
-          border: 1px solid #ffffff;
-          color: #ffffff;
+          border: 1px solid var(--tt-on-surface-variant);
+          color: var(--tt-on-surface);
         }
         .filter-chip.active {
-          background: #d7e3ff;
-          color: #001b3f;
+          background: var(--tt-primary-container);
+          color: var(--tt-on-primary-container);
           border: none;
         }
 
@@ -90,13 +91,11 @@
         }
 
         .card {
-          background: #ffffff;
+          background: var(--tt-surface-container-lowest);
           border-radius: 16px;
           padding: 12px 14px;
           cursor: pointer;
         }
-        /* Error border only for HIGH priority that is not yet done */
-        
 
         .card-top {
           display: flex;
@@ -108,7 +107,7 @@
         .card-title {
           font-size: 14px;
           font-weight: 500;
-          color: #1a1b1f;
+          color: var(--tt-on-surface);
           flex: 1;
           line-height: 1.35;
         }
@@ -126,9 +125,9 @@
           flex-shrink: 0;
         }
         .status-chip .material-icons { font-size: 13px; }
-        .status-open { background: #BDE9FF; color: #004D68; }
-        .status-progress { background: #FFDCC3; color: #753403; }
-        .status-done     { background: #BEEFBB; color: #00522C; }
+        .status-open     { background: var(--tt-open);     color: var(--tt-on-open); }
+        .status-progress { background: var(--tt-warning);  color: var(--tt-on-warning); }
+        .status-done     { background: var(--tt-positive); color: var(--tt-on-positive); }
 
         .card-meta {
           display: flex;
@@ -147,15 +146,15 @@
           flex-shrink: 0;
         }
         .priority-indicator .material-icons { font-size: 15px; }
-        .priority-indicator.high   { color: #BA1A1A; }
-        .priority-indicator.medium { color: #ff8e36; }
-        .priority-indicator.low    { color: #005cbb; }
+        .priority-indicator.high   { color: var(--tt-error); }
+        .priority-indicator.medium { color: var(--tt-warning); }
+        .priority-indicator.low    { color: var(--tt-primary); }
 
         .meta-item {
           display: flex;
           align-items: center;
           gap: 3px;
-          color: #74777f;
+          color: var(--tt-on-surface-variant);
           font-size: 12px;
         }
         .meta-item .material-icons { font-size: 15px; }

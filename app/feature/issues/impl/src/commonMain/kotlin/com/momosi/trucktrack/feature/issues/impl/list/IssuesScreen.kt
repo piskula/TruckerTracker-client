@@ -251,7 +251,7 @@ private fun ErrorContent(onRetry: () -> Unit, modifier: Modifier = Modifier) {
             Text(
                 text = stringResource(Res.string.my_issues_error_message),
                 style = AppTheme.typography.bodyLarge,
-                color = AppTheme.colors.onBackground,
+                color = AppTheme.colors.onSurface,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(text = stringResource(Res.string.my_issues_retry), onClick = onRetry)

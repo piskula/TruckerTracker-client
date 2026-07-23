@@ -117,7 +117,7 @@ private fun SignInContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.25f)
-                .background(AppTheme.colors.surface)
+                .background(AppTheme.colors.surfaceContainerLowest)
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,

@@ -31,7 +31,7 @@ fun DashboardTopBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.primary)
+            .background(AppTheme.colors.surfaceDim)
             .statusBarsPadding()
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
@@ -39,12 +39,12 @@ fun DashboardTopBar(
             Text(
                 text = title,
                 style = AppTheme.typography.titleLarge,
-                color = AppTheme.colors.onPrimary,
+                color = AppTheme.colors.onSurface,
             )
             Text(
                 text = subtitle,
                 style = AppTheme.typography.bodySmall,
-                color = AppTheme.colors.onPrimary,
+                color = AppTheme.colors.onSurface,
             )
         }
         Row(
@@ -64,7 +64,7 @@ fun TopBarIconButton(
         onClick = onClick,
         modifier = modifier,
         colors = IconButtonDefaults.iconButtonColors(
-            contentColor = AppTheme.colors.onPrimary,
+            contentColor = AppTheme.colors.onSurface,
         ),
     ) {
         Icon(imageVector = icon, contentDescription = null)

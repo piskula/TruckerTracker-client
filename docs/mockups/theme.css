@@ -1,0 +1,57 @@
+/*
+ * TruckTrack design tokens — mirrors LightTruckTrackColors in Color.kt.
+ * Edit values here to see every linked mockup update instantly.
+ * Naming: --tt-<camelCase property from TruckTrackColorPalette, kebab-cased>
+ */
+:root {
+    /* ── Surfaces ─────────────────────────────────────────────── */
+    --tt-surface: #FAF9FD;
+    --tt-surface-bright: #FAF9FD;
+    --tt-surface-dim: #DBD9DD;
+    --tt-surface-container-lowest: #FFFFFF;
+    --tt-surface-container-low: #F4F3F6;
+    --tt-surface-container: #EFEDF0;
+    --tt-surface-container-high: #E9E7EB;
+    --tt-surface-container-highest: #E3E2E6;
+    --tt-surface-variant: #E0E2EC;
+
+    /* ── Borders ──────────────────────────────────────────────── */
+    --tt-outline: #74777F;
+    --tt-outline-variant: #C4C6D0;
+
+    /* ── On-surface (text / icons) ────────────────────────────── */
+    --tt-on-surface: #1A1B1F;
+    --tt-on-surface-variant: #44474E;
+    /* ── Primary ──────────────────────────────────────────────── */
+    --tt-primary: #005CBB;
+    --tt-on-primary: #FFFFFF;
+    --tt-primary-container: #D7E3FF;
+    --tt-on-primary-container: #001B3F;
+
+    /* ── Status: Open ─────────────────────────────────────────── */
+    --tt-open: #006687;
+    --tt-on-open: #FFFFFF;
+    --tt-open-container: #BDE9FF;
+    --tt-on-open-container: #004D68;
+
+    /* ── Status: Done / Positive ──────────────────────────────── */
+    --tt-positive: #006D3C;
+    --tt-on-positive: #FFFFFF;
+    --tt-positive-container: #BEEFBB;
+    --tt-on-positive-container: #00522C;
+
+    /* ── Status: Error ────────────────────────────────────────── */
+    --tt-error: #BA1A1A;
+    --tt-on-error: #FFFFFF;
+    --tt-error-container: #F9DEDC;
+    --tt-on-error-container: #410E0B;
+
+    /* ── Status: Warning / In Progress ───────────────────────── */
+    --tt-warning: #A64F00;
+    --tt-on-warning: #FFFFFF;
+    --tt-warning-container: #FFDCC3;
+    --tt-on-warning-container: #753403;
+
+    /* ── Shadow ───────────────────────────────────────────────── */
+    --tt-shadow: rgba(0, 0, 0, 0.10);
+}

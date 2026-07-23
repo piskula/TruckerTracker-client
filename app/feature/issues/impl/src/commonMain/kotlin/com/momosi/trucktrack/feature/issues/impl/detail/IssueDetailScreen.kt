@@ -159,7 +159,7 @@ private fun IssueDetailScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(AppTheme.colors.background),
+            .background(AppTheme.colors.surfaceContainer),
     ) {
         when (val content = state.content) {
             is IssueDetailContent.Loading -> {
@@ -177,7 +177,7 @@ private fun IssueDetailScreenContent(
                         Text(
                             text = stringResource(Res.string.issue_detail_error),
                             style = AppTheme.typography.bodyLarge,
-                            color = AppTheme.colors.onBackground,
+                            color = AppTheme.colors.onSurface,
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(text = stringResource(Res.string.my_issues_retry), onClick = onRetry)
@@ -302,7 +302,7 @@ private fun PeopleStrip(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.primaryContainer)
+            .background(AppTheme.colors.surfaceContainerHighest)
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         PersonCell(
@@ -334,22 +334,22 @@ private fun PersonCell(
         Box(
             modifier = Modifier
                 .size(30.dp)
-                .background(AppTheme.colors.onPrimaryContainer.copy(alpha = 0.08f), CircleShape),
+                .background(AppTheme.colors.onSurface.copy(alpha = 0.08f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(imageVector = icon, tint = AppTheme.colors.onPrimaryContainer, modifier = Modifier.size(16.dp))
+            Icon(imageVector = icon, tint = AppTheme.colors.onSurface, modifier = Modifier.size(16.dp))
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
                 text = role.uppercase(),
                 style = AppTheme.typography.labelSmall,
-                color = AppTheme.colors.onPrimaryContainer,
+                color = AppTheme.colors.onSurfaceVariant,
             )
             Text(
                 text = name,
                 style = AppTheme.typography.bodySmall,
-                color = AppTheme.colors.onPrimaryContainer,
+                color = AppTheme.colors.onSurface,
             )
         }
     }
@@ -361,7 +361,7 @@ private fun HeaderCard(issue: IssueUi, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
-            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .background(AppTheme.colors.surfaceContainerLowest, Shapes.CardShape)
             .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
         Column {
@@ -515,7 +515,7 @@ private fun TimelineStep(
                     ) {
                         Icon(
                             imageVector = TruckTrackIcons.GroupAdd,
-                            tint = AppTheme.colors.onPrimary,
+                            tint = AppTheme.colors.onSurfaceVariant,
                             modifier = Modifier.size(17.dp),
                         )
                     }
@@ -601,6 +601,7 @@ private fun CommentCard(
         title = stringResource(Res.string.issue_detail_add_comment),
         modifier = modifier.bringIntoViewRequester(bringIntoViewRequester),
     ) {
+        val sendEnabled = !isSending && commentText.isNotBlank()
         Row(
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -608,7 +609,7 @@ private fun CommentCard(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .background(AppTheme.colors.surfaceVariant, RoundedCornerShape(10.dp))
+                    .background(AppTheme.colors.surfaceContainer, RoundedCornerShape(10.dp))
                     .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
                 BasicTextField(
@@ -632,15 +633,19 @@ private fun CommentCard(
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .background(AppTheme.colors.primary, CircleShape)
                     .clip(CircleShape)
-                    .clickable(enabled = !isSending && commentText.isNotBlank(), onClick = onSend),
+                    .background(if (sendEnabled) AppTheme.colors.primary else AppTheme.colors.surfaceVariant)
+                    .clickable(enabled = sendEnabled, onClick = onSend),
                 contentAlignment = Alignment.Center,
             ) {
                 if (isSending) {
                     LoadingSpinner(size = 20.dp, strokeWidth = 2.dp)
                 } else {
-                    Icon(imageVector = TruckTrackIcons.Send, tint = AppTheme.colors.onPrimary, modifier = Modifier.size(20.dp))
+                    Icon(
+                        imageVector = TruckTrackIcons.Send,
+                        tint = if (sendEnabled) AppTheme.colors.onPrimary else AppTheme.colors.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
         }
@@ -715,7 +720,7 @@ private fun ReassignCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
-            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .background(AppTheme.colors.surfaceContainerLowest, Shapes.CardShape)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Text(
@@ -746,7 +751,7 @@ private fun MechanicActionBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(AppTheme.colors.surface)
+            .background(AppTheme.colors.surfaceContainerLowest)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         when (actionType) {
@@ -783,7 +788,7 @@ private fun CardContainer(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
-            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .background(AppTheme.colors.surfaceContainerLowest, Shapes.CardShape)
             .padding(16.dp),
     ) {
         Text(
@@ -820,16 +825,16 @@ private fun IssuePriority.indicatorIcon() = when (this) {
 
 @Composable
 private fun IssueStatus.containerColor(): Color = when (this) {
-    IssueStatus.Open -> AppTheme.colors.openContainer
-    IssueStatus.InProgress -> AppTheme.colors.warningContainer
-    IssueStatus.Done -> AppTheme.colors.positiveContainer
+    IssueStatus.Open -> AppTheme.colors.open
+    IssueStatus.InProgress -> AppTheme.colors.warning
+    IssueStatus.Done -> AppTheme.colors.positive
 }
 
 @Composable
 private fun IssueStatus.contentColor(): Color = when (this) {
-    IssueStatus.Open -> AppTheme.colors.onOpenContainer
-    IssueStatus.InProgress -> AppTheme.colors.onWarningContainer
-    IssueStatus.Done -> AppTheme.colors.onPositiveContainer
+    IssueStatus.Open -> AppTheme.colors.onOpen
+    IssueStatus.InProgress -> AppTheme.colors.onWarning
+    IssueStatus.Done -> AppTheme.colors.onPositive
 }
 
 private fun IssueStatus?.icon() = when (this) {
@@ -849,18 +854,18 @@ private fun IssueStatus?.displayName(): String = when (this) {
 
 @Composable
 private fun IssueStatus?.dotColor(): Color = when (this) {
-    IssueStatus.Open -> AppTheme.colors.openContainer
-    IssueStatus.InProgress -> AppTheme.colors.warningContainer
-    IssueStatus.Done -> AppTheme.colors.positiveContainer
+    IssueStatus.Open -> AppTheme.colors.open
+    IssueStatus.InProgress -> AppTheme.colors.warning
+    IssueStatus.Done -> AppTheme.colors.positive
     null -> AppTheme.colors.surfaceVariant
 }
 
 @Composable
 private fun IssueStatus?.dotIconColor(): Color = when (this) {
-    IssueStatus.Open -> AppTheme.colors.onOpenContainer
-    IssueStatus.InProgress -> AppTheme.colors.onWarningContainer
-    IssueStatus.Done -> AppTheme.colors.onPositiveContainer
-    else -> AppTheme.colors.onPrimary
+    IssueStatus.Open -> AppTheme.colors.onOpen
+    IssueStatus.InProgress -> AppTheme.colors.onWarning
+    IssueStatus.Done -> AppTheme.colors.onPositive
+    else -> AppTheme.colors.onSurface
 }
 
 private fun VehicleType?.vehicleIcon() = when (this) {

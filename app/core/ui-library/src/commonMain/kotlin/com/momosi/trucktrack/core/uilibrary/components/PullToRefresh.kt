@@ -30,7 +30,7 @@ fun PullToRefresh(
                 state = state,
                 isRefreshing = isRefreshing,
                 color = AppTheme.colors.primary,
-                containerColor = AppTheme.colors.surface,
+                containerColor = AppTheme.colors.surfaceContainerLowest,
             )
         },
         content = content,

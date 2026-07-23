@@ -6,6 +6,7 @@
   <title>TruckTrack – Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="./theme.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -19,7 +20,7 @@
     .phone {
       width: 390px;
       height: 844px;
-      background: #fff;
+      background: var(--tt-surface-container-lowest);
       border-radius: 40px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.18);
       overflow: hidden;
@@ -27,20 +28,20 @@
       flex-direction: column;
     }
     .status-bar {
-      background: #005cbb;
+      background: var(--tt-surface-dim);
       height: 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      color: #ffffff;
+      color: var(--tt-on-surface);
       font-size: 12px;
       font-weight: 500;
       flex-shrink: 0;
     }
     /* Toolbar: back arrow + "Profile" title, no actions */
     .top-bar {
-      background: #005cbb;
+      background: var(--tt-surface-dim);
       padding: 12px 8px 12px 4px;
       display: flex;
       align-items: center;
@@ -51,13 +52,13 @@
       width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
     }
-    .back-btn .material-icons { color: #ffffff; font-size: 24px; }
-    .top-bar h2 { color: #ffffff; font-size: 20px; font-weight: 700; }
+    .back-btn .material-icons { color: var(--tt-on-surface); font-size: 24px; }
+    .top-bar h2 { color: var(--tt-on-surface); font-size: 20px; font-weight: 700; }
 
     /* Hero fills the remaining space (weight 1f) */
     .hero {
       flex: 1;
-      background: linear-gradient(160deg, #005cbb 0%, #0074e9 100%);
+      background: linear-gradient(160deg, var(--tt-primary) 0%, #0074e9 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -73,10 +74,10 @@
       align-items: center;
       justify-content: center;
     }
-    .avatar .material-icons { font-size: 56px; color: #fff; }
+    .avatar .material-icons { font-size: 56px; color: var(--tt-on-primary); }
     .hero h1 {
       margin-top: 16px;
-      color: #fff;
+      color: var(--tt-on-primary);
       font-size: 22px;
       font-weight: 700;
     }
@@ -92,7 +93,7 @@
     }
 
     .bottom-panel {
-      background: #fff;
+      background: var(--tt-surface-container-lowest);
       padding: 32px 24px;
       display: flex;
       flex-direction: column;
@@ -100,8 +101,8 @@
       flex-shrink: 0;
     }
     .btn-primary {
-      background: #005cbb;
-      color: #fff;
+      background: var(--tt-primary);
+      color: var(--tt-on-primary);
       border: none;
       border-radius: 28px;
       padding: 16px;

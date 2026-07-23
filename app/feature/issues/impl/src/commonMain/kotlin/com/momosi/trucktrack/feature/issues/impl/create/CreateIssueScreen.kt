@@ -114,7 +114,7 @@ private fun CreateIssueContent(
         onResult = { files -> if (!files.isNullOrEmpty()) onAction(CreateIssueAction.AddPhotos(files)) },
     )
 
-    Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.background)) {
+    Column(modifier = modifier.fillMaxSize().background(AppTheme.colors.surfaceContainer)) {
         Toolbar(title = stringResource(Res.string.create_issue_title), onBack = onBack)
 
         Column(
@@ -174,7 +174,7 @@ private fun CreateIssueContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(AppTheme.colors.surface)
+                .background(AppTheme.colors.surfaceContainerLowest)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
             Button(
@@ -200,7 +200,7 @@ private fun Card(
         modifier = modifier
             .fillMaxWidth()
             .clip(Shapes.CardShape)
-            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .background(AppTheme.colors.surfaceContainerLowest, Shapes.CardShape)
             .padding(16.dp),
     ) {
         Text(
@@ -375,7 +375,7 @@ private fun PriorityOption(
     modifier: Modifier = Modifier,
 ) {
     val borderColor = if (isSelected) priority.accentColor() else AppTheme.colors.surfaceVariant
-    val backgroundColor = if (isSelected) priority.containerColor() else AppTheme.colors.surface
+    val backgroundColor = if (isSelected) priority.containerColor() else AppTheme.colors.surfaceContainerLowest
 
     Row(
         verticalAlignment = Alignment.CenterVertically,

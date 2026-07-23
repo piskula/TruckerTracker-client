@@ -42,7 +42,7 @@ fun InactiveSearchBar(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = TruckTrackIcons.Search,
-                tint = AppTheme.colors.onBackground,
+                tint = AppTheme.colors.onSurface,
                 modifier = Modifier.size(24.dp),
             )
             Text(

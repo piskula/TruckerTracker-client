@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -59,8 +60,14 @@ internal fun IssueCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = 2.dp,
+                shape = Shapes.CardShape,
+                ambientColor = AppTheme.colors.shadow,
+                spotColor = AppTheme.colors.shadow,
+            )
             .clip(Shapes.CardShape)
-            .background(AppTheme.colors.surface, Shapes.CardShape)
+            .background(AppTheme.colors.surfaceContainerLowest)
             .clickable(onClick = onClick)
             .padding(start = 12.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
     ) {
@@ -205,16 +212,16 @@ private fun MetaItem(
 
 @Composable
 private fun IssueStatus.containerColor() = when (this) {
-    IssueStatus.Open -> AppTheme.colors.openContainer
-    IssueStatus.InProgress -> AppTheme.colors.warningContainer
-    IssueStatus.Done -> AppTheme.colors.positiveContainer
+    IssueStatus.Open -> AppTheme.colors.open
+    IssueStatus.InProgress -> AppTheme.colors.warning
+    IssueStatus.Done -> AppTheme.colors.positive
 }
 
 @Composable
 private fun IssueStatus.contentColor() = when (this) {
-    IssueStatus.Open -> AppTheme.colors.onOpenContainer
-    IssueStatus.InProgress -> AppTheme.colors.onWarningContainer
-    IssueStatus.Done -> AppTheme.colors.onPositiveContainer
+    IssueStatus.Open -> AppTheme.colors.onOpen
+    IssueStatus.InProgress -> AppTheme.colors.onWarning
+    IssueStatus.Done -> AppTheme.colors.onPositive
 }
 
 private fun IssueStatus.icon() = when (this) {

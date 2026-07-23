@@ -135,7 +135,7 @@ private fun ProfileContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(AppTheme.colors.surface)
+                .background(AppTheme.colors.surfaceContainerLowest)
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

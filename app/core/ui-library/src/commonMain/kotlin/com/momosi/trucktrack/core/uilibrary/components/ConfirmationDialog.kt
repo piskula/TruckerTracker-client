@@ -51,7 +51,7 @@ fun ConfirmationDialog(
                 Text(text = dismissText, style = AppTheme.typography.labelLarge, color = AppTheme.colors.onSurfaceVariant)
             }
         },
-        containerColor = AppTheme.colors.surface,
+        containerColor = AppTheme.colors.surfaceContainerLowest,
         modifier = modifier,
     )
 }

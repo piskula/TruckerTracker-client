@@ -16,7 +16,7 @@ import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 
 @Composable
 fun Modifier.shimmer(): Modifier {
-    val surface = AppTheme.colors.surface
+    val surface = AppTheme.colors.surfaceContainerLowest
     val highlight = AppTheme.colors.surfaceVariant
 
     val transition = rememberInfiniteTransition(label = "shimmer")

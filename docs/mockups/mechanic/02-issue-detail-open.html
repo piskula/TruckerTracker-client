@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,6 +6,7 @@
   <title>TruckTrack – Issue Detail (Open, Mechanic)</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="../theme.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -19,7 +20,7 @@
     .phone {
       width: 390px;
       height: 844px;
-      background: #ECEEF4;
+      background: var(--tt-surface-container);
       border-radius: 40px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.18);
       overflow: hidden;
@@ -27,19 +28,19 @@
       flex-direction: column;
     }
     .status-bar {
-      background: #005cbb;
+      background: var(--tt-surface-dim);
       height: 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      color: #ffffff;
+      color: var(--tt-on-surface);
       font-size: 12px;
       font-weight: 500;
       flex-shrink: 0;
     }
     .top-bar {
-      background: #005cbb;
+      background: var(--tt-surface-dim);
       padding: 12px 8px 12px 4px;
       display: flex;
       align-items: center;
@@ -50,11 +51,11 @@
       width: 40px; height: 40px;
       display: flex; align-items: center; justify-content: center;
     }
-    .back-btn .material-icons { color: #ffffff; font-size: 24px; }
-    .top-bar h2 { color: #ffffff; font-size: 20px; font-weight: 700; flex: 1; }
+    .back-btn .material-icons { color: var(--tt-on-surface); font-size: 24px; }
+    .top-bar h2 { color: var(--tt-on-surface); font-size: 20px; font-weight: 700; flex: 1; }
 
     .people-strip {
-      background: #d7e3ff;
+      background: var(--tt-surface-container-highest);
       padding: 10px 16px;
       display: flex;
       flex-shrink: 0;
@@ -72,11 +73,10 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .person-avatar .material-icons { color: #001b3f; font-size: 16px; }
+    .person-avatar .material-icons { color: var(--tt-on-surface); font-size: 16px; }
     .person-info { display: flex; flex-direction: column; }
-    .person-role { font-size: 10px; color: #001b3f; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
-    .person-name { font-size: 13px; color: #001b3f; font-weight: 700; }
-    /* Unassigned: the real screen just shows "—", not the word "Unassigned" */
+    .person-role { font-size: 10px; color: var(--tt-on-surface-variant); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
+    .person-name { font-size: 13px; color: var(--tt-on-surface); font-weight: 700; }
     .person-name.empty { color: rgba(0,27,63,0.5); }
 
     .content {
@@ -89,21 +89,21 @@
     }
 
     .card {
-      background: #ffffff;
+      background: var(--tt-surface-container-lowest);
       border-radius: 16px;
       padding: 16px;
     }
     .card-section-title {
       font-size: 12px;
       font-weight: 700;
-      color: #74777f;
+      color: var(--tt-on-surface-variant);
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-bottom: 12px;
     }
 
     .header-card {
-      background: #ffffff;
+      background: var(--tt-surface-container-lowest);
       border-radius: 16px;
       padding: 12px 14px;
     }
@@ -117,7 +117,7 @@
     .card-title {
       font-size: 14px;
       font-weight: 500;
-      color: #1a1b1f;
+      color: var(--tt-on-surface);
       flex: 1;
       line-height: 1.35;
     }
@@ -135,7 +135,7 @@
       flex-shrink: 0;
     }
     .status-chip .material-icons { font-size: 13px; }
-    .status-open { background: #BDE9FF; color: #004D68; }
+    .status-open { background: var(--tt-open); color: var(--tt-on-open); }
 
     .card-meta {
       display: flex;
@@ -152,12 +152,12 @@
       letter-spacing: 0.3px;
     }
     .priority-indicator .material-icons { font-size: 15px; }
-    .priority-indicator.high { color: #BA1A1A; }
+    .priority-indicator.high { color: var(--tt-error); }
     .meta-item {
       display: flex;
       align-items: center;
       gap: 3px;
-      color: #74777f;
+      color: var(--tt-on-surface-variant);
       font-size: 12px;
     }
     .meta-item .material-icons { font-size: 15px; }
@@ -188,9 +188,9 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .step-dot.status-open { background: #BDE9FF; }
-    .step-dot.status-open .material-icons { color: #004D68; }
-    .step-dot .material-icons { font-size: 17px; color: #fff; }
+    .step-dot.status-open { background: var(--tt-open); }
+    .step-dot.status-open .material-icons { color: var(--tt-on-open); }
+    .step-dot .material-icons { font-size: 17px; color: var(--tt-on-primary); }
     .timeline-right { flex: 1; min-width: 0; }
     .step-header {
       display: flex;
@@ -198,8 +198,8 @@
       justify-content: space-between;
       gap: 4px;
     }
-    .step-status { font-size: 14px; font-weight: 700; color: #1a1b1f; }
-    .step-person { font-size: 12px; color: #74777f; white-space: nowrap; flex-shrink: 0; }
+    .step-status { font-size: 14px; font-weight: 700; color: var(--tt-on-surface); }
+    .step-person { font-size: 12px; color: var(--tt-on-surface-variant); white-space: nowrap; flex-shrink: 0; }
     .step-time { font-size: 11px; color: #BDBDBD; margin-top: 1px; }
 
     .photo-row { display: flex; gap: 8px; overflow-x: auto; }
@@ -212,21 +212,46 @@
     .photo-add-tile {
       width: 80px; height: 80px;
       border-radius: 8px;
-      background: #e0e2ec;
+      background: var(--tt-surface-variant);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .photo-add-tile .material-icons { color: #74777f; font-size: 28px; }
+    .photo-add-tile .material-icons { color: var(--tt-on-surface-variant); font-size: 28px; }
 
-    /* Bottom action bar — filled Warning-color button, matches Button(style = Warning) */
+    .comment-input-area { display: flex; align-items: flex-end; gap: 10px; }
+    .comment-input-area textarea {
+      flex: 1;
+      background: var(--tt-surface-container);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      color: var(--tt-on-surface);
+      resize: none;
+      min-height: 44px;
+      outline: none;
+    }
+    .send-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--tt-surface-container-highest);
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .send-btn .material-icons { color: var(--tt-on-surface-variant); font-size: 20px; }
+
+    /* mechanicAction = StartWorking (issue Open, not assigned to viewer) */
     .bottom-action {
       padding: 12px 16px 20px;
-      background: #ffffff;
+      background: var(--tt-surface-container-lowest);
+      border-top: 1px solid var(--tt-surface-variant);
       flex-shrink: 0;
     }
     .btn-warning {
-      background: #FFE0B2;
-      color: #1D1D00;
+      background: var(--tt-warning);
+      color: var(--tt-on-warning);
       border: none;
       border-radius: 28px;
       padding: 16px;
@@ -325,9 +350,9 @@
 
       <div class="card">
         <div class="card-section-title">Add Comment</div>
-        <div style="display:flex; align-items:flex-end; gap:10px;">
-          <textarea placeholder="Write a comment…" rows="2" style="flex:1; background:#E0E2EC; border:none; border-radius:10px; padding:10px 12px; font-size:14px; font-family:'Roboto',sans-serif; color:#1a1b1f; resize:none; min-height:44px; outline:none;"></textarea>
-          <button style="width:44px; height:44px; border-radius:50%; background:#e1e2e9; border:none; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-icons" style="color:#fff; font-size:20px;">send</span></button>
+        <div class="comment-input-area">
+          <textarea placeholder="Write a comment…" rows="2"></textarea>
+          <button class="send-btn"><span class="material-icons">send</span></button>
         </div>
       </div>
 
@@ -342,7 +367,6 @@
 
     </div>
 
-    <!-- mechanicAction = StartWorking (issue Open, not assigned to viewer) -->
     <div class="bottom-action">
       <button class="btn-warning">
         <span class="material-icons">build</span>
