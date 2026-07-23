@@ -50,8 +50,8 @@ fun <T> FilterChipRow(
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = Color.Transparent,
                     labelColor = AppTheme.colors.onSurface,
-                    selectedContainerColor = AppTheme.colors.primaryContainer,
-                    selectedLabelColor = AppTheme.colors.onPrimaryContainer,
+                    selectedContainerColor = AppTheme.colors.primary,
+                    selectedLabelColor = AppTheme.colors.onPrimary,
                 ),
                 border = if (selected) {
                     null

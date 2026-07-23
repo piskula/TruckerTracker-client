@@ -66,14 +66,7 @@
       align-items: center;
       gap: 8px;
     }
-    .person-avatar {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.08);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .person-avatar .material-icons { color: var(--tt-on-surface); font-size: 16px; }
+    .person-icon { font-size: 20px; color: var(--tt-on-surface); flex-shrink: 0; }
     .person-info { display: flex; flex-direction: column; }
     .person-role { font-size: 10px; color: var(--tt-on-surface-variant); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
     .person-name { font-size: 13px; color: var(--tt-on-surface); font-weight: 700; }
@@ -218,7 +211,7 @@
     .step-dot.assignee    { background: var(--tt-surface-variant); }
     .step-dot.status-open .material-icons { color: var(--tt-on-open); }
     .step-dot.active .material-icons { color: var(--tt-on-warning); }
-    .step-dot.assignee .material-icons { color: var(--tt-on-surface-variant); }
+    .step-dot.assignee .material-icons { color: var(--tt-on-surface); }
     .step-dot .material-icons { font-size: 17px; color: var(--tt-on-primary); }
     .step-line {
       width: 2px;
@@ -263,14 +256,14 @@
 
     <div class="people-strip">
       <div class="person-cell">
-        <div class="person-avatar"><span class="material-icons">person</span></div>
+        <span class="material-icons person-icon">edit</span>
         <div class="person-info">
           <span class="person-role">Reporter</span>
           <span class="person-name">N. Lauda</span>
         </div>
       </div>
       <div class="person-cell">
-        <div class="person-avatar"><span class="material-icons">build</span></div>
+        <span class="material-icons person-icon">assignment_ind</span>
         <div class="person-info">
           <span class="person-role">Assigned</span>
           <span class="person-name">Lewis Hamilton</span>

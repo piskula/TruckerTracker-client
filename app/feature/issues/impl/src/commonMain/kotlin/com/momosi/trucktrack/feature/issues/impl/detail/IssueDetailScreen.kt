@@ -308,13 +308,13 @@ private fun PeopleStrip(
         PersonCell(
             role = stringResource(Res.string.issue_detail_reporter),
             name = reportedByName,
-            icon = TruckTrackIcons.Person,
+            icon = TruckTrackIcons.Edit,
             modifier = Modifier.weight(1f),
         )
         PersonCell(
             role = stringResource(Res.string.issue_detail_assigned),
             name = assignedToName,
-            icon = TruckTrackIcons.Build,
+            icon = TruckTrackIcons.AssignmentInd,
             modifier = Modifier.weight(1f),
         )
     }
@@ -331,14 +331,7 @@ private fun PersonCell(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier,
     ) {
-        Box(
-            modifier = Modifier
-                .size(30.dp)
-                .background(AppTheme.colors.onSurface.copy(alpha = 0.08f), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(imageVector = icon, tint = AppTheme.colors.onSurface, modifier = Modifier.size(16.dp))
-        }
+        Icon(imageVector = icon, tint = AppTheme.colors.onSurface, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(

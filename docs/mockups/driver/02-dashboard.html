@@ -77,8 +77,8 @@
           color: var(--tt-on-surface);
         }
         .filter-chip.active {
-          background: var(--tt-primary-container);
-          color: var(--tt-on-primary-container);
+          background: var(--tt-primary);
+          color: var(--tt-on-primary);
           border: none;
         }
 
@@ -181,14 +181,14 @@
           right: 20px;
           width: 56px;
           height: 56px;
-          background: var(--tt-surface-container-highest);
+          background: var(--tt-primary);
           border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
         }
-        .fab .material-icons { color: var(--tt-on-surface); font-size: 28px; }
+        .fab .material-icons { color: var(--tt-on-primary); font-size: 28px; }
 
         /* NOTE: the real app has no bottom navigation bar — Profile is reached
            via the account-circle icon in the top bar, not a tab. */
@@ -210,7 +210,7 @@
             <h2>My Issues</h2>
             <span class="top-bar-sub">Michael Schumacher · Driver</span>
         </div>
-        <div class="icon-btn"><span class="material-icons">account_circle</span></div>
+        <div class="icon-btn"><span class="material-icons">edit</span></div>
     </div>
 
     <div class="filter-row">

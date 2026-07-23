@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ListAlt
 import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.filled.AssignmentInd
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.rounded.AccountCircle
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Close
@@ -43,6 +45,8 @@ data object TruckTrackIcons {
     val Add = Icons.Rounded.Add
     val AccountCircle = Icons.Rounded.AccountCircle
     val Person = Icons.Rounded.Person
+    val Edit = Icons.Rounded.Edit
+    val AssignmentInd = Icons.Filled.AssignmentInd
     val PersonOutline = Icons.Outlined.PersonOutline
     val PhotoCamera = Icons.Rounded.PhotoCamera
     val AddPhoto = Icons.Rounded.AddPhotoAlternate
