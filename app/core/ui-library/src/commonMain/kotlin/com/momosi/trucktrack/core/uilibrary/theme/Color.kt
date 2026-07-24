@@ -49,6 +49,16 @@ data class TruckTrackColorPalette(
     val shadow: Color,
 )
 
+private val LightPrimary = Color(0xFF006687)
+private val LightOnPrimary = Color(0xFFFFFFFF)
+private val LightPrimaryContainer = Color(0xFFBDE9FF)
+private val LightOnPrimaryContainer = Color(0xFF004D68)
+
+private val DarkPrimary = Color(0xFF73D1F5)
+private val DarkOnPrimary = Color(0xFF003547)
+private val DarkPrimaryContainer = Color(0xFF67D4FF)
+private val DarkOnPrimaryContainer = Color(0xFF004D68)
+
 internal val LightTruckTrackColors = TruckTrackColorPalette(
     surface = Color(0xFFFAF9FD),
     surfaceBright = Color(0xFFFAF9FD),
@@ -63,14 +73,14 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
     outlineVariant = Color(0xFFC4C6D0),
     onSurface = Color(0xFF1A1B1F),
     onSurfaceVariant = Color(0xFF44474E),
-    primary = Color(0xFF005CBB),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD7E3FF),
-    onPrimaryContainer = Color(0xFF001B3F),
-    open = Color(0xFF006687),
-    onOpen = Color(0xFFFFFFFF),
-    openContainer = Color(0xFFBDE9FF),
-    onOpenContainer = Color(0xFF004D68),
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightPrimaryContainer,
+    onPrimaryContainer = LightOnPrimaryContainer,
+    open = LightPrimary,
+    onOpen = LightOnPrimary,
+    openContainer = LightPrimaryContainer,
+    onOpenContainer = LightOnPrimaryContainer,
     positive = Color(0xFF006D3C),
     onPositive = Color(0xFFFFFFFF),
     positiveContainer = Color(0xFFBEEFBB),
@@ -100,14 +110,14 @@ internal val DarkTruckTrackColors = TruckTrackColorPalette(
     outlineVariant = Color(0xFF44474E),
     onSurface = Color(0xFFE3E2E6),
     onSurfaceVariant = Color(0xFFC4C6D0),
-    primary = Color(0xFFABC7FF),
-    onPrimary = Color(0xFF002F65),
-    primaryContainer = Color(0xFF00458F),
-    onPrimaryContainer = Color(0xFFD7E3FF),
-    open = Color(0xFF73D1F5),
-    onOpen = Color(0xFF003547),
-    openContainer = Color(0xFF67D4FF),
-    onOpenContainer = Color(0xFF004D68),
+    primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
+    primaryContainer = DarkPrimaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    open = DarkPrimary,
+    onOpen = DarkOnPrimary,
+    openContainer = DarkPrimaryContainer,
+    onOpenContainer = DarkOnPrimaryContainer,
     positive = Color(0xFF73DD8C),
     onPositive = Color(0xFF003920),
     positiveContainer = Color(0xFF80DA88),

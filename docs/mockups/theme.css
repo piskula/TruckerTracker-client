@@ -23,10 +23,10 @@
     --tt-on-surface: #1A1B1F;
     --tt-on-surface-variant: #44474E;
     /* ── Primary ──────────────────────────────────────────────── */
-    --tt-primary: #005CBB;
+    --tt-primary: #006687;
     --tt-on-primary: #FFFFFF;
-    --tt-primary-container: #D7E3FF;
-    --tt-on-primary-container: #001B3F;
+    --tt-primary-container: #BDE9FF;
+    --tt-on-primary-container: #004D68;
 
     /* ── Status: Open ─────────────────────────────────────────── */
     --tt-open: #006687;
