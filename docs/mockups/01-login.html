@@ -40,17 +40,24 @@
       font-weight: 500;
       flex-shrink: 0;
     }
-    /* Hero takes ~75% of the screen height (weight 0.75) */
+    /* Full-screen hero: image + primary overlay */
     .hero {
-      flex: 0.75;
+      flex: 1;
       background:
         linear-gradient(0deg,
-          hsl(from var(--tt-primary) h s l / 75%),
-          hsl(from var(--tt-primary) h s l / 65%)
+          hsl(from var(--tt-primary) h s l / 70%),
+          hsl(from var(--tt-primary) h s l / 70%)
         ),
         url(../../app/feature/sign-in/impl/src/commonMain/composeResources/drawable/sign_in_hero.jpg);
       background-size: cover;
       background-position: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 24px;
+    }
+    .hero-center {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -78,20 +85,17 @@
       font-size: 13px;
       font-weight: 400;
     }
-    /* Bottom panel is the remaining ~25% (weight 0.25) */
-    .form-area {
-      flex: 0.25;
-      background: var(--tt-surface-container-lowest);
-      padding: 0 24px;
+    .hero-bottom {
+      padding-bottom: 48px;
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 16px;
     }
-    .btn-primary {
-      background: var(--tt-primary);
-      color: var(--tt-on-primary);
+    .btn-tonal {
+      background: var(--tt-primary-container);
+      color: var(--tt-on-primary-container);
       border: none;
       border-radius: 28px;
       padding: 16px;
@@ -100,27 +104,13 @@
       font-family: 'Roboto', sans-serif;
       cursor: pointer;
       width: 100%;
-      box-shadow: 0 4px 12px rgba(0,92,187,0.35);
       letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
     .error-text {
       color: var(--tt-error);
       font-size: 13px;
       text-align: center;
       line-height: 1.4;
-    }
-    .note {
-      position: absolute;
-      bottom: 8px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 10px;
-      color: #B0BEC5;
     }
   </style>
 </head>
@@ -134,24 +124,22 @@
       </span>
     </div>
 
-    <!-- Hero: gradient background, app icon, name, tagline -->
+    <!-- Full-screen hero: truck photo + primary overlay -->
     <div class="hero">
-      <div class="hero-icon">
-        <span class="material-icons">local_shipping</span>
+      <div class="hero-center">
+        <div class="hero-icon">
+          <span class="material-icons">local_shipping</span>
+        </div>
+        <h1>TruckTrack</h1>
+        <p>Fleet maintenance, simplified</p>
       </div>
-      <h1>TruckTrack</h1>
-      <p>Fleet maintenance, simplified</p>
+      <!-- Button sits at the bottom of the image, no separate panel -->
+      <div class="hero-bottom">
+        <button class="btn-tonal">Sign In</button>
+        <!-- Error state (shown instead of nothing when SignInState.Error.*) -->
+        <div class="error-text">No internet connection. Check your network and try again.</div>
+      </div>
     </div>
-
-    <!-- Single sign-in action — real screen has no username/password fields,
-         it triggers an OAuth/OIDC browser flow via AuthManager -->
-    <div class="form-area">
-      <button class="btn-primary">Sign In</button>
-      <!-- Error state (shown instead of nothing when SignInState.Error.*) -->
-      <div class="error-text">No internet connection. Check your network and try again.</div>
-    </div>
-
-    <div class="note">Real screen: no form fields — "Sign In" opens the OAuth browser flow</div>
   </div>
 </body>
 </html>

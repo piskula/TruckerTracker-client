@@ -1,8 +1,7 @@
-﻿package com.momosi.trucktrack.feature.signin.impl
+package com.momosi.trucktrack.feature.signin.impl
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.momosi.trucktrack.core.uilibrary.components.Button
+import com.momosi.trucktrack.core.uilibrary.components.ButtonStyle
 import com.momosi.trucktrack.core.uilibrary.components.Icon
 import com.momosi.trucktrack.core.uilibrary.components.Text
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
@@ -73,78 +73,78 @@ private fun SignInContent(
         else -> null
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(Res.drawable.sign_in_hero),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.75f),
-            contentAlignment = Alignment.Center,
-        ) {
-            Image(
-                painter = painterResource(Res.drawable.sign_in_hero),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(AppTheme.colors.primary.copy(alpha = 0.7f)),
-            )
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color.White.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = TruckTrackIcons.Truck,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = Color.White,
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = stringResource(Res.string.sign_in_app_name),
-                    style = AppTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = Color.White,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(Res.string.sign_in_app_subtitle),
-                    style = AppTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.75f),
-                )
-            }
-        }
-
+                .fillMaxSize()
+                .background(AppTheme.colors.primary.copy(alpha = 0.7f)),
+        )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.25f)
-                .background(AppTheme.colors.surfaceContainerLowest)
+                .fillMaxSize()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
         ) {
-            Button(
-                text = stringResource(Res.string.sign_in_button),
-                onClick = { onAction(SignInAction.SignInClick) },
-                loading = state is SignInState.Loading,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            errorMessage?.let { error ->
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = error,
-                    style = AppTheme.typography.bodySmall,
-                    color = AppTheme.colors.error,
-                    textAlign = TextAlign.Center,
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color.White.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = TruckTrackIcons.Truck,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = Color.White,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(Res.string.sign_in_app_name),
+                        style = AppTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(Res.string.sign_in_app_subtitle),
+                        style = AppTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.75f),
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.padding(bottom = 48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Button(
+                    text = stringResource(Res.string.sign_in_button),
+                    onClick = { onAction(SignInAction.SignInClick) },
+                    loading = state is SignInState.Loading,
+                    style = ButtonStyle.Tonal,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                errorMessage?.let { error ->
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = error,
+                        style = AppTheme.typography.bodySmall,
+                        color = AppTheme.colors.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
