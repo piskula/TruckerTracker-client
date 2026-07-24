@@ -246,7 +246,9 @@ private fun LoadedContent(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item { HeaderCard(issue = issue) }
-            item { DescriptionCard(description = issue.description) }
+            if (issue.description.isNotBlank()) {
+                item { DescriptionCard(description = issue.description) }
+            }
             item {
                 AnimatedVisibility(
                     visible = mechanicAction == MechanicActionType.Reassign,
