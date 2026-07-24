@@ -1,5 +1,8 @@
 package com.momosi.trucktrack.feature.signin.impl
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 sealed interface SignInState {
     data object Idle : SignInState
     data object Loading : SignInState

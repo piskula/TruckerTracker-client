@@ -1,5 +1,6 @@
 package com.momosi.trucktrack.feature.signin.impl
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.ButtonStyle
 import com.momosi.trucktrack.core.uilibrary.components.Icon
@@ -37,6 +37,8 @@ import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_button
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_failed
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_no_internet
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_unable_to_start
+import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_hero
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -73,8 +75,8 @@ private fun SignInContent(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        AsyncImage(
-            model = Res.getUri("drawable/sign_in_hero.jpg"),
+        Image(
+            painter = painterResource(Res.drawable.sign_in_hero),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),

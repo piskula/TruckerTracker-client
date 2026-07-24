@@ -49,6 +49,10 @@ captures/
 .idea/.name
 .idea/deploymentTargetDropDown.xml
 .idea/deploymentTargetSelector.xml
+.idea/AndroidProjectSystem.xml
+.idea/runConfigurations.xml
+/.idea/artifacts/
+/.idea/kotlinc.xml
 # Android Studio 3 in .gitignore file.
 .idea/caches
 .idea/modules.xml
