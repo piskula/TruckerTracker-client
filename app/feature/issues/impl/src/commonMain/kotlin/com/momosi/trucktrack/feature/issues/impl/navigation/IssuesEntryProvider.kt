@@ -39,8 +39,9 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
     entry<IssueDetailNavKey>(metadata = slideFromEndEntryMetadata()) { key ->
         IssueDetailScreen(
             issueId = key.issueId,
+            justCreated = key.justCreated,
             onBack = { shouldReload ->
-                resultStore[IssueStatusChangedKey] = shouldReload || key.justCreated
+                resultStore[IssueStatusChangedKey] = shouldReload
                 navigator.goBack()
             },
             onNavigateToFullScreenPhoto = { url ->
