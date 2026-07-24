@@ -16,21 +16,30 @@ class AndroidSigningPlugin : Plugin<Project> {
         val hasReleaseSigning = listOf(keystoreFile, keystorePassword, keyAliasProperty, keyPasswordProperty)
             .all { !it.isNullOrBlank() }
 
-        if (!hasReleaseSigning) return@with
-
         extensions.configure<ApplicationExtension> {
             signingConfigs {
-                create("release") {
-                    storeFile = rootProject.file(keystoreFile!!)
-                    storePassword = keystorePassword
-                    keyAlias = keyAliasProperty
-                    keyPassword = keyPasswordProperty
+                getByName("debug") {
+                    storeFile = project.file("keystore/debug.keystore")
+                    storePassword = "android"
+                    keyAlias = "androiddebugkey"
+                    keyPassword = "android"
+                }
+
+                if (hasReleaseSigning) {
+                    create("release") {
+                        storeFile = rootProject.file(keystoreFile!!)
+                        storePassword = keystorePassword
+                        keyAlias = keyAliasProperty
+                        keyPassword = keyPasswordProperty
+                    }
                 }
             }
 
             buildTypes {
-                release {
-                    signingConfig = signingConfigs.getByName("release")
+                if (hasReleaseSigning) {
+                    release {
+                        signingConfig = signingConfigs.getByName("release")
+                    }
                 }
             }
         }

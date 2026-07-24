@@ -58,6 +58,8 @@ captures/
 # Keystore files
 *.jks
 *.keystore
+# The debug keystore is checked in on purpose so every dev/CI debug build shares one signature.
+!app/app/android/keystore/debug.keystore
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
