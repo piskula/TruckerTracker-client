@@ -113,13 +113,13 @@ internal fun IssueCard(
                 when (state.role) {
                     IssueCardRole.Mechanic -> issue.reportedBy?.let { reporter ->
                         MetaItem(
-                            icon = TruckTrackIcons.Person,
+                            icon = TruckTrackIcons.Edit,
                             text = reporter.fullName,
                         )
                     }
 
                     IssueCardRole.Driver -> MetaItem(
-                        icon = TruckTrackIcons.Build,
+                        icon = TruckTrackIcons.AssignmentInd,
                         text = issue.assignedTo?.fullName ?: stringResource(Res.string.issue_unassigned),
                     )
                 }

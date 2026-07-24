@@ -1,4 +1,4 @@
-﻿package com.momosi.trucktrack.core.uilibrary.components
+package com.momosi.trucktrack.core.uilibrary.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,12 +24,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.Button as MaterialButton
 import androidx.compose.material3.TextButton as MaterialTextButton
 
-enum class ButtonStyle {
-    Primary,
-    Warning,
-    Positive,
-    Open,
-}
+enum class ButtonStyle { Filled, Tonal }
+
+enum class ButtonRole { Primary, Warning, Positive, Open }
 
 @Composable
 fun Button(
@@ -39,13 +36,23 @@ fun Button(
     enabled: Boolean = true,
     loading: Boolean = false,
     icon: ImageVector? = null,
-    style: ButtonStyle = ButtonStyle.Primary,
+    role: ButtonRole = ButtonRole.Primary,
+    style: ButtonStyle = ButtonStyle.Filled,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 ) {
     val (containerColor, contentColor) = when (style) {
-        ButtonStyle.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
-        ButtonStyle.Warning -> AppTheme.colors.warning to AppTheme.colors.onWarning
-        ButtonStyle.Positive -> AppTheme.colors.positive to AppTheme.colors.onPositive
-        ButtonStyle.Open -> AppTheme.colors.open to AppTheme.colors.onOpen
+        ButtonStyle.Filled -> when (role) {
+            ButtonRole.Primary -> AppTheme.colors.primary to AppTheme.colors.onPrimary
+            ButtonRole.Warning -> AppTheme.colors.warning to AppTheme.colors.onWarning
+            ButtonRole.Positive -> AppTheme.colors.positive to AppTheme.colors.onPositive
+            ButtonRole.Open -> AppTheme.colors.open to AppTheme.colors.onOpen
+        }
+        ButtonStyle.Tonal -> when (role) {
+            ButtonRole.Primary -> AppTheme.colors.primaryContainer to AppTheme.colors.onPrimaryContainer
+            ButtonRole.Warning -> AppTheme.colors.warningContainer to AppTheme.colors.onWarningContainer
+            ButtonRole.Positive -> AppTheme.colors.positiveContainer to AppTheme.colors.onPositiveContainer
+            ButtonRole.Open -> AppTheme.colors.openContainer to AppTheme.colors.onOpenContainer
+        }
     }
 
     MaterialButton(
@@ -59,7 +66,7 @@ fun Button(
             disabledContainerColor = containerColor,
             disabledContentColor = contentColor,
         ),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+        contentPadding = contentPadding,
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 0.dp,
             pressedElevation = 0.dp,
@@ -130,8 +137,22 @@ private fun ButtonWarningPreview() {
         Button(
             text = "Start Working",
             onClick = {},
-            style = ButtonStyle.Warning,
+            role = ButtonRole.Warning,
             icon = TruckTrackIcons.Build,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ButtonTonalWarningPreview() {
+    TruckTrackTheme {
+        Button(
+            text = "Reassign to Me",
+            onClick = {},
+            role = ButtonRole.Warning,
+            style = ButtonStyle.Tonal,
+            icon = TruckTrackIcons.EmojiPeople,
         )
     }
 }
@@ -143,7 +164,7 @@ private fun ButtonPositivePreview() {
         Button(
             text = "Resolve Issue",
             onClick = {},
-            style = ButtonStyle.Positive,
+            role = ButtonRole.Positive,
             icon = TruckTrackIcons.Check,
         )
     }
@@ -156,7 +177,7 @@ private fun ButtonOpenPreview() {
         Button(
             text = "Submit Issue",
             onClick = {},
-            style = ButtonStyle.Open,
+            role = ButtonRole.Open,
         )
     }
 }

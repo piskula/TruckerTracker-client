@@ -123,10 +123,7 @@ private fun IssuesScreenContent(
                     "${info.name} · $roleLabel"
                 }.orEmpty(),
                 actions = {
-                    TopBarIconButton(
-                        icon = if (isMechanic) TruckTrackIcons.AssignmentInd else TruckTrackIcons.Edit,
-                        onClick = onNavigateToProfile,
-                    )
+                    TopBarIconButton(icon = TruckTrackIcons.AccountCircle, onClick = onNavigateToProfile)
                 },
             )
             FilterChipRow(

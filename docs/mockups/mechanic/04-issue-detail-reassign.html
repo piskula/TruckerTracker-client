@@ -174,17 +174,16 @@
       margin-bottom: 12px;
     }
     .btn-reassign {
-      background: var(--tt-surface-container-highest);
-      color: var(--tt-on-surface);
+      background: var(--tt-warning-container);
+      color: var(--tt-on-warning-container);
       border: none;
       border-radius: 28px;
-      padding: 14px;
-      font-size: 15px;
+      padding: 10px 16px;
+      font-size: 14px;
       font-weight: 500;
       font-family: 'Roboto', sans-serif;
       cursor: pointer;
-      width: 100%;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
@@ -208,10 +207,10 @@
     }
     .step-dot.status-open { background: var(--tt-open); }
     .step-dot.active      { background: var(--tt-warning); }
-    .step-dot.assignee    { background: var(--tt-surface-variant); }
+    .step-dot.assignee    { background: var(--tt-warning); }
     .step-dot.status-open .material-icons { color: var(--tt-on-open); }
     .step-dot.active .material-icons { color: var(--tt-on-warning); }
-    .step-dot.assignee .material-icons { color: var(--tt-on-surface); }
+    .step-dot.assignee .material-icons { color: var(--tt-on-warning); }
     .step-dot .material-icons { font-size: 17px; color: var(--tt-on-primary); }
     .step-line {
       width: 2px;
@@ -302,7 +301,7 @@
       <div class="reassign-card">
         <div class="reassign-text">This issue is assigned to another mechanic. You can reassign it to yourself.</div>
         <button class="btn-reassign">
-          <span class="material-icons">group_add</span>
+          <span class="material-icons">emoji_people</span>
           Reassign to Me
         </button>
       </div>
@@ -342,7 +341,7 @@
           <!-- AssigneeChange entry — the third history type, alongside StatusChange and Comment -->
           <div class="timeline-step">
             <div class="timeline-left">
-              <div class="step-dot assignee"><span class="material-icons">group_add</span></div>
+              <div class="step-dot assignee"><span class="material-icons">emoji_people</span></div>
             </div>
             <div class="timeline-right">
               <div class="step-header">

@@ -18,7 +18,7 @@ fun ConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    confirmButtonStyle: ButtonStyle = ButtonStyle.Primary,
+    confirmButtonRole: ButtonRole = ButtonRole.Primary,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -40,7 +40,7 @@ fun ConfirmationDialog(
             Button(
                 text = confirmText,
                 onClick = onConfirm,
-                style = confirmButtonStyle,
+                role = confirmButtonRole,
             )
         },
         dismissButton = {

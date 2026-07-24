@@ -49,6 +49,7 @@ import com.momosi.trucktrack.core.issue.model.IssuePriority
 import com.momosi.trucktrack.core.issue.model.IssueStatus
 import com.momosi.trucktrack.core.uilibrary.BackHandler
 import com.momosi.trucktrack.core.uilibrary.components.Button
+import com.momosi.trucktrack.core.uilibrary.components.ButtonRole
 import com.momosi.trucktrack.core.uilibrary.components.ButtonStyle
 import com.momosi.trucktrack.core.uilibrary.components.ConfirmationDialog
 import com.momosi.trucktrack.core.uilibrary.components.Icon
@@ -152,7 +153,7 @@ private fun IssueDetailScreenContent(
                 onResolveIssue()
             },
             onDismiss = { showResolveConfirmation = false },
-            confirmButtonStyle = ButtonStyle.Positive,
+            confirmButtonRole = ButtonRole.Positive,
         )
     }
 
@@ -488,12 +489,12 @@ private fun TimelineStep(
                     Box(
                         modifier = Modifier
                             .size(20.dp)
-                            .background(AppTheme.colors.onSurfaceVariant, CircleShape),
+                            .background(AppTheme.colors.surfaceContainerHighest, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             imageVector = TruckTrackIcons.ChatBubbleOutline,
-                            tint = AppTheme.colors.onPrimary,
+                            tint = AppTheme.colors.onSurfaceVariant,
                             modifier = Modifier.size(11.dp),
                         )
                     }
@@ -503,12 +504,12 @@ private fun TimelineStep(
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .background(entry.statusTo.dotColor(), CircleShape),
+                            .background(AppTheme.colors.warning, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            imageVector = TruckTrackIcons.GroupAdd,
-                            tint = AppTheme.colors.onSurfaceVariant,
+                            imageVector = TruckTrackIcons.EmojiPeople,
+                            tint = AppTheme.colors.onWarning,
                             modifier = Modifier.size(17.dp),
                         )
                     }
@@ -727,8 +728,10 @@ private fun ReassignCard(
             text = stringResource(Res.string.issue_detail_reassign_to_me),
             onClick = onReassignToMe,
             loading = isLoading,
-            icon = TruckTrackIcons.GroupAdd,
-            style = ButtonStyle.Primary,
+            icon = TruckTrackIcons.EmojiPeople,
+            role = ButtonRole.Warning,
+            style = ButtonStyle.Tonal,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
         )
     }
 }
@@ -753,7 +756,7 @@ private fun MechanicActionBar(
                 onClick = onStartWorking,
                 loading = isLoading,
                 icon = TruckTrackIcons.Build,
-                style = ButtonStyle.Warning,
+                role = ButtonRole.Warning,
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -762,7 +765,7 @@ private fun MechanicActionBar(
                 onClick = onResolveIssue,
                 loading = isLoading,
                 icon = TruckTrackIcons.Check,
-                style = ButtonStyle.Positive,
+                role = ButtonRole.Positive,
                 modifier = Modifier.fillMaxWidth(),
             )
 
