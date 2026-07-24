@@ -23,8 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.momosi.trucktrack.core.uilibrary.components.Button
 import com.momosi.trucktrack.core.uilibrary.components.Icon
+import com.momosi.trucktrack.core.uilibrary.components.InfoDialog
 import com.momosi.trucktrack.core.uilibrary.components.Text
 import com.momosi.trucktrack.core.uilibrary.components.Toolbar
+import com.momosi.trucktrack.core.uilibrary.components.TopBarIconButton
 import com.momosi.trucktrack.core.uilibrary.icons.TruckTrackIcons
 import com.momosi.trucktrack.core.uilibrary.theme.AppTheme
 import com.momosi.trucktrack.core.uilibrary.theme.TruckTrackTheme
@@ -33,6 +35,12 @@ import com.momosi.trucktrack.feature.profile.impl.resources.profile_role_driver
 import com.momosi.trucktrack.feature.profile.impl.resources.profile_role_mechanic
 import com.momosi.trucktrack.feature.profile.impl.resources.profile_sign_out
 import com.momosi.trucktrack.feature.profile.impl.resources.profile_title
+import com.momosi.trucktrack.feature.profile.impl.resources.profile_version_app_label
+import com.momosi.trucktrack.feature.profile.impl.resources.profile_version_dialog_title
+import com.momosi.trucktrack.feature.profile.impl.resources.profile_version_dismiss
+import com.momosi.trucktrack.feature.profile.impl.resources.profile_version_loading
+import com.momosi.trucktrack.feature.profile.impl.resources.profile_version_server_label
+import com.momosi.trucktrack.feature.profile.impl.resources.profile_version_unavailable
 import com.momosi.trucktrack.user.model.User
 import com.momosi.trucktrack.user.model.UserRole
 import org.jetbrains.compose.resources.StringResource
@@ -77,6 +85,12 @@ private fun ProfileContent(
         Toolbar(
             title = stringResource(Res.string.profile_title),
             onBack = onBack,
+            actions = {
+                TopBarIconButton(
+                    icon = TruckTrackIcons.Info,
+                    onClick = { onAction(ProfileAction.ShowVersionInfo) },
+                )
+            },
         )
         Box(
             modifier = Modifier
@@ -142,6 +156,45 @@ private fun ProfileContent(
             )
         }
     }
+
+    if (state.isVersionDialogVisible) {
+        InfoDialog(
+            title = stringResource(Res.string.profile_version_dialog_title),
+            dismissText = stringResource(Res.string.profile_version_dismiss),
+            onDismiss = { onAction(ProfileAction.DismissVersionInfo) },
+        ) {
+            VersionRow(label = stringResource(Res.string.profile_version_app_label), value = state.appVersion)
+            Spacer(modifier = Modifier.height(16.dp))
+            VersionRow(
+                label = stringResource(Res.string.profile_version_server_label),
+                value = when (val serverVersion = state.serverVersion) {
+                    ServerVersionContent.Loading -> stringResource(Res.string.profile_version_loading)
+                    is ServerVersionContent.Loaded -> serverVersion.text
+                    ServerVersionContent.Error -> stringResource(Res.string.profile_version_unavailable)
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun VersionRow(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            style = AppTheme.typography.labelMedium,
+            color = AppTheme.colors.onSurfaceVariant,
+        )
+        Text(
+            text = value,
+            style = AppTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = AppTheme.colors.onSurface,
+        )
+    }
 }
 
 private fun UserRole.labelRes(): StringResource = when (this) {
@@ -156,6 +209,8 @@ private fun ProfileDriverPreview() {
         ProfileContent(
             state = ProfileState(
                 user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", roles = setOf(UserRole.Driver)),
+                appVersion = "1.4.2 (89)",
+                serverVersion = ServerVersionContent.Loaded("1.4.0 · Jul 20, 2026"),
             ),
             onAction = {},
             onBack = {},
@@ -170,6 +225,8 @@ private fun ProfileMechanicPreview() {
         ProfileContent(
             state = ProfileState(
                 user = User(id = "", name = "Mattia Binotto", email = "mattia@example.com", roles = setOf(UserRole.Mechanic)),
+                appVersion = "1.4.2 (89)",
+                serverVersion = ServerVersionContent.Loaded("1.4.0 · Jul 20, 2026"),
             ),
             onAction = {},
             onBack = {},
@@ -184,6 +241,8 @@ private fun ProfileDualRolePreview() {
         ProfileContent(
             state = ProfileState(
                 user = User(id = "", name = "Lewis Hamilton", email = "lewis@hamilton.com", roles = setOf(UserRole.Driver, UserRole.Mechanic)),
+                appVersion = "1.4.2 (89)",
+                serverVersion = ServerVersionContent.Loaded("1.4.0 · Jul 20, 2026"),
             ),
             onAction = {},
             onBack = {},
@@ -211,6 +270,25 @@ private fun ProfileSigningOutPreview() {
             state = ProfileState(
                 user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", roles = setOf(UserRole.Driver)),
                 isSigningOut = true,
+                appVersion = "1.4.2 (89)",
+                serverVersion = ServerVersionContent.Loaded("1.4.0 · Jul 20, 2026"),
+            ),
+            onAction = {},
+            onBack = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ProfileVersionDialogPreview() {
+    TruckTrackTheme {
+        ProfileContent(
+            state = ProfileState(
+                user = User(id = "", name = "Michael Schumacher", email = "michael@example.com", roles = setOf(UserRole.Driver)),
+                appVersion = "1.4.2 (89)",
+                isVersionDialogVisible = true,
+                serverVersion = ServerVersionContent.Loaded("1.4.0 · Jul 20, 2026"),
             ),
             onAction = {},
             onBack = {},

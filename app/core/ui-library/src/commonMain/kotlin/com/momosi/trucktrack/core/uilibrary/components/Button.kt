@@ -47,6 +47,7 @@ fun Button(
             ButtonRole.Positive -> AppTheme.colors.positive to AppTheme.colors.onPositive
             ButtonRole.Open -> AppTheme.colors.open to AppTheme.colors.onOpen
         }
+
         ButtonStyle.Tonal -> when (role) {
             ButtonRole.Primary -> AppTheme.colors.primaryContainer to AppTheme.colors.onPrimaryContainer
             ButtonRole.Warning -> AppTheme.colors.warningContainer to AppTheme.colors.onWarningContainer

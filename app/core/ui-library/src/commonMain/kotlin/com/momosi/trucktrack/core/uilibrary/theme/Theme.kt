@@ -8,10 +8,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 
 @Composable
-fun TruckTrackTheme(
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
+fun TruckTrackTheme(isDarkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val truckTrackColors = if (isDarkTheme) DarkTruckTrackColors else LightTruckTrackColors
     val materialColorScheme = remember(isDarkTheme) {
         if (isDarkTheme) darkColorScheme(truckTrackColors) else lightColorScheme(truckTrackColors)

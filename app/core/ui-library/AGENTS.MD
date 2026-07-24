@@ -17,7 +17,7 @@ KMP module: components in `commonMain`, `@Preview` functions in `androidMain`.
 
 `TruckTrackIcons` — single object containing all icon references. Always add new icons here, never import Material icon classes directly in feature modules.
 
-Key icons: `Person`, `Build`, `AccountCircle`, `Add`, `Back`, `CheckCircle`, `RadioButtonUnchecked`, `ArrowUpward`, `ArrowDownward`, `Remove`, `Truck` (custom), `Trailer` (custom), `Search`, `MoreVert`, `Send`, `ChatBubbleOutline`.
+Key icons: `Person`, `Build`, `AccountCircle`, `Add`, `Back`, `CheckCircle`, `RadioButtonUnchecked`, `ArrowUpward`, `ArrowDownward`, `Remove`, `Truck` (custom), `Trailer` (custom), `Search`, `MoreVert`, `Send`, `ChatBubbleOutline`, `Info`.
 
 ## Components
 
@@ -32,6 +32,7 @@ Key icons: `Person`, `Build`, `AccountCircle`, `Add`, `Back`, `CheckCircle`, `Ra
 | `Toolbar` | Standard back-arrow toolbar |
 | `BottomSheet` | Styled modal bottom sheet |
 | `ConfirmationDialog` | Two-button confirmation dialog |
+| `InfoDialog` | Single-dismiss-button read-only info dialog with a generic content slot |
 | `LoadingSpinner` | Full-screen loading indicator |
 | `SkeletonBox` | Shimmer loading placeholder |
 | `PullToRefresh` | Pull-to-refresh wrapper |

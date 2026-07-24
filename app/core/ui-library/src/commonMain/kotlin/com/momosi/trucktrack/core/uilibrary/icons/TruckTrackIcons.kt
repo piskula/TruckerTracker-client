@@ -16,12 +16,13 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.EmojiPeople
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.EmojiPeople
 import androidx.compose.material.icons.rounded.GroupAdd
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PhotoCamera
@@ -40,6 +41,7 @@ data object TruckTrackIcons {
     val Clear = Icons.Rounded.Clear
     val Close = Icons.Rounded.Close
     val GroupAdd = Icons.Rounded.GroupAdd
+    val Info = Icons.Rounded.Info
     val Truck = TruckVectorIcon
     val Trailer = TrailerVectorIcon
     val Search = Icons.Rounded.Search
