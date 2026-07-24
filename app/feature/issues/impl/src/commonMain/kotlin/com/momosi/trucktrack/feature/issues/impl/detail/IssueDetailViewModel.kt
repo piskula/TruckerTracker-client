@@ -24,18 +24,17 @@ import kotlinx.coroutines.launch
 
 class IssueDetailViewModel(
     private val issueId: Long,
-    justCreated: Boolean,
     private val issueRepository: IssueRepository,
     private val issueAttachmentRepository: IssueAttachmentRepository,
     private val userRepository: UserRepository,
     private val dateFormatter: DateFormatter,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(IssueDetailState(statusChanged = justCreated))
+    private val _state = MutableStateFlow(IssueDetailState())
     val state: StateFlow<IssueDetailState> = _state.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = IssueDetailState(statusChanged = justCreated),
+        initialValue = IssueDetailState(),
     )
 
     init {

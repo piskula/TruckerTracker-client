@@ -107,15 +107,16 @@ internal fun IssueDetailScreen(
     onBack: (shouldReload: Boolean) -> Unit,
     onNavigateToFullScreenPhoto: (String) -> Unit,
     justCreated: Boolean = false,
-    viewModel: IssueDetailViewModel = koinViewModel(parameters = { parametersOf(issueId, justCreated) }),
+    viewModel: IssueDetailViewModel = koinViewModel(parameters = { parametersOf(issueId) }),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    BackHandler(enabled = state.statusChanged) {
+    val shouldReload = state.statusChanged || justCreated
+    BackHandler(enabled = shouldReload) {
         onBack(true)
     }
     IssueDetailScreenContent(
         state = state,
-        onBack = { onBack(state.statusChanged) },
+        onBack = { onBack(shouldReload) },
         onRetry = { viewModel.onAction(IssueDetailAction.Retry) },
         onUpdateComment = { viewModel.onAction(IssueDetailAction.UpdateComment(it)) },
         onSendComment = { viewModel.onAction(IssueDetailAction.SendComment) },
