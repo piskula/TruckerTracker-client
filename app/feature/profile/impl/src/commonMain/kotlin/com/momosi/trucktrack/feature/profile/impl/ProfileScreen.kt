@@ -18,8 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,10 +39,6 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-
-private val HeroGradient = Brush.linearGradient(
-    colors = listOf(Color(0xFF1565C0), Color(0xFF1976D2)),
-)
 
 @Composable
 internal fun ProfileScreen(
@@ -76,7 +70,10 @@ private fun ProfileContent(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier.fillMaxSize()
+            .background(AppTheme.colors.surface),
+    ) {
         Toolbar(
             title = stringResource(Res.string.profile_title),
             onBack = onBack,
@@ -84,8 +81,7 @@ private fun ProfileContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .background(HeroGradient),
+                .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -93,13 +89,13 @@ private fun ProfileContent(
                     modifier = Modifier
                         .size(96.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.15f)),
+                        .background(AppTheme.colors.primaryContainer),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = TruckTrackIcons.Person,
                         modifier = Modifier.size(56.dp),
-                        tint = Color.White,
+                        tint = AppTheme.colors.onPrimaryContainer,
                     )
                 }
                 state.user?.let { user ->
@@ -107,7 +103,7 @@ private fun ProfileContent(
                     Text(
                         text = user.name,
                         style = AppTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White,
+                        color = AppTheme.colors.onSurface,
                     )
                     if (user.email.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(4.dp))
@@ -118,7 +114,7 @@ private fun ProfileContent(
                             Text(
                                 text = user.email,
                                 style = AppTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.75f),
+                                color = AppTheme.colors.onSurfaceVariant,
                             )
                         }
                     }
@@ -126,7 +122,7 @@ private fun ProfileContent(
                     Text(
                         text = user.roles.map { stringResource(it.labelRes()) }.joinToString(" · "),
                         style = AppTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.6f),
+                        color = AppTheme.colors.onSurfaceVariant,
                     )
                 }
             }
@@ -135,7 +131,6 @@ private fun ProfileContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(AppTheme.colors.surfaceContainerLowest)
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
