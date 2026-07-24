@@ -17,6 +17,7 @@ kotlin {
             implementation(projects.feature.issues.api)
             implementation(projects.core.common)
             implementation(projects.core.user)
+            implementation(libs.coil.compose)
         }
     }
 }
