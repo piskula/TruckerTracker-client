@@ -4,4 +4,4 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class IssueDetailNavKey(val issueId: Long) : NavKey
+data class IssueDetailNavKey(val issueId: Long, val justCreated: Boolean = false) : NavKey

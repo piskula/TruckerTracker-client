@@ -29,7 +29,7 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
             onBack = navigator::goBack,
             onIssueCreate = { issueId ->
                 navigator.goBack()
-                navigator.navigate(IssueDetailNavKey(issueId))
+                navigator.navigate(IssueDetailNavKey(issueId, justCreated = true))
             },
             onNavigateToFullScreenPhoto = { source ->
                 navigator.navigate(FullScreenPhotoNavKey(source))
@@ -40,7 +40,7 @@ fun EntryProviderScope<NavKey>.issuesEntries(navigator: Navigator, resultStore: 
         IssueDetailScreen(
             issueId = key.issueId,
             onBack = { shouldReload ->
-                resultStore[IssueStatusChangedKey] = shouldReload
+                resultStore[IssueStatusChangedKey] = shouldReload || key.justCreated
                 navigator.goBack()
             },
             onNavigateToFullScreenPhoto = { url ->
