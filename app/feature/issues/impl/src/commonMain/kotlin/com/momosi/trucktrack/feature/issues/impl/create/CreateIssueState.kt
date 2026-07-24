@@ -19,7 +19,7 @@ data class CreateIssueState(
     val isSubmitting: Boolean = false,
 ) {
     val isSubmitEnabled: Boolean
-        get() = selectedVehicle != null && title.isNotBlank() && description.isNotBlank() && !isSubmitting
+        get() = selectedVehicle != null && title.isNotBlank() && !isSubmitting
 }
 
 @Immutable
