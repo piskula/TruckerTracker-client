@@ -93,7 +93,7 @@ internal val LightTruckTrackColors = TruckTrackColorPalette(
     onWarning = Color(0xFFFFFFFF),
     warningContainer = Color(0xFFFFDCC3),
     onWarningContainer = Color(0xFF753403),
-    shadow = Color(0x1A000000),
+    shadow = Color(0x40000000),
 )
 
 internal val DarkTruckTrackColors = TruckTrackColorPalette(

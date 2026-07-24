@@ -61,7 +61,7 @@ internal fun IssueCard(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = 2.dp,
+                elevation = 4.dp,
                 shape = Shapes.CardShape,
                 ambientColor = AppTheme.colors.shadow,
                 spotColor = AppTheme.colors.shadow,
