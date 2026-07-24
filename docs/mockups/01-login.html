@@ -29,13 +29,13 @@
       position: relative;
     }
     .status-bar {
-      background: var(--tt-primary-container);
+      background: var(--tt-primary);
       height: 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      color: var(--tt-on-primary-container);
+      color: var(--tt-on-primary);
       font-size: 12px;
       font-weight: 500;
       flex-shrink: 0;
@@ -43,7 +43,14 @@
     /* Hero takes ~75% of the screen height (weight 0.75) */
     .hero {
       flex: 0.75;
-      background: linear-gradient(160deg, var(--tt-primary) 0%, #0074e9 100%);
+      background:
+        linear-gradient(0deg,
+          hsl(from var(--tt-primary) h s l / 75%),
+          hsl(from var(--tt-primary) h s l / 65%)
+        ),
+        url(../../app/feature/sign-in/impl/src/commonMain/composeResources/drawable/sign_in_hero.jpg);
+      background-size: cover;
+      background-position: center;
       display: flex;
       flex-direction: column;
       align-items: center;

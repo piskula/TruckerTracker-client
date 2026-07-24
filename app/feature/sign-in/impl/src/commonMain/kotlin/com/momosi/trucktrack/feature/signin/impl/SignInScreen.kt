@@ -1,5 +1,6 @@
 ﻿package com.momosi.trucktrack.feature.signin.impl
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,8 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,13 +37,10 @@ import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_button
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_failed
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_no_internet
 import com.momosi.trucktrack.feature.signin.impl.resources.sign_in_error_unable_to_start
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-
-private val HeroGradient = Brush.linearGradient(
-    colors = listOf(Color(0xFF1565C0), Color(0xFF1976D2)),
-)
 
 @Composable
 internal fun SignInScreen(viewModel: SignInViewModel = koinViewModel(), onNavigateToMyIssues: () -> Unit) {
@@ -79,10 +77,20 @@ private fun SignInContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.75f)
-                .background(HeroGradient),
+                .weight(0.75f),
             contentAlignment = Alignment.Center,
         ) {
+            Image(
+                painter = painterResource(Res.drawable.sign_in_hero),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(AppTheme.colors.primary.copy(alpha = 0.7f)),
+            )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(
                     modifier = Modifier
